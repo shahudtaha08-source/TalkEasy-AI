@@ -1,6 +1,7 @@
-// Chrome/Google Password Manager can visually autofill controlled React inputs
-// without firing the input/change events that update React state. Keep the
-// existing login UI intact, but synchronize autofilled values into React.
+// Chrome/Google Password Manager can visually autofill login inputs
+// without firing the input/change events that React normally receives.
+// Keep the existing login UI intact and continuously synchronize the
+// browser-populated values into the DOM event flow used by the form.
 
 let lastValues = new WeakMap<HTMLInputElement, string>();
 
@@ -21,12 +22,17 @@ function syncAutofilledLoginFields() {
   });
 }
 
-// Autofill may happen after React has rendered the modal, so check briefly
-// while the login form is present. This is intentionally lightweight.
+// Autofill can happen after the modal renders, after focus, or when the
+// password manager commits credentials. Keep checking while the app is open
+// rather than stopping after a fixed timeout.
 const observer = new MutationObserver(syncAutofilledLoginFields);
 observer.observe(document.documentElement, { childList: true, subtree: true });
 
-const interval = window.setInterval(syncAutofilledLoginFields, 250);
-window.setTimeout(() => window.clearInterval(interval), 15000);
+window.setInterval(syncAutofilledLoginFields, 250);
+
+window.addEventListener("focusin", syncAutofilledLoginFields, true);
+window.addEventListener("pointerdown", syncAutofilledLoginFields, true);
+window.addEventListener("submit", syncAutofilledLoginFields, true);
+window.addEventListener("pageshow", syncAutofilledLoginFields);
 
 syncAutofilledLoginFields();
