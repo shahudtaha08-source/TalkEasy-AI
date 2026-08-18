@@ -46,6 +46,16 @@ export default function Landing() {
     window.location.reload();
   }
 
+  function getLoginCredentials(form: HTMLFormElement) {
+    const emailInput = form.elements.namedItem("email") as HTMLInputElement | null;
+    const passwordInput = form.elements.namedItem("password") as HTMLInputElement | null;
+
+    const loginEmail = (emailInput?.value || "").trim();
+    const loginPassword = passwordInput?.value || "";
+
+    return { loginEmail, loginPassword };
+  }
+
   async function handleAuthSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setErrorMsg("");
@@ -53,17 +63,9 @@ export default function Landing() {
 
     try {
       if (authMode === "login") {
-        const form = e.currentTarget;
-        const emailInput = form.elements.namedItem("email") as HTMLInputElement | null;
-        const usernameInput = form.elements.namedItem("username") as HTMLInputElement | null;
-        const passwordInput = form.elements.namedItem("password") as HTMLInputElement | null;
+        const { loginEmail, loginPassword } = getLoginCredentials(e.currentTarget);
 
-        const loginEmail = (emailInput?.value || "").trim();
-        const loginUsername = (usernameInput?.value || "").trim();
-        const loginPassword = passwordInput?.value || "";
-        const identifierValue = loginEmail || loginUsername;
-
-        if (!identifierValue || !loginPassword) {
+        if (!loginEmail || !loginPassword) {
           throw new Error("Email and password are required");
         }
 
@@ -73,8 +75,8 @@ export default function Landing() {
           credentials: "include",
           body: JSON.stringify({
             email: loginEmail,
-            username: loginUsername,
-            identifier: identifierValue,
+            identifier: loginEmail,
+            username: loginEmail,
             password: loginPassword,
           }),
         });
@@ -199,12 +201,11 @@ export default function Landing() {
             <button onClick={() => setAuthModalOpen(false)} className="absolute right-6 top-6 text-muted-foreground hover:text-foreground"><X className="w-5 h-5" /></button>
             <div className="mb-6 text-center"><TalkEasyLogo size={40} className="justify-center mb-3" /><h3 className="text-2xl font-bold text-slate-900 dark:text-white">{authMode === "login" ? t("loginTitle") : t("signupTitle")}</h3></div>
             {errorMsg && <div className="mb-4 p-3 rounded-xl bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300 text-xs font-semibold text-center">{errorMsg}</div>}
-            <form onSubmit={handleAuthSubmit} className="space-y-4">
+            <form onSubmit={handleAuthSubmit} className="space-y-4" autoComplete={authMode === "login" ? "on" : "off"}>
               {authMode === "login" ? (
                 <>
-                  <div><label className="block text-xs font-semibold mb-1">{t("emailLabel")}</label><div className="relative"><Mail className="w-4 h-4 absolute left-3 top-3.5 text-muted-foreground" /><input name="email" type="email" value={identifier} onChange={e => setIdentifier(e.target.value)} className="w-full pl-10 pr-3 py-3 rounded-xl border bg-background" placeholder="you@example.com" autoComplete="username email" disabled={isSubmitting} /></div></div>
-                  <input name="username" type="hidden" value="" readOnly />
-                  <div><label className="block text-xs font-semibold mb-1">{t("passwordLabel")}</label><div className="relative"><KeyRound className="w-4 h-4 absolute left-3 top-3.5 text-muted-foreground" /><input name="password" type="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full pl-10 pr-3 py-3 rounded-xl border bg-background" placeholder="••••••••" autoComplete="current-password" disabled={isSubmitting} /></div></div>
+                  <div><label className="block text-xs font-semibold mb-1">{t("emailLabel")}</label><div className="relative"><Mail className="w-4 h-4 absolute left-3 top-3.5 text-muted-foreground" /><input name="email" type="email" defaultValue="" onInput={(e) => setIdentifier((e.currentTarget as HTMLInputElement).value)} className="w-full pl-10 pr-3 py-3 rounded-xl border bg-background" placeholder="you@example.com" autoComplete="username email" disabled={isSubmitting} /></div></div>
+                  <div><label className="block text-xs font-semibold mb-1">{t("passwordLabel")}</label><div className="relative"><KeyRound className="w-4 h-4 absolute left-3 top-3.5 text-muted-foreground" /><input name="password" type="password" defaultValue="" onInput={(e) => setPassword((e.currentTarget as HTMLInputElement).value)} className="w-full pl-10 pr-3 py-3 rounded-xl border bg-background" placeholder="••••••••" autoComplete="current-password" disabled={isSubmitting} /></div></div>
                 </>
               ) : (
                 <>
