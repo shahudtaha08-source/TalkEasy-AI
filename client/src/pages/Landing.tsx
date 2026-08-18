@@ -46,17 +46,29 @@ export default function Landing() {
     window.location.reload();
   }
 
-  async function handleAuthSubmit(e: React.FormEvent) {
+  async function handleAuthSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setErrorMsg("");
     setIsSubmitting(true);
     try {
+      const formData = new FormData(e.currentTarget);
+
       if (authMode === "login") {
+        // Read directly from the form so Chrome/Google Password Manager autofill
+        // works even when React's onChange event did not fire.
+        const loginEmail = String(formData.get("identifier") || identifier).trim();
+        const loginPassword = String(formData.get("password") || password);
+
         const res = await fetch("/api/auth/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify({ email: identifier.trim(), password }),
+          body: JSON.stringify({
+            email: loginEmail,
+            identifier: loginEmail,
+            username: loginEmail,
+            password: loginPassword,
+          }),
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.message || "Failed to sign in");
@@ -182,19 +194,19 @@ export default function Landing() {
             <form onSubmit={handleAuthSubmit} className="space-y-4">
               {authMode === "login" ? (
                 <>
-                  <div><label className="block text-xs font-semibold mb-1">{t("emailLabel")}</label><div className="relative"><Mail className="w-4 h-4 absolute left-3 top-3.5 text-muted-foreground" /><input value={identifier} onChange={e => setIdentifier(e.target.value)} className="w-full pl-10 pr-3 py-3 rounded-xl border bg-background" placeholder="you@example.com" autoComplete="email" disabled={isSubmitting} /></div></div>
-                  <div><label className="block text-xs font-semibold mb-1">{t("passwordLabel")}</label><div className="relative"><KeyRound className="w-4 h-4 absolute left-3 top-3.5 text-muted-foreground" /><input type="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full pl-10 pr-3 py-3 rounded-xl border bg-background" placeholder="••••••••" autoComplete="current-password" disabled={isSubmitting} /></div></div>
+                  <div><label className="block text-xs font-semibold mb-1">{t("emailLabel")}</label><div className="relative"><Mail className="w-4 h-4 absolute left-3 top-3.5 text-muted-foreground" /><input name="identifier" value={identifier} onChange={e => setIdentifier(e.target.value)} className="w-full pl-10 pr-3 py-3 rounded-xl border bg-background" placeholder="you@example.com" autoComplete="username email" disabled={isSubmitting} /></div></div>
+                  <div><label className="block text-xs font-semibold mb-1">{t("passwordLabel")}</label><div className="relative"><KeyRound className="w-4 h-4 absolute left-3 top-3.5 text-muted-foreground" /><input name="password" type="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full pl-10 pr-3 py-3 rounded-xl border bg-background" placeholder="••••••••" autoComplete="current-password" disabled={isSubmitting} /></div></div>
                 </>
               ) : (
                 <>
-                  <div><label className="block text-xs font-semibold mb-1">{t("emailLabel")}</label><input type="email" value={email} onChange={e => setEmail(e.target.value)} className="w-full px-3 py-3 rounded-xl border bg-background" autoComplete="email" disabled={isSubmitting} /></div>
-                  <div><label className="block text-xs font-semibold mb-1">{t("usernameLabel")}</label><input value={username} onChange={e => setUsername(e.target.value)} className="w-full px-3 py-3 rounded-xl border bg-background" autoComplete="username" disabled={isSubmitting} /></div>
-                  <div className="grid grid-cols-2 gap-3"><div><label className="block text-xs font-semibold mb-1">{t("firstNameLabel")}</label><input value={firstName} onChange={e => setFirstName(e.target.value)} className="w-full px-3 py-3 rounded-xl border bg-background" disabled={isSubmitting} /></div><div><label className="block text-xs font-semibold mb-1">{t("lastNameLabel")}</label><input value={lastName} onChange={e => setLastName(e.target.value)} className="w-full px-3 py-3 rounded-xl border bg-background" disabled={isSubmitting} /></div></div>
-                  <div className="grid grid-cols-2 gap-3"><div><label className="block text-xs font-semibold mb-1">{t("ageGroupLabel")}</label><select value={ageGroup} onChange={e => setAgeGroup(e.target.value)} className="w-full px-3 py-3 rounded-xl border bg-background" disabled={isSubmitting}>{AGE_GROUPS.map(g => <option key={g} value={g}>{g}</option>)}</select></div><div><label className="block text-xs font-semibold mb-1">{t("preferredLanguageLabel")}</label><select value={preferredLang} onChange={e => setPreferredLang(e.target.value as LanguageCode)} className="w-full px-3 py-3 rounded-xl border bg-background" disabled={isSubmitting}>{LANGUAGES.map(l => <option key={l} value={l}>{l}</option>)}</select></div></div>
-                  <div><label className="block text-xs font-semibold mb-1">{t("passwordLabel")}</label><input type="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full px-3 py-3 rounded-xl border bg-background" autoComplete="new-password" disabled={isSubmitting} /></div>
+                  <div><label className="block text-xs font-semibold mb-1">{t("emailLabel")}</label><input name="email" type="email" value={email} onChange={e => setEmail(e.target.value)} className="w-full px-3 py-3 rounded-xl border bg-background" autoComplete="email" disabled={isSubmitting} /></div>
+                  <div><label className="block text-xs font-semibold mb-1">{t("usernameLabel")}</label><input name="username" value={username} onChange={e => setUsername(e.target.value)} className="w-full px-3 py-3 rounded-xl border bg-background" autoComplete="username" disabled={isSubmitting} /></div>
+                  <div className="grid grid-cols-2 gap-3"><div><label className="block text-xs font-semibold mb-1">{t("firstNameLabel")}</label><input name="firstName" value={firstName} onChange={e => setFirstName(e.target.value)} className="w-full px-3 py-3 rounded-xl border bg-background" disabled={isSubmitting} /></div><div><label className="block text-xs font-semibold mb-1">{t("lastNameLabel")}</label><input name="lastName" value={lastName} onChange={e => setLastName(e.target.value)} className="w-full px-3 py-3 rounded-xl border bg-background" disabled={isSubmitting} /></div></div>
+                  <div className="grid grid-cols-2 gap-3"><div><label className="block text-xs font-semibold mb-1">{t("ageGroupLabel")}</label><select name="ageGroup" value={ageGroup} onChange={e => setAgeGroup(e.target.value)} className="w-full px-3 py-3 rounded-xl border bg-background" disabled={isSubmitting}>{AGE_GROUPS.map(g => <option key={g} value={g}>{g}</option>)}</select></div><div><label className="block text-xs font-semibold mb-1">{t("preferredLanguageLabel")}</label><select name="preferredLanguage" value={preferredLang} onChange={e => setPreferredLang(e.target.value as LanguageCode)} className="w-full px-3 py-3 rounded-xl border bg-background" disabled={isSubmitting}>{LANGUAGES.map(l => <option key={l} value={l}>{l}</option>)}</select></div></div>
+                  <div><label className="block text-xs font-semibold mb-1">{t("passwordLabel")}</label><input name="password" type="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full px-3 py-3 rounded-xl border bg-background" autoComplete="new-password" disabled={isSubmitting} /></div>
                 </>
               )}
-              <button type="submit" disabled={isSubmitting || (authMode === "login" ? !identifier.trim() || !password : !email.trim() || !username.trim() || !password || !firstName.trim() || !lastName.trim())} className="w-full py-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold flex items-center justify-center gap-2 disabled:opacity-50">{isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}{authMode === "login" ? t("login") : t("signup")}</button>
+              <button type="submit" disabled={isSubmitting || (authMode === "signup" && (!email.trim() || !username.trim() || !password || !firstName.trim() || !lastName.trim()))} className="w-full py-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold flex items-center justify-center gap-2 disabled:opacity-50">{isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}{authMode === "login" ? t("login") : t("signup")}</button>
             </form>
             <button type="button" onClick={() => { setAuthMode(authMode === "login" ? "signup" : "login"); setErrorMsg(""); }} className="w-full mt-4 text-sm font-semibold text-teal-600 hover:text-teal-700">{authMode === "login" ? t("noAccountText") : t("alreadyHaveAccountText")}</button>
           </div>
