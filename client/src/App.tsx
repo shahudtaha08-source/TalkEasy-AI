@@ -13,7 +13,6 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 // Pages
 import Dashboard from "@/pages/Dashboard";
 import Chatbot from "@/pages/Chatbot";
-import AITherapist from "@/pages/AITherapist";
 import MoodTracker from "@/pages/MoodTracker";
 import HabitTracker from "@/pages/HabitTracker";
 import Statistics from "@/pages/Statistics";
@@ -41,12 +40,6 @@ function Router() {
       <Route path="/chat">
         <ProtectedRoute>
           <Layout><Chatbot /></Layout>
-        </ProtectedRoute>
-      </Route>
-
-      <Route path="/therapist">
-        <ProtectedRoute>
-          <Layout><AITherapist /></Layout>
         </ProtectedRoute>
       </Route>
 
