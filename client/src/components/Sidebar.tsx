@@ -12,7 +12,6 @@ import {
   BookOpen,
   Book,
   FlaskConical,
-  Sparkles,
   Globe
 } from "lucide-react";
 import { useUser } from "@/hooks/use-user";
@@ -38,7 +37,6 @@ export function Sidebar() {
   const navItems = [
     { href: "/dashboard", label: t("dashboard"), icon: Home },
     { href: "/chat", label: t("supportChat"), icon: MessageCircle },
-    { href: "/therapist", label: t("aiTherapist"), icon: Sparkles, badge: t("aiTherapistBadge") },
     { href: "/journal", label: t("journal"), icon: BookOpen },
     { href: "/mood", label: t("moodTracker"), icon: Smile },
     { href: "/habits", label: t("habits"), icon: CheckCircle },
