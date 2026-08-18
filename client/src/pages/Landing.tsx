@@ -50,14 +50,22 @@ export default function Landing() {
     e.preventDefault();
     setErrorMsg("");
     setIsSubmitting(true);
-    try {
-      const formData = new FormData(e.currentTarget);
 
+    try {
       if (authMode === "login") {
-        // Read directly from the form so Chrome/Google Password Manager autofill
-        // works even when React's onChange event did not fire.
-        const loginEmail = String(formData.get("identifier") || identifier).trim();
-        const loginPassword = String(formData.get("password") || password);
+        const form = e.currentTarget;
+        const emailInput = form.elements.namedItem("email") as HTMLInputElement | null;
+        const usernameInput = form.elements.namedItem("username") as HTMLInputElement | null;
+        const passwordInput = form.elements.namedItem("password") as HTMLInputElement | null;
+
+        const loginEmail = (emailInput?.value || "").trim();
+        const loginUsername = (usernameInput?.value || "").trim();
+        const loginPassword = passwordInput?.value || "";
+        const identifierValue = loginEmail || loginUsername;
+
+        if (!identifierValue || !loginPassword) {
+          throw new Error("Email and password are required");
+        }
 
         const res = await fetch("/api/auth/login", {
           method: "POST",
@@ -65,8 +73,8 @@ export default function Landing() {
           credentials: "include",
           body: JSON.stringify({
             email: loginEmail,
-            identifier: loginEmail,
-            username: loginEmail,
+            username: loginUsername,
+            identifier: identifierValue,
             password: loginPassword,
           }),
         });
@@ -194,7 +202,8 @@ export default function Landing() {
             <form onSubmit={handleAuthSubmit} className="space-y-4">
               {authMode === "login" ? (
                 <>
-                  <div><label className="block text-xs font-semibold mb-1">{t("emailLabel")}</label><div className="relative"><Mail className="w-4 h-4 absolute left-3 top-3.5 text-muted-foreground" /><input name="identifier" value={identifier} onChange={e => setIdentifier(e.target.value)} className="w-full pl-10 pr-3 py-3 rounded-xl border bg-background" placeholder="you@example.com" autoComplete="username email" disabled={isSubmitting} /></div></div>
+                  <div><label className="block text-xs font-semibold mb-1">{t("emailLabel")}</label><div className="relative"><Mail className="w-4 h-4 absolute left-3 top-3.5 text-muted-foreground" /><input name="email" type="email" value={identifier} onChange={e => setIdentifier(e.target.value)} className="w-full pl-10 pr-3 py-3 rounded-xl border bg-background" placeholder="you@example.com" autoComplete="username email" disabled={isSubmitting} /></div></div>
+                  <input name="username" type="hidden" value="" readOnly />
                   <div><label className="block text-xs font-semibold mb-1">{t("passwordLabel")}</label><div className="relative"><KeyRound className="w-4 h-4 absolute left-3 top-3.5 text-muted-foreground" /><input name="password" type="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full pl-10 pr-3 py-3 rounded-xl border bg-background" placeholder="••••••••" autoComplete="current-password" disabled={isSubmitting} /></div></div>
                 </>
               ) : (
