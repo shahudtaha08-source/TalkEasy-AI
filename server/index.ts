@@ -13,6 +13,22 @@ declare module "http" {
 app.use(express.json({ verify: (req, _res, buf) => { req.rawBody = buf; } }));
 app.use(express.urlencoded({ extended: false }));
 
+// Serve crawler files explicitly so they are never handled by the SPA fallback.
+app.get("/robots.txt", (_req, res) => {
+  res.type("text/plain");
+  res.send("User-agent: *\nAllow: /\n\nSitemap: https://talkeasy-ai-1.onrender.com/sitemap.xml\n");
+});
+
+app.get("/sitemap.xml", (_req, res) => {
+  res.type("application/xml");
+  res.send(`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://talkeasy-ai-1.onrender.com/</loc>
+  </url>
+</urlset>`);
+});
+
 export function log(message: string, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", second: "2-digit", hour12: true });
   console.log(`${formattedTime} [${source}] ${message}`);
