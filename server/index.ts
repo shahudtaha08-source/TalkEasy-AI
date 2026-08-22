@@ -15,11 +15,13 @@ app.use(express.urlencoded({ extended: false }));
 
 // Serve crawler files explicitly so they are never handled by the SPA fallback.
 app.get("/robots.txt", (_req, res) => {
+  res.set("Cache-Control", "no-store, max-age=0");
   res.type("text/plain");
   res.send("User-agent: *\nAllow: /\n\nSitemap: https://talkeasy-ai-1.onrender.com/sitemap.xml\n");
 });
 
 app.get("/sitemap.xml", (_req, res) => {
+  res.set("Cache-Control", "no-store, max-age=0");
   res.type("application/xml");
   res.send(`<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
