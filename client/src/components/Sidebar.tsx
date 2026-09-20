@@ -12,7 +12,8 @@ import {
   BookOpen,
   Book,
   FlaskConical,
-  Globe
+  Globe,
+  Moon
 } from "lucide-react";
 import { useUser } from "@/hooks/use-user";
 import { isDemoMode, disableDemoMode } from "@/lib/demo-data";
@@ -40,6 +41,7 @@ export function Sidebar() {
     { href: "/journal", label: t("journal"), icon: BookOpen },
     { href: "/mood", label: t("moodTracker"), icon: Smile },
     { href: "/habits", label: t("habits"), icon: CheckCircle },
+    { href: "/sleep", label: "Sleep Tracker", icon: Moon },
     { href: "/statistics", label: t("statistics"), icon: PieChart },
     { href: "/history", label: t("emotionalHistory"), icon: History },
     { href: "/resources", label: t("resources"), icon: Book },
@@ -100,11 +102,6 @@ export function Sidebar() {
                 <item.icon className={`w-5 h-5 ${isActive ? 'text-teal-600 dark:text-teal-400' : ''}`} />
                 <span>{item.label}</span>
               </div>
-              {item.badge && (
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
-                  {item.badge}
-                </span>
-              )}
             </Link>
           );
         })}

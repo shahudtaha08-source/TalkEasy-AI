@@ -21,7 +21,7 @@ export function useHabits(date?: string) {
 export function useCreateHabit() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data: { type: string; completed: boolean; notes?: string; date?: string }) => {
+    mutationFn: async (data: { type: string; completed: boolean; completionPercentage?: number; notes?: string; date?: string }) => {
       if (isDemoMode()) {
         return createDemoHabit(data);
       }
@@ -43,7 +43,7 @@ export function useCreateHabit() {
 export function useUpdateHabit() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, ...data }: { id: number; completed?: boolean; notes?: string }) => {
+    mutationFn: async ({ id, ...data }: { id: number; completed?: boolean; completionPercentage?: number; notes?: string }) => {
       if (isDemoMode()) {
         return updateDemoHabit(id, data);
       }

@@ -1,6 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { useJournals, useCreateJournal, useUpdateJournal, useDeleteJournal } from "@/hooks/use-journals";
-import { BookOpen, Plus, Tag, Search, Calendar as CalendarIcon, Pencil, Trash2, X, Check } from "lucide-react";
+import { BookOpen, Plus, Tag, Search, Calendar as CalendarIcon, Pencil, Trash2, X, Check, Mic, MicOff } from "lucide-react";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
@@ -34,8 +34,61 @@ export default function Journal() {
   const [search,     setSearch]     = useState("");
   const [filterType, setFilterType] = useState("All");
   const [filterTag,  setFilterTag]  = useState("");
+  
+  // Voice recording state
+  const [isRecording, setIsRecording] = useState(false);
+  const [recognition, setRecognition] = useState<any>(null);
 
   const charLimit = 2000;
+
+  // Initialize speech recognition
+  useEffect(() => {
+    if (typeof window !== 'undefined' && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      const recognitionInstance = new SpeechRecognition();
+      recognitionInstance.continuous = false;
+      recognitionInstance.interimResults = false;
+      recognitionInstance.lang = 'en-US';
+
+      recognitionInstance.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        setForm(f => ({ ...f, content: f.content + ' ' + transcript }));
+      };
+
+      recognitionInstance.onerror = (event: any) => {
+        console.error('Speech recognition error:', event.error);
+        setIsRecording(false);
+        toast({ title: "Voice recognition failed. Please try again.", variant: "destructive" });
+      };
+
+      recognitionInstance.onend = () => {
+        setIsRecording(false);
+      };
+
+      setRecognition(recognitionInstance);
+    }
+  }, [toast]);
+
+  const startRecording = () => {
+    if (!recognition) {
+      toast({ title: "Voice recognition not supported in this browser", variant: "destructive" });
+      return;
+    }
+    
+    try {
+      recognition.start();
+      setIsRecording(true);
+    } catch (error) {
+      console.error('Failed to start recording:', error);
+      toast({ title: "Failed to start voice recording", variant: "destructive" });
+    }
+  };
+
+  const stopRecording = () => {
+    if (recognition && isRecording) {
+      recognition.stop();
+    }
+  };
 
   const set = (key: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
     setForm(f => ({ ...f, [key]: e.target.value }));
@@ -143,13 +196,33 @@ export default function Journal() {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">{t("journalContentLabel")}</label>
-                <Textarea
-                  placeholder={t("writeThoughtsPlaceholder")}
-                  value={form.content}
-                  onChange={e => setForm({...form, content: e.target.value})}
-                  rows={6}
-                  className="w-full"
-                />
+                <div className="relative">
+                  <Textarea
+                    placeholder={t("writeThoughtsPlaceholder")}
+                    value={form.content}
+                    onChange={e => setForm({...form, content: e.target.value})}
+                    rows={6}
+                    className="w-full pr-12"
+                  />
+                  <button
+                    type="button"
+                    onClick={isRecording ? stopRecording : startRecording}
+                    className={`absolute right-3 top-3 p-2 rounded-lg transition ${
+                      isRecording 
+                        ? 'bg-red-100 text-red-600 hover:bg-red-200' 
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
+                    title={isRecording ? "Stop recording" : "Start voice input"}
+                  >
+                    {isRecording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                  </button>
+                </div>
+                {isRecording && (
+                  <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                    <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                    Recording...
+                  </p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">{t("journalTagsLabel")}</label>

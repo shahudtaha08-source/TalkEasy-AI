@@ -7,11 +7,31 @@ import { format } from "date-fns";
 import {
   Smile, MessageCircle, ArrowRight, Activity, Calendar, BookOpen,
   TrendingUp, Heart, HeartPulse, BookMarked, AlertCircle, Frown,
-  Meh, Angry, Sun
+  Meh, Angry, Sun, Lightbulb
 } from "lucide-react";
 import { Link } from "wouter";
 import { useMemo } from "react";
 import { useTranslation } from "@/i18n/LanguageContext";
+
+// Daily thoughts - curated wellbeing/psychology-informed messages
+const DAILY_THOUGHTS = [
+  "Small steps forward are still progress. Be patient with yourself.",
+  "Your feelings are valid, but they don't define your whole story.",
+  "Rest is not a reward for productivity—it's a basic human need.",
+  "Progress isn't always linear. Some days are harder, and that's okay.",
+  "Asking for help is a sign of strength, not weakness.",
+  "You deserve the same kindness you give to others.",
+  "It's okay to not be okay sometimes. What matters is what you do next.",
+  "Your worth is not measured by your productivity.",
+  "Taking care of yourself isn't selfish—it's necessary.",
+  "Tomorrow is a new opportunity. Today doesn't have to be perfect.",
+];
+
+function getDailyThought(): string {
+  const today = new Date();
+  const dayOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000);
+  return DAILY_THOUGHTS[Math.floor(dayOfYear) % DAILY_THOUGHTS.length];
+}
 
 // Pattern Engine
 function usePatternInsights(moods: any[], habits: any[], journals: any[]) {
@@ -160,8 +180,8 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Row 2: Habits + Recent Journal */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      {/* Row 2: Habits + Recent Journal + Daily Thought */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Habit Progress */}
         <div className="glass-card rounded-3xl p-6 hover-lift">
           <div className="flex items-center justify-between mb-4">
@@ -233,6 +253,24 @@ export default function Dashboard() {
               </Link>
             </div>
           )}
+        </div>
+
+        {/* Today's Thought */}
+        <div className="glass-card rounded-3xl p-6 hover-lift bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-amber-200 dark:border-amber-800">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-bold text-base flex items-center gap-2 text-amber-800 dark:text-amber-200">
+              <Lightbulb className="w-4 h-4 text-amber-600" /> Today's Thought
+            </h3>
+            <Sun className="w-4 h-4 text-amber-500" />
+          </div>
+          <div className="flex-1 flex items-center justify-center text-center py-4">
+            <p className="text-sm text-amber-900 dark:text-amber-100 leading-relaxed italic">
+              "{getDailyThought()}"
+            </p>
+          </div>
+          <p className="text-xs text-amber-700 dark:text-amber-300 text-center mt-2">
+            Daily wellbeing reflection
+          </p>
         </div>
       </div>
 

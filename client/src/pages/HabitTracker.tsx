@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useHabits, useCreateHabit, useUpdateHabit } from "@/hooks/use-habits";
 import { format } from "date-fns";
-import { Plus, Check, Loader2 } from "lucide-react";
+import { Plus, Check, Loader2, Percent } from "lucide-react";
 import { useTranslation } from "@/i18n/LanguageContext";
 
-const COMMON_HABITS = ["Meditation", "Exercise", "Sleep 8 hours", "Hydration", "Journaling", "Reading"];
+const COMMON_HABITS = ["Meditation", "Exercise", "Hydration", "Journaling", "Reading"];
 
 export default function HabitTracker() {
   const { t } = useTranslation();
@@ -14,20 +14,30 @@ export default function HabitTracker() {
   const { mutate: updateHabit } = useUpdateHabit();
 
   const [newHabit, setNewHabit] = useState("");
+  const [editingPercentage, setEditingPercentage] = useState<number | null>(null);
 
   const handleAddHabit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newHabit.trim()) return;
-    createHabit({ type: newHabit.trim(), completed: false, date: todayStr });
+    createHabit({ type: newHabit.trim(), completed: false, completionPercentage: 0, date: todayStr });
     setNewHabit("");
   };
 
   const addCommonHabit = (type: string) => {
-    createHabit({ type, completed: false, date: todayStr });
+    createHabit({ type, completed: false, completionPercentage: 0, date: todayStr });
   };
 
-  const toggleHabit = (id: number, currentStatus: boolean) => {
-    updateHabit({ id, completed: !currentStatus });
+  const toggleHabit = (id: number, currentStatus: boolean, currentPercentage: number) => {
+    const newStatus = !currentStatus;
+    const newPercentage = newStatus ? 100 : currentPercentage;
+    updateHabit({ id, completed: newStatus, completionPercentage: newPercentage });
+  };
+
+  const updatePercentage = (id: number, percentage: number) => {
+    const validPercentage = Math.max(0, Math.min(100, percentage));
+    const completed = validPercentage === 100;
+    updateHabit({ id, completed, completionPercentage: validPercentage });
+    setEditingPercentage(null);
   };
 
   const existingHabitTypes = habits?.map((h: any) => h.type) || [];
@@ -61,22 +71,47 @@ export default function HabitTracker() {
                 {habits?.map((habit: any) => (
                   <div 
                     key={habit.id}
-                    onClick={() => toggleHabit(habit.id, habit.completed)}
-                    className={`flex items-center justify-between p-4 rounded-2xl cursor-pointer transition-all duration-200 border-2 ${
+                    className={`flex items-center justify-between p-4 rounded-2xl transition-all duration-200 border-2 ${
                       habit.completed 
                       ? 'bg-teal-50 border-teal-200 dark:bg-teal-900/20 dark:border-teal-800' 
                       : 'bg-white border-slate-100 dark:bg-slate-900 dark:border-slate-800 hover:border-teal-300'
                     }`}
                   >
-                    <div className="flex items-center gap-4">
-                      <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-colors ${
-                        habit.completed ? 'bg-teal-500 border-teal-500 text-white' : 'border-slate-300 dark:border-slate-600'
-                      }`}>
+                    <div className="flex items-center gap-4 flex-1">
+                      <button
+                        onClick={() => toggleHabit(habit.id, habit.completed, habit.completionPercentage || 0)}
+                        className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-colors ${
+                          habit.completed ? 'bg-teal-500 border-teal-500 text-white' : 'border-slate-300 dark:border-slate-600'
+                        }`}
+                      >
                         {habit.completed && <Check className="w-5 h-5" />}
-                      </div>
+                      </button>
                       <span className={`text-lg font-medium ${habit.completed ? 'text-slate-500 line-through' : 'text-foreground'}`}>
                         {habit.type}
                       </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Percent className="w-4 h-4 text-slate-400" />
+                      {editingPercentage === habit.id ? (
+                        <input
+                          type="number"
+                          min="0"
+                          max="100"
+                          value={habit.completionPercentage || 0}
+                          onChange={(e) => updatePercentage(habit.id, parseInt(e.target.value) || 0)}
+                          onBlur={() => setEditingPercentage(null)}
+                          onKeyDown={(e) => e.key === 'Enter' && setEditingPercentage(null)}
+                          className="w-16 px-2 py-1 text-sm border rounded"
+                          autoFocus
+                        />
+                      ) : (
+                        <button
+                          onClick={() => setEditingPercentage(habit.id)}
+                          className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-teal-600"
+                        >
+                          {habit.completionPercentage || 0}%
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}

@@ -1,13 +1,23 @@
 import type { Express, Request, Response, NextFunction, RequestHandler } from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 import cookieParser from "cookie-parser";
 import { db } from "./db";
-import { users } from "@shared/schema";
-import { eq, sql } from "drizzle-orm";
+import { users, passwordResetTokens } from "@shared/schema";
+import { eq, sql, and, gt } from "drizzle-orm";
 
-const JWT_SECRET = process.env.JWT_SECRET || "dev-local-jwt-secret";
-const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || "dev-local-refresh-secret";
+const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
+
+// Security check: fail fast if secrets are not configured in production
+if (process.env.NODE_ENV === 'production' && (!JWT_SECRET || !JWT_REFRESH_SECRET)) {
+  throw new Error('JWT_SECRET and JWT_REFRESH_SECRET must be set in production');
+}
+
+// Fallback only for development - should never be used in production
+const ACCESS_SECRET = JWT_SECRET || "dev-local-jwt-secret-change-this";
+const REFRESH_SECRET = JWT_REFRESH_SECRET || "dev-local-refresh-secret-change-this";
 
 const ACCESS_TOKEN_COOKIE = "talkeasy_access";
 const REFRESH_TOKEN_COOKIE = "talkeasy_refresh";
@@ -20,19 +30,19 @@ export interface AuthenticatedRequest extends Request {
 }
 
 export function generateAccessToken(userId: string): string {
-  return jwt.sign({ sub: userId }, JWT_SECRET, { expiresIn: "15m" });
+  return jwt.sign({ sub: userId }, ACCESS_SECRET, { expiresIn: "15m" });
 }
 
 export function generateRefreshToken(userId: string): string {
-  return jwt.sign({ sub: userId }, JWT_REFRESH_SECRET, { expiresIn: "7d" });
+  return jwt.sign({ sub: userId }, REFRESH_SECRET, { expiresIn: "7d" });
 }
 
 export function verifyAccessToken(token: string): { sub: string } | null {
-  try { return jwt.verify(token, JWT_SECRET) as { sub: string }; } catch { return null; }
+  try { return jwt.verify(token, ACCESS_SECRET) as { sub: string }; } catch { return null; }
 }
 
 export function verifyRefreshToken(token: string): { sub: string } | null {
-  try { return jwt.verify(token, JWT_REFRESH_SECRET) as { sub: string }; } catch { return null; }
+  try { return jwt.verify(token, REFRESH_SECRET) as { sub: string }; } catch { return null; }
 }
 
 export const isAuthenticated: RequestHandler = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
@@ -164,6 +174,127 @@ export function setupLocalAuth(app: Express) {
     } catch (error) {
       console.error("Auth user error:", error);
       return res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
+  // Password reset request
+  app.post("/api/auth/forgot-password", async (req: Request, res: Response) => {
+    try {
+      const { email } = req.body;
+      if (!email) return res.status(400).json({ message: "Email is required" });
+
+      const normalizedEmail = email.trim().toLowerCase();
+      const [user] = await db.select().from(users).where(sql`lower(${users.email}) = ${normalizedEmail}`);
+
+      // Always return success to prevent account enumeration
+      if (!user) {
+        return res.json({ message: "If an account exists with this email, a password reset link has been sent." });
+      }
+
+      // Generate secure reset token
+      const resetToken = crypto.randomBytes(32).toString('hex');
+      const tokenHash = crypto.createHash('sha256').update(resetToken).digest('hex');
+      const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+      // Store token in database
+      await db.insert(passwordResetTokens).values({
+        userId: user.id,
+        tokenHash,
+        expiresAt,
+        used: false,
+      });
+
+      // In production, send email with reset link
+      // For now, return the token (development only)
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Password reset token (development only):', resetToken);
+        return res.json({ 
+          message: "If an account exists with this email, a password reset link has been sent.",
+          devToken: resetToken // Only in development
+        });
+      }
+
+      return res.json({ message: "If an account exists with this email, a password reset link has been sent." });
+    } catch (error) {
+      console.error("Forgot password error:", error);
+      return res.status(500).json({ message: "Failed to process request" });
+    }
+  });
+
+  // Verify reset token
+  app.post("/api/auth/verify-reset-token", async (req: Request, res: Response) => {
+    try {
+      const { token } = req.body;
+      if (!token) return res.status(400).json({ message: "Token is required" });
+
+      const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+      const [resetToken] = await db
+        .select()
+        .from(passwordResetTokens)
+        .where(
+          and(
+            eq(passwordResetTokens.tokenHash, tokenHash),
+            eq(passwordResetTokens.used, false),
+            gt(passwordResetTokens.expiresAt, new Date())
+          )
+        );
+
+      if (!resetToken) {
+        return res.status(400).json({ message: "Invalid or expired token" });
+      }
+
+      return res.json({ valid: true });
+    } catch (error) {
+      console.error("Verify token error:", error);
+      return res.status(500).json({ message: "Failed to verify token" });
+    }
+  });
+
+  // Reset password
+  app.post("/api/auth/reset-password", async (req: Request, res: Response) => {
+    try {
+      const { token, newPassword } = req.body;
+      if (!token || !newPassword) {
+        return res.status(400).json({ message: "Token and new password are required" });
+      }
+
+      if (newPassword.length < 8) {
+        return res.status(400).json({ message: "Password must be at least 8 characters" });
+      }
+
+      const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+      const [resetToken] = await db
+        .select()
+        .from(passwordResetTokens)
+        .where(
+          and(
+            eq(passwordResetTokens.tokenHash, tokenHash),
+            eq(passwordResetTokens.used, false),
+            gt(passwordResetTokens.expiresAt, new Date())
+          )
+        );
+
+      if (!resetToken) {
+        return res.status(400).json({ message: "Invalid or expired token" });
+      }
+
+      // Update user password
+      const passwordHash = await bcrypt.hash(newPassword, 12);
+      await db
+        .update(users)
+        .set({ passwordHash, updatedAt: new Date() })
+        .where(eq(users.id, resetToken.userId));
+
+      // Mark token as used
+      await db
+        .update(passwordResetTokens)
+        .set({ used: true })
+        .where(eq(passwordResetTokens.id, resetToken.id));
+
+      return res.json({ message: "Password has been reset successfully" });
+    } catch (error) {
+      console.error("Reset password error:", error);
+      return res.status(500).json({ message: "Failed to reset password" });
     }
   });
 }

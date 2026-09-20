@@ -206,8 +206,7 @@ export default function Settings() {
       </form>
 
       <div className="text-center text-xs text-muted-foreground pb-6">
-        TalkEasy · Developed by <span className="font-semibold text-foreground">Taha Shahud</span> and <span className="font-semibold text-foreground">Praneet Gholap</span><br />
-        School of Engineering and Technology
+        TalkEasy · Designed and Developed by <span className="font-semibold text-foreground">Taha Shahud</span>
       </div>
     </div>
   );

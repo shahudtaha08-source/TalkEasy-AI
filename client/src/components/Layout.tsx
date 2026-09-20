@@ -8,7 +8,41 @@ export function Layout({ children }: { children: ReactNode }) {
   const { isLoading, data: user } = useUser();
   const { isRTL } = useTranslation();
 
-  const isSenior = user?.ageGroup?.includes("Senior");
+  // Age-adaptive UX
+  const getAgeGroupSettings = () => {
+    const ageGroup = user?.ageGroup || '';
+    if (ageGroup.includes('Teen')) {
+      return {
+        fontSize: 'text-base',
+        spacing: 'space-y-6',
+        cardPadding: 'p-5',
+        buttonSize: 'text-sm px-4 py-2',
+      };
+    } else if (ageGroup.includes('Young Adult')) {
+      return {
+        fontSize: 'text-base',
+        spacing: 'space-y-6',
+        cardPadding: 'p-5',
+        buttonSize: 'text-sm px-4 py-2',
+      };
+    } else if (ageGroup.includes('Senior')) {
+      return {
+        fontSize: 'text-lg',
+        spacing: 'space-y-8',
+        cardPadding: 'p-6',
+        buttonSize: 'text-base px-6 py-3',
+      };
+    }
+    // Default for adults
+    return {
+      fontSize: 'text-base',
+      spacing: 'space-y-6',
+      cardPadding: 'p-5',
+      buttonSize: 'text-sm px-4 py-2',
+    };
+  };
+
+  const ageSettings = getAgeGroupSettings();
 
   if (isLoading) {
     return (
@@ -21,7 +55,7 @@ export function Layout({ children }: { children: ReactNode }) {
   return (
     <div className={`min-h-screen bg-background text-foreground flex ${isRTL ? 'rtl' : 'ltr'}`}>
       <Sidebar />
-      <main className={`flex-1 ${isRTL ? 'mr-64 ml-0' : 'ml-64 mr-0'} p-8 overflow-y-auto h-screen ${isSenior ? 'text-lg' : ''}`}>
+      <main className={`flex-1 ${isRTL ? 'mr-64 ml-0' : 'ml-64 mr-0'} p-8 overflow-y-auto h-screen ${ageSettings.fontSize}`}>
         <div className="max-w-6xl mx-auto">
           {children}
         </div>

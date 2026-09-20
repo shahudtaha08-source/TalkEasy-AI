@@ -215,10 +215,22 @@ export default function FindHelp() {
           Connect with licensed professionals remotely via text, audio, or video sessions.
         </p>
         <div className="flex flex-wrap gap-3">
-          {["BetterHelp", "Talkspace", "Amaha (InnerHour)", "YourDOST", "Therapize India"].map(p => (
-            <span key={p} className="bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 px-4 py-2 rounded-xl font-medium text-sm">
-              {p}
-            </span>
+          {[
+            { name: "BetterHelp", url: "https://www.betterhelp.com" },
+            { name: "Talkspace", url: "https://www.talkspace.com" },
+            { name: "Amaha (InnerHour)", url: "https://www.amaha.health" },
+            { name: "YourDOST", url: "https://www.yourdost.com" },
+            { name: "Therapize India", url: "https://www.therapize.co.in" },
+          ].map(p => (
+            <a
+              key={p.name}
+              href={p.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 px-4 py-2 rounded-xl font-medium text-sm hover:bg-purple-200 dark:hover:bg-purple-900/30 transition-colors"
+            >
+              {p.name}
+            </a>
           ))}
         </div>
       </div>
@@ -230,8 +242,8 @@ export default function FindHelp() {
         </h2>
         <div className="bg-teal-50 dark:bg-teal-950/20 rounded-xl p-4">
           <p className="font-semibold text-slate-900 dark:text-white">Student Counseling Center</p>
-          <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">Free, confidential counseling for enrolled students. Mon–Fri 9 AM–5 PM.</p>
-          <p className="text-sm font-medium text-teal-700 dark:text-teal-400 mt-2">student-wellness@university.edu</p>
+          <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">Contact your university counseling center for confidential mental health support and resources.</p>
+          <p className="text-sm text-muted-foreground mt-2 italic">Contact information available through your university's student services.</p>
         </div>
       </div>
 

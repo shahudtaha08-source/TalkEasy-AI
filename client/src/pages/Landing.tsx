@@ -146,6 +146,28 @@ export default function Landing() {
         </div>
       </section>
 
+      <section className="py-20 px-6 max-w-4xl mx-auto">
+        <p className="text-sm font-bold tracking-widest text-teal-600 uppercase text-center mb-2">About TalkEasy AI</p>
+        <h2 className="text-3xl md:text-4xl font-display font-bold text-center mb-8 text-slate-900 dark:text-white">What TalkEasy AI Is</h2>
+        <div className="prose prose-lg max-w-none text-slate-600 dark:text-slate-300">
+          <p className="text-center text-lg leading-relaxed mb-6">
+            TalkEasy AI is a mental-wellness support web application designed to provide accessible emotional support and wellness tools.
+          </p>
+          <p className="text-center text-lg leading-relaxed mb-6">
+            It exists because emotional wellbeing shouldn't be inaccessible or intimidating. Many people struggle to express their feelings, track their emotional patterns, or know where to turn when they need support. TalkEasy AI aims to reduce that friction.
+          </p>
+          <p className="text-center text-lg leading-relaxed mb-6">
+            The platform provides supportive conversation, mood tracking, habit building, journaling, and resources to help users understand their emotional patterns and find appropriate support when needed.
+          </p>
+          <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 rounded-2xl p-6 mt-8">
+            <p className="text-amber-800 dark:text-amber-300 font-semibold text-center mb-3">Important: TalkEasy AI is NOT a therapist, doctor, or diagnostic system.</p>
+            <p className="text-amber-700 dark:text-amber-400 text-center text-sm">
+              It does not diagnose mental health conditions, prescribe medication, or replace licensed professionals. For clinical care, crisis situations, or emergency needs, users should seek appropriate professional/emergency support.
+            </p>
+          </div>
+        </div>
+      </section>
+
       <section className="py-20 px-6 max-w-6xl mx-auto">
         <p className="text-sm font-bold tracking-widest text-teal-600 uppercase text-center mb-2">{t("platformFeatures")}</p>
         <h2 className="text-3xl md:text-4xl font-display font-bold text-center mb-12 text-slate-900 dark:text-white">Support designed around the person</h2>
@@ -172,28 +194,20 @@ export default function Landing() {
 
       <section className="py-20 bg-white dark:bg-slate-900 px-6">
         <div className="max-w-4xl mx-auto">
-          <p className="text-sm font-bold tracking-widest text-teal-600 uppercase text-center mb-2">Project Team</p>
-          <h2 className="text-3xl font-display font-bold text-center mb-12 text-slate-900 dark:text-white">{t("meetTheDevelopers")}</h2>
-          <div className="grid md:grid-cols-2 gap-8">
+          <p className="text-sm font-bold tracking-widest text-teal-600 uppercase text-center mb-2">Founder</p>
+          <h2 className="text-3xl font-display font-bold text-center mb-12 text-slate-900 dark:text-white">Meet the Developer</h2>
+          <div className="grid md:grid-cols-1 gap-8 max-w-2xl mx-auto">
             <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-8 shadow-sm">
               <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-500 to-teal-700 text-white flex items-center justify-center font-bold text-xl mb-5 shadow-lg shadow-teal-500/20">TS</div>
-              <h3 className="text-2xl font-bold text-slate-900 dark:text-white">Taha Shahud</h3>
-              <p className="text-teal-600 font-bold text-sm mt-1">{t("leadDev")}</p>
-              <p className="text-slate-600 dark:text-slate-400 mt-4 text-sm leading-relaxed">Building practical digital tools that support human wellbeing and accessible mental health support.</p>
-              <div className="flex items-center gap-2 mt-4 text-xs font-semibold text-slate-500"><CheckCircle className="w-4 h-4 text-teal-500" /> {t("institution")}</div>
-            </div>
-            <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-8 shadow-sm">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-700 text-white flex items-center justify-center font-bold text-xl mb-5 shadow-lg shadow-indigo-500/20">PG</div>
-              <h3 className="text-2xl font-bold text-slate-900 dark:text-white">Praneet Gholap</h3>
-              <p className="text-indigo-600 font-bold text-sm mt-1">{t("coDev")}</p>
-              <p className="text-slate-600 dark:text-slate-400 mt-4 text-sm leading-relaxed">Contributing to the design, development, and delivery of the TalkEasy mental wellness platform.</p>
-              <div className="flex items-center gap-2 mt-4 text-xs font-semibold text-slate-500"><CheckCircle className="w-4 h-4 text-teal-500" /> {t("institution")}</div>
+              <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{t("developerName")}</h3>
+              <p className="text-teal-600 font-bold text-sm mt-1">{t("developerTitle")}</p>
+              <p className="text-slate-600 dark:text-slate-400 mt-4 text-sm leading-relaxed">{t("developerDescription")}</p>
             </div>
           </div>
         </div>
       </section>
 
-      <footer className="text-center py-8 bg-slate-100 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 text-slate-500 text-sm">© {new Date().getFullYear()} TalkEasy AI · {t("developedBy")} · {t("institution")}</footer>
+      <footer className="text-center py-8 bg-slate-100 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 text-slate-500 text-sm">© {new Date().getFullYear()} TalkEasy AI · Designed and Developed by {t("developerName")}</footer>
 
       {authModalOpen && (
         <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">

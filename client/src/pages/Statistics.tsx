@@ -1,19 +1,27 @@
 import { useMoods } from "@/hooks/use-moods";
 import { useHabits } from "@/hooks/use-habits";
 import { useTranslation } from "@/i18n/LanguageContext";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend, Cell } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend, Cell, AreaChart, Area } from 'recharts';
 import { format, subDays, parseISO } from "date-fns";
+import { useState, useEffect } from "react";
 
 export default function Statistics() {
   const { t } = useTranslation();
   const { data: moods } = useMoods();
-  // Fetching all habits to compute stats - passing no date fetches all.
   const { data: habits } = useHabits();
+  const [sleepData, setSleepData] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch('/api/sleep-entries', { credentials: 'include' })
+      .then(res => res.json())
+      .then(data => setSleepData(data || []))
+      .catch(console.error);
+  }, []);
 
   // Process Mood Data for the last 7 days
   const last7Days = Array.from({ length: 7 }).map((_, i) => format(subDays(new Date(), 6 - i), 'yyyy-MM-dd'));
   
-  const moodScoreMap: Record<string, number> = { "Happy": 4, "Neutral": 3, "Stressed": 2, "Sad": 1 };
+  const moodScoreMap: Record<string, number> = { "Happy": 4, "Neutral": 3, "Stressed": 2, "Sad": 1, "Anxious": 1.5, "Angry": 1 };
   
   const moodData = last7Days.map(date => {
     const dayMood = moods?.find((m: any) => m.date === date);
@@ -24,20 +32,32 @@ export default function Statistics() {
     };
   });
 
-  // Process Habit Data
-  const habitCompletionCounts: Record<string, { total: number, completed: number }> = {};
+  // Process Habit Data with actual completion percentages
+  const habitCompletionCounts: Record<string, { total: number; completed: number; totalPercentage: number }> = {};
   habits?.forEach((h: any) => {
     if (!habitCompletionCounts[h.type]) {
-      habitCompletionCounts[h.type] = { total: 0, completed: 0 };
+      habitCompletionCounts[h.type] = { total: 0, completed: 0, totalPercentage: 0 };
     }
     habitCompletionCounts[h.type].total++;
     if (h.completed) habitCompletionCounts[h.type].completed++;
+    habitCompletionCounts[h.type].totalPercentage += (h.completionPercentage || 0);
   });
 
   const habitData = Object.entries(habitCompletionCounts).map(([name, stats]) => ({
     name,
-    rate: Math.round((stats.completed / stats.total) * 100)
+    rate: Math.round(stats.totalPercentage / stats.total), // Average completion percentage
   }));
+
+  // Process Sleep Data
+  const sleepTrendData = last7Days.map(date => {
+    const entry = sleepData.find((s: any) => s.date === date);
+    return {
+      date: format(parseISO(date), 'MMM dd'),
+      nightSleep: entry?.nightSleep || 0,
+      nap: entry?.nap || 0,
+      total: entry?.totalSleep || 0,
+    };
+  });
 
   const COLORS = ['#0d9488', '#3b82f6', '#8b5cf6', '#f43f5e', '#f59e0b'];
 
@@ -82,8 +102,26 @@ export default function Statistics() {
           </div>
         </div>
 
-        {/* Habit Completion Chart */}
+        {/* Sleep Trend Chart */}
         <div className="glass-card p-6 rounded-3xl">
+          <h2 className="text-2xl font-bold mb-6">7-Day Sleep Trend</h2>
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={sleepTrendData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                <XAxis dataKey="date" stroke="#64748b" tick={{fontSize: 12}} />
+                <YAxis domain={[0, 12]} stroke="#64748b" tick={{fontSize: 12}} />
+                <Tooltip 
+                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                />
+                <Area type="monotone" dataKey="total" stroke="#6366f1" fill="#6366f1" fillOpacity={0.3} strokeWidth={2} />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Habit Completion Chart */}
+        <div className="glass-card p-6 rounded-3xl lg:col-span-2">
           <h2 className="text-2xl font-bold mb-6">{t("habitCompletionChart")}</h2>
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">

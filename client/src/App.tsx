@@ -15,11 +15,13 @@ import Dashboard from "@/pages/Dashboard";
 import Chatbot from "@/pages/Chatbot";
 import MoodTracker from "@/pages/MoodTracker";
 import HabitTracker from "@/pages/HabitTracker";
+import SleepTracker from "@/pages/SleepTracker";
 import Statistics from "@/pages/Statistics";
 import EmotionalHistory from "@/pages/EmotionalHistory";
 import FindHelp from "@/pages/FindHelp";
 import Journal from "@/pages/Journal";
 import Resources from "@/pages/Resources";
+import ResourceDetail from "@/pages/ResourceDetail";
 import Settings from "@/pages/Settings";
 
 function Router() {
@@ -61,6 +63,12 @@ function Router() {
         </ProtectedRoute>
       </Route>
 
+      <Route path="/sleep">
+        <ProtectedRoute>
+          <Layout><SleepTracker /></Layout>
+        </ProtectedRoute>
+      </Route>
+
       <Route path="/statistics">
         <ProtectedRoute>
           <Layout><Statistics /></Layout>
@@ -82,6 +90,12 @@ function Router() {
       <Route path="/resources">
         <ProtectedRoute>
           <Layout><Resources /></Layout>
+        </ProtectedRoute>
+      </Route>
+
+      <Route path="/resources/:slug">
+        <ProtectedRoute>
+          <Layout><ResourceDetail /></Layout>
         </ProtectedRoute>
       </Route>
 
