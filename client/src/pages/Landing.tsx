@@ -1,79 +1,137 @@
 import { useState } from "react";
-import { ArrowRight, X, Lock, FlaskConical, Mail, KeyRound, Globe, Activity, MessageCircle, Smile, BookOpen, HeartPulse, ShieldAlert, Code2, Lightbulb, BrainCircuit, Loader2 } from "lucide-react";
+import { enableDemoMode, isDemoMode, disableDemoMode } from "@/lib/demo-data";
+import { queryClient } from "@/lib/queryClient";
+import { useLocation } from "wouter";
+import {
+  Smile, BookOpen, Activity, MessageCircle, TrendingUp, HeartPulse,
+  FlaskConical, CheckCircle, ArrowRight, Lock, User, Mail, Globe,
+  Shield, KeyRound, Loader2, Sparkles, X
+} from "lucide-react";
+import { TalkEasyLogo } from "@/components/TalkEasyLogo";
 import { useTranslation } from "@/i18n/LanguageContext";
 import { LanguageCode } from "@/i18n/translations";
-import { TalkEasyLogo } from "@/components/TalkEasyLogo";
-import { isDemoMode, disableDemoMode } from "@/lib/demo-data";
-import { useToast } from "@/hooks/use-toast";
+
+const LANGUAGES: LanguageCode[] = [
+  "English", "Hindi", "Urdu", "Marathi", "Tamil",
+  "Telugu", "Malayalam", "Kannada", "Bengali", "Gujarati"
+];
 
 const AGE_GROUPS = ["Teen (13-19)", "Young Adult (20-35)", "Adult (36-55)", "Senior (55+)"];
-const LANGUAGES: LanguageCode[] = ["English", "Hindi", "Urdu", "Marathi", "Tamil", "Telugu", "Malayalam", "Kannada", "Bengali", "Gujarati"];
 
 export default function Landing() {
+  const [, navigate] = useLocation();
   const { t, language, setLanguage, isRTL } = useTranslation();
-  const { toast } = useToast();
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "signup">("login");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
   const [identifier, setIdentifier] = useState("");
-  const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [ageGroup, setAgeGroup] = useState("Young Adult (20-35)");
-  const [preferredLang, setPreferredLang] = useState<LanguageCode>("English");
-  const inDemo = isDemoMode();
+  const [preferredLang, setPreferredLang] = useState<LanguageCode>(language);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleAuthSubmit = async (e: React.FormEvent) => {
+  function handleDemoMode() {
+    enableDemoMode();
+    queryClient.clear();
+    navigate("/dashboard");
+  }
+
+  function handleExitDemo() {
+    disableDemoMode();
+    queryClient.clear();
+    window.location.reload();
+  }
+
+  function getLoginCredentials(form: HTMLFormElement) {
+    const emailInput = form.elements.namedItem("email") as HTMLInputElement | null;
+    const passwordInput = form.elements.namedItem("password") as HTMLInputElement | null;
+
+    const loginEmail = (emailInput?.value || "").trim();
+    const loginPassword = passwordInput?.value || "";
+
+    return { loginEmail, loginPassword };
+  }
+
+  async function handleAuthSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setIsSubmitting(true);
     setErrorMsg("");
+    setIsSubmitting(true);
+
     try {
-      const formData = authMode === "login"
-        ? { identifier, password }
-        : { email, username, password, firstName, lastName, ageGroup, preferredLanguage: preferredLang };
-      const res = await fetch(`/api/auth/${authMode}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-        credentials: "include",
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Authentication failed");
-      toast({ title: authMode === "login" ? "Signed in successfully" : "Account created successfully" });
-      setAuthModalOpen(false);
+      if (authMode === "login") {
+        const { loginEmail, loginPassword } = getLoginCredentials(e.currentTarget);
+
+        if (!loginEmail || !loginPassword) {
+          throw new Error("Email and password are required");
+        }
+
+        const res = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            email: loginEmail,
+            identifier: loginEmail,
+            username: loginEmail,
+            password: loginPassword,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Failed to sign in");
+      } else {
+        const res = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            email: email.trim(), username: username.trim(), password,
+            firstName: firstName.trim(), lastName: lastName.trim(),
+            ageGroup, preferredLanguage: preferredLang,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Failed to register");
+      }
+      queryClient.clear();
       window.location.href = "/dashboard";
     } catch (err: any) {
-      setErrorMsg(err.message || "Authentication failed");
+      setErrorMsg(err.message || "An unexpected error occurred");
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }
 
-  const handleDemoMode = () => {
-    disableDemoMode();
-    toast({ title: "Demo mode activated", description: "Your demo data is private and expires in 7 days." });
-    window.location.href = "/dashboard";
-  };
-
-  const handleExitDemo = () => {
-    disableDemoMode();
-    toast({ title: "Demo deactivated" });
-    window.location.href = "/";
-  };
+  const inDemo = isDemoMode();
 
   return (
     <div className={`min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 ${isRTL ? "rtl" : "ltr"}`}>
       <header className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-40 flex items-center justify-between">
         <TalkEasyLogo size={36} />
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-xs font-semibold"><Globe className="w-3.5 h-3.5 text-teal-600" /><select value={language} onChange={(e) => setLanguage(e.target.value as LanguageCode)} className="bg-transparent outline-none cursor-pointer">{LANGUAGES.map((l) => <option key={l} value={l}>{l}</option>)}</select></div>
-          <button onClick={() => { setAuthMode("login"); setAuthModalOpen(true); }} className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-md transition-all flex items-center gap-2"><Lock className="w-4 h-4" /> {t("login")}</button>
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+            <Globe className="w-3.5 h-3.5 text-teal-600" />
+            <select value={language} onChange={(e) => setLanguage(e.target.value as LanguageCode)} className="bg-transparent outline-none cursor-pointer">
+              {LANGUAGES.map((l) => <option key={l} value={l}>{l}</option>)}
+            </select>
+          </div>
+          <button onClick={() => { setAuthMode("login"); setAuthModalOpen(true); }} className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-md shadow-teal-600/20 transition-all flex items-center gap-2">
+            <Lock className="w-4 h-4" /> {t("login")}
+          </button>
         </div>
       </header>
-      {inDemo && <div className="bg-indigo-600 text-white text-center py-2 px-4 text-sm font-medium flex items-center justify-center gap-3"><FlaskConical className="w-4 h-4" /> Private 7-day demo trial — your demo data is separate from every other user. <button onClick={handleExitDemo} className="underline font-bold">{t("exitDemo")}</button></div>}
+
+      {inDemo && (
+        <div className="bg-amber-500 text-white text-center py-2 px-4 text-sm font-medium flex items-center justify-center gap-3">
+          <FlaskConical className="w-4 h-4" />
+          {t("demoMode")} — Data is stored locally.
+          <button onClick={handleExitDemo} className="underline font-bold">{t("exitDemo")}</button>
+        </div>
+      )}
+
       <section className="text-center py-20 md:py-28 px-6 bg-gradient-to-br from-teal-600 via-teal-700 to-indigo-900 text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
         <div className="relative max-w-4xl mx-auto space-y-6">
@@ -115,14 +173,14 @@ export default function Landing() {
         <h2 className="text-3xl md:text-4xl font-display font-bold text-center mb-12 text-slate-900 dark:text-white">Support designed around the person</h2>
         <div className="grid md:grid-cols-3 gap-6">
           {[
-            { icon: MessageCircle, title: "Support Chat", desc: "Chat with TalkEasy's locally powered support assistant using Ollama and Phi-3." },
+            { icon: MessageCircle, title: t("supportChat"), desc: "Support Chat is currently under development and will be available in the next TalkEasy version." },
             { icon: Smile, title: t("moodTracker"), desc: "Log your emotional state daily and track trends over time." },
             { icon: BookOpen, title: t("journal"), desc: "Daily, gratitude, and reflection entries with tags." },
             { icon: Activity, title: t("habits"), desc: "Build sleep, hydration, exercise, and mindfulness routines." },
             { icon: HeartPulse, title: t("findHelp"), desc: "Professional and crisis-support resources." },
           ].map(({ icon: Icon, title, desc }) => (
-            <div key={title} className="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800">
-              <div className="w-12 h-12 rounded-2xl bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center mb-4"><Icon className="w-6 h-6 text-teal-600" /></div>
+            <div key={title} className="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 hover:shadow-md transition-all group">
+              <div className="w-12 h-12 rounded-2xl bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center mb-4 group-hover:bg-teal-100 transition"><Icon className="w-6 h-6 text-teal-600" /></div>
               <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">{title}</h3>
               <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">{desc}</p>
             </div>
@@ -130,26 +188,20 @@ export default function Landing() {
         </div>
       </section>
 
-      <section className="bg-red-600 text-white border-y-4 border-red-700 py-8 px-6 text-center shadow-lg">
-        <div className="max-w-3xl mx-auto flex flex-col items-center gap-3">
-          <ShieldAlert className="w-9 h-9" />
-          <p className="text-base md:text-lg leading-relaxed font-medium"><strong className="font-extrabold">DISCLAIMER:</strong> {t("disclaimerText")} In an emergency, please use local emergency/crisis services immediately.</p>
-        </div>
+      <section className="bg-amber-50 dark:bg-amber-950/20 border-y border-amber-200 dark:border-amber-900/40 py-10 px-6 text-center">
+        <p className="max-w-3xl mx-auto text-sm text-amber-800 dark:text-amber-300 leading-relaxed font-medium"><strong>Disclaimer:</strong> {t("disclaimerText")} In an emergency, please use local emergency/crisis services immediately.</p>
       </section>
 
       <section className="py-20 bg-white dark:bg-slate-900 px-6">
-        <div className="max-w-3xl mx-auto text-center">
-          <p className="text-sm font-bold tracking-widest text-teal-600 uppercase mb-2">{t("meetTheDevelopers")}</p>
-          <h2 className="text-3xl font-display font-bold mb-10 text-slate-900 dark:text-white">Meet the Developer</h2>
-          <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-8 shadow-sm">
-            <div className="w-16 h-16 rounded-2xl bg-teal-600 text-white flex items-center justify-center font-bold text-xl mx-auto mb-5">TS</div>
-            <h3 className="text-2xl font-bold">{t("developerName")}</h3>
-            <p className="text-teal-600 font-bold text-sm mt-2">{t("developerTitle")}</p>
-            <p className="mt-5 text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl mx-auto">{t("developerDescription")}</p>
-            <div className="grid sm:grid-cols-3 gap-3 mt-8 text-sm font-semibold">
-              <div className="flex items-center justify-center gap-2 rounded-xl bg-white dark:bg-slate-900 p-3"><Code2 className="w-4 h-4 text-teal-600" /> Student Developer</div>
-              <div className="flex items-center justify-center gap-2 rounded-xl bg-white dark:bg-slate-900 p-3"><Lightbulb className="w-4 h-4 text-amber-500" /> Creative Minded</div>
-              <div className="flex items-center justify-center gap-2 rounded-xl bg-white dark:bg-slate-900 p-3"><BrainCircuit className="w-4 h-4 text-indigo-500" /> Exploring AI</div>
+        <div className="max-w-4xl mx-auto">
+          <p className="text-sm font-bold tracking-widest text-teal-600 uppercase text-center mb-2">Founder</p>
+          <h2 className="text-3xl font-display font-bold text-center mb-12 text-slate-900 dark:text-white">Meet the Developer</h2>
+          <div className="grid md:grid-cols-1 gap-8 max-w-2xl mx-auto">
+            <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-8 shadow-sm">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-500 to-teal-700 text-white flex items-center justify-center font-bold text-xl mb-5 shadow-lg shadow-teal-500/20">TS</div>
+              <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{t("developerName")}</h3>
+              <p className="text-teal-600 font-bold text-sm mt-1">{t("developerTitle")}</p>
+              <p className="text-slate-600 dark:text-slate-400 mt-4 text-sm leading-relaxed">{t("developerDescription")}</p>
             </div>
           </div>
         </div>
