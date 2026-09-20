@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://talkeasy-ai-1.onrender.com/sitemap.xml
