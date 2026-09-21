@@ -50,6 +50,7 @@
     "cookie-parser": "^1.4.7",
     "cross-env": "^7.0.3",
     "date-fns": "^3.6.0",
+    "drizzle-kit": "^0.31.10",
     "drizzle-orm": "^0.39.3",
     "drizzle-zod": "^0.7.1",
     "embla-carousel-react": "^8.6.0",
