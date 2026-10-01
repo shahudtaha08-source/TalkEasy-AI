@@ -13,7 +13,12 @@ import {
   Book,
   FlaskConical,
   Globe,
-  Moon
+  Moon,
+  Activity,
+  Droplet,
+  TrendingUp,
+  FileText,
+  Brain
 } from "lucide-react";
 import { useUser } from "@/hooks/use-user";
 import { isDemoMode, disableDemoMode } from "@/lib/demo-data";
@@ -33,15 +38,19 @@ export function Sidebar() {
   const { t, language, setLanguage, isRTL } = useTranslation();
   const inDemo = isDemoMode();
 
-  const isSenior = user?.ageGroup?.includes("Senior");
-
   const navItems = [
     { href: "/dashboard", label: t("dashboard"), icon: Home },
     { href: "/chat", label: t("supportChat"), icon: MessageCircle },
-    { href: "/journal", label: t("journal"), icon: BookOpen },
-    { href: "/mood", label: t("moodTracker"), icon: Smile },
+    { href: "/mood-enhanced", label: "Mood Tracker", icon: Smile },
     { href: "/habits", label: t("habits"), icon: CheckCircle },
     { href: "/sleep", label: "Sleep Tracker", icon: Moon },
+    { href: "/water", label: "Water Intake", icon: Droplet },
+    { href: "/stress", label: "Stress Tracker", icon: Brain },
+    { href: "/health", label: "Health Dashboard", icon: Activity },
+    { href: "/trends-30", label: "30-Day Trends", icon: TrendingUp },
+    { href: "/trends-90", label: "90-Day Trends", icon: TrendingUp },
+    { href: "/reports", label: "Reports", icon: FileText },
+    { href: "/journal", label: t("journal"), icon: BookOpen },
     { href: "/statistics", label: t("statistics"), icon: PieChart },
     { href: "/history", label: t("emotionalHistory"), icon: History },
     { href: "/resources", label: t("resources"), icon: Book },
@@ -92,7 +101,7 @@ export function Sidebar() {
           const isActive = location === item.href || (location.startsWith(item.href) && item.href !== '/dashboard');
           return (
             <Link key={item.href} href={item.href} className={`
-              flex items-center justify-between px-3.5 ${isSenior ? 'py-3.5 text-base' : 'py-2.5 text-sm'} rounded-xl transition-all duration-200
+              flex items-center justify-between px-3.5 py-2.5 text-sm rounded-xl transition-all duration-200
               ${isActive 
                 ? 'bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-400 font-semibold' 
                 : 'text-muted-foreground hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-foreground'

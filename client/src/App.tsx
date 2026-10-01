@@ -14,6 +14,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Dashboard from "@/pages/Dashboard";
 import Chatbot from "@/pages/Chatbot";
 import MoodTracker from "@/pages/MoodTracker";
+import MoodTrackerEnhanced from "@/pages/MoodTrackerEnhanced";
 import HabitTracker from "@/pages/HabitTracker";
 import SleepTracker from "@/pages/SleepTracker";
 import Statistics from "@/pages/Statistics";
@@ -23,14 +24,25 @@ import Journal from "@/pages/Journal";
 import Resources from "@/pages/Resources";
 import ResourceDetail from "@/pages/ResourceDetail";
 import Settings from "@/pages/Settings";
+import WaterIntake from "@/pages/WaterIntake";
+import StressTracker from "@/pages/StressTracker";
+import HealthDashboard from "@/pages/HealthDashboard";
+import Trends30Days from "@/pages/Trends30Days";
+import Trends90Days from "@/pages/Trends90Days";
+import ReportLibrary from "@/pages/ReportLibrary";
+import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import TermsConditions from "@/pages/TermsConditions";
+import CookiePolicy from "@/pages/CookiePolicy";
+import CookiePreferences from "@/pages/CookiePreferences";
+import ForgotPassword from "@/pages/ForgotPassword";
+import ResetPassword from "@/pages/ResetPassword";
+import Landing from "@/pages/Landing";
 
 function Router() {
   return (
     <Switch>
       <Route path="/">
-        <ProtectedRoute>
-          <Redirect to="/dashboard" />
-        </ProtectedRoute>
+        <Landing />
       </Route>
 
       <Route path="/dashboard">
@@ -57,6 +69,12 @@ function Router() {
         </ProtectedRoute>
       </Route>
 
+      <Route path="/mood-enhanced">
+        <ProtectedRoute>
+          <Layout><MoodTrackerEnhanced /></Layout>
+        </ProtectedRoute>
+      </Route>
+
       <Route path="/habits">
         <ProtectedRoute>
           <Layout><HabitTracker /></Layout>
@@ -66,6 +84,42 @@ function Router() {
       <Route path="/sleep">
         <ProtectedRoute>
           <Layout><SleepTracker /></Layout>
+        </ProtectedRoute>
+      </Route>
+
+      <Route path="/water">
+        <ProtectedRoute>
+          <Layout><WaterIntake /></Layout>
+        </ProtectedRoute>
+      </Route>
+
+      <Route path="/stress">
+        <ProtectedRoute>
+          <Layout><StressTracker /></Layout>
+        </ProtectedRoute>
+      </Route>
+
+      <Route path="/health">
+        <ProtectedRoute>
+          <Layout><HealthDashboard /></Layout>
+        </ProtectedRoute>
+      </Route>
+
+      <Route path="/trends-30">
+        <ProtectedRoute>
+          <Layout><Trends30Days /></Layout>
+        </ProtectedRoute>
+      </Route>
+
+      <Route path="/trends-90">
+        <ProtectedRoute>
+          <Layout><Trends90Days /></Layout>
+        </ProtectedRoute>
+      </Route>
+
+      <Route path="/reports">
+        <ProtectedRoute>
+          <Layout><ReportLibrary /></Layout>
         </ProtectedRoute>
       </Route>
 
@@ -103,6 +157,32 @@ function Router() {
         <ProtectedRoute>
           <Layout><Settings /></Layout>
         </ProtectedRoute>
+      </Route>
+
+      {/* Legal Pages */}
+      <Route path="/privacy-policy">
+        <Layout><PrivacyPolicy /></Layout>
+      </Route>
+
+      <Route path="/terms">
+        <Layout><TermsConditions /></Layout>
+      </Route>
+
+      <Route path="/cookie-policy">
+        <Layout><CookiePolicy /></Layout>
+      </Route>
+
+      <Route path="/cookie-preferences">
+        <Layout><CookiePreferences /></Layout>
+      </Route>
+
+      {/* Auth Pages */}
+      <Route path="/forgot-password">
+        <ForgotPassword />
+      </Route>
+
+      <Route path="/reset-password">
+        <ResetPassword />
       </Route>
 
       <Route component={NotFound} />

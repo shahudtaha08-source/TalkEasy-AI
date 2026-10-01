@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { index, jsonb, pgTable, timestamp, varchar, serial, integer, text, boolean, date } from "drizzle-orm/pg-core";
+import { index, jsonb, pgTable, timestamp, varchar, serial, integer, text, boolean, date, real, numeric } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -17,13 +17,15 @@ export const users = pgTable("users", {
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
-  ageGroup: text("age_group"), 
-  preferredLanguage: text("preferred_language").default('English'), 
+  ageGroup: text("age_group"),
+  preferredLanguage: text("preferred_language").default('English'),
   emergencyContact: text("emergency_contact"),
   city: text("city"),
   locality: text("locality"),
   budget: text("budget"),
   occupationType: text("occupation_type"),
+  waterTargetMl: integer("water_target_ml").default(2500),
+  sleepTargetHours: real("sleep_target_hours").default(8),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -111,6 +113,93 @@ export const safetyEvents = pgTable("safety_events", {
   createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
 }, (table) => [index("IDX_safety_user").on(table.userId), index("IDX_safety_follow_up").on(table.followUpRequired)]);
 
+// ─── NEW v6.0 TABLES ─────────────────────────────────────────────────────────
+
+/**
+ * Detailed mood entries — replaces basic mood tracking with factors + intensity.
+ * The basic `moods` table is preserved for backward-compatibility.
+ */
+export const moodEntries = pgTable("mood_entries", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  mood: text("mood").notNull(),           // Happy, Calm, Sad, Anxious, Angry, Tired, Overwhelmed, Excited, Neutral, Other
+  intensity: integer("intensity").notNull().default(5), // 1–10
+  factors: text("factors"),              // JSON array of strings: ["Friends", "College", ...]
+  contextNote: text("context_note"),     // Optional "What happened today?"
+  date: date("date").notNull().default(sql`CURRENT_DATE`),
+  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+}, (table) => [index("IDX_mood_entries_user_date").on(table.userId, table.date)]);
+
+/**
+ * Daily water intake entries — each drink log entry.
+ */
+export const waterEntries = pgTable("water_entries", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  amountMl: integer("amount_ml").notNull(),
+  date: date("date").notNull().default(sql`CURRENT_DATE`),
+  loggedAt: timestamp("logged_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+}, (table) => [index("IDX_water_user_date").on(table.userId, table.date)]);
+
+/**
+ * Stress tracking entries.
+ */
+export const stressEntries = pgTable("stress_entries", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  level: text("level").notNull(),         // Relaxed, Low, Moderate, High
+  score: integer("score"),                // 1–10 optional numeric score
+  note: text("note"),
+  interventionViewed: boolean("intervention_viewed").default(false).notNull(),
+  date: date("date").notNull().default(sql`CURRENT_DATE`),
+  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+}, (table) => [index("IDX_stress_user_date").on(table.userId, table.date)]);
+
+/**
+ * Health daily records — aggregated daily health snapshot.
+ * Demo-labelled fields: heartRate, spo2, systolicBP, diastolicBP, steps — 
+ * these are demo/simulated in v6.0 (no wearable hardware connected).
+ */
+export const healthDailyRecords = pgTable("health_daily_records", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  date: date("date").notNull().default(sql`CURRENT_DATE`),
+  // Demo/simulated wearable metrics — must be labelled in UI
+  heartRate: integer("heart_rate"),        // bpm — demo data
+  spo2: integer("spo2"),                   // % — demo data
+  systolicBp: integer("systolic_bp"),      // mmHg — demo data
+  diastolicBp: integer("diastolic_bp"),    // mmHg — demo data
+  ecgStatus: text("ecg_status"),           // demo/simulated record
+  steps: integer("steps"),                 // demo data
+  isDemo: boolean("is_demo").default(true).notNull(), // Always true in v6.0
+  // Real user-entered metrics
+  sleepHours: real("sleep_hours"),
+  waterMl: integer("water_ml").default(0),
+  stressLevel: text("stress_level"),
+  mood: text("mood"),
+  moodIntensity: integer("mood_intensity"),
+  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  updatedAt: timestamp("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+}, (table) => [
+  index("IDX_health_user_date").on(table.userId, table.date),
+]);
+
+/**
+ * Generated wellness reports metadata.
+ */
+export const reports = pgTable("reports", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  type: text("type").notNull(),           // "30day" | "90day"
+  title: text("title").notNull(),
+  periodStart: date("period_start").notNull(),
+  periodEnd: date("period_end").notNull(),
+  summaryJson: text("summary_json"),      // JSON blob of report data
+  generatedAt: timestamp("generated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+}, (table) => [index("IDX_reports_user").on(table.userId)]);
+
+// ─── INSERT SCHEMAS ───────────────────────────────────────────────────────────
+
 export const insertConversationSchema = createInsertSchema(conversations).omit({ id: true, createdAt: true, userId: true });
 export const insertMessageSchema = createInsertSchema(messages).omit({ id: true, createdAt: true });
 export const insertMoodSchema = createInsertSchema(moods).omit({ id: true, createdAt: true, userId: true });
@@ -119,6 +208,13 @@ export const insertJournalSchema = createInsertSchema(journals).omit({ id: true,
 export const insertSleepEntrySchema = createInsertSchema(sleepEntries).omit({ id: true, createdAt: true, userId: true });
 export const insertPasswordResetTokenSchema = createInsertSchema(passwordResetTokens).omit({ id: true, createdAt: true });
 export const insertSafetyEventSchema = createInsertSchema(safetyEvents).omit({ id: true, createdAt: true, userId: true });
+export const insertMoodEntrySchema = createInsertSchema(moodEntries).omit({ id: true, createdAt: true, userId: true });
+export const insertWaterEntrySchema = createInsertSchema(waterEntries).omit({ id: true, loggedAt: true, userId: true });
+export const insertStressEntrySchema = createInsertSchema(stressEntries).omit({ id: true, createdAt: true, userId: true });
+export const insertHealthDailyRecordSchema = createInsertSchema(healthDailyRecords).omit({ id: true, createdAt: true, updatedAt: true, userId: true });
+export const insertReportSchema = createInsertSchema(reports).omit({ id: true, generatedAt: true, userId: true });
+
+// ─── TYPES ────────────────────────────────────────────────────────────────────
 
 export type Conversation = typeof conversations.$inferSelect;
 export type InsertConversation = z.infer<typeof insertConversationSchema>;
@@ -136,3 +232,13 @@ export type PasswordResetToken = typeof passwordResetTokens.$inferSelect;
 export type InsertPasswordResetToken = z.infer<typeof insertPasswordResetTokenSchema>;
 export type SafetyEvent = typeof safetyEvents.$inferSelect;
 export type InsertSafetyEvent = z.infer<typeof insertSafetyEventSchema>;
+export type MoodEntry = typeof moodEntries.$inferSelect;
+export type InsertMoodEntry = z.infer<typeof insertMoodEntrySchema>;
+export type WaterEntry = typeof waterEntries.$inferSelect;
+export type InsertWaterEntry = z.infer<typeof insertWaterEntrySchema>;
+export type StressEntry = typeof stressEntries.$inferSelect;
+export type InsertStressEntry = z.infer<typeof insertStressEntrySchema>;
+export type HealthDailyRecord = typeof healthDailyRecords.$inferSelect;
+export type InsertHealthDailyRecord = z.infer<typeof insertHealthDailyRecordSchema>;
+export type Report = typeof reports.$inferSelect;
+export type InsertReport = z.infer<typeof insertReportSchema>;

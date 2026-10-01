@@ -232,6 +232,17 @@ export default function Landing() {
               )}
               <button type="submit" disabled={isSubmitting || (authMode === "signup" && (!email.trim() || !username.trim() || !password || !firstName.trim() || !lastName.trim()))} className="w-full py-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold flex items-center justify-center gap-2 disabled:opacity-50">{isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}{authMode === "login" ? t("login") : t("signup")}</button>
             </form>
+            {authMode === "login" && (
+              <div className="mt-3 text-center">
+                <button
+                  type="button"
+                  onClick={() => { setAuthModalOpen(false); navigate("/forgot-password"); }}
+                  className="text-xs text-muted-foreground hover:text-teal-600 transition-colors"
+                >
+                  Forgot your password?
+                </button>
+              </div>
+            )}
             <button type="button" onClick={() => { setAuthMode(authMode === "login" ? "signup" : "login"); setErrorMsg(""); }} className="w-full mt-4 text-sm font-semibold text-teal-600 hover:text-teal-700">{authMode === "login" ? t("noAccountText") : t("alreadyHaveAccountText")}</button>
           </div>
         </div>

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useUser, useUpdateUser } from "@/hooks/use-user";
 import {
   Loader2, Globe, Clock, User, Phone, MapPin, Briefcase,
-  DollarSign, ShieldAlert, Save
+  DollarSign, ShieldAlert, Save, FileText, ExternalLink
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/i18n/LanguageContext";
@@ -190,6 +190,67 @@ export default function Settings() {
           <Field label={t("emergencyContactLabel")} icon={Phone}>
             <input type="text" value={form.emergencyContact} onChange={set("emergencyContact")} placeholder="e.g. +91 99999 00000" className={inputCls} />
           </Field>
+        </section>
+
+        {/* Legal */}
+        <section className="glass-card rounded-3xl p-8 space-y-6">
+          <h2 className="font-bold text-base text-slate-700 dark:text-slate-300 flex items-center gap-2">
+            <FileText className="w-4 h-4 text-teal-600" /> Legal Information
+          </h2>
+          <div className="space-y-3">
+            <a
+              href="/privacy-policy"
+              className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors group"
+            >
+              <div className="flex items-center gap-3">
+                <FileText className="w-5 h-5 text-teal-600" />
+                <div>
+                  <p className="font-semibold text-slate-900 dark:text-white">Privacy Policy</p>
+                  <p className="text-xs text-muted-foreground">How we collect and use your data</p>
+                </div>
+              </div>
+              <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-teal-600 transition-colors" />
+            </a>
+            <a
+              href="/terms"
+              className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors group"
+            >
+              <div className="flex items-center gap-3">
+                <FileText className="w-5 h-5 text-teal-600" />
+                <div>
+                  <p className="font-semibold text-slate-900 dark:text-white">Terms & Conditions</p>
+                  <p className="text-xs text-muted-foreground">Rules and guidelines for using TalkEasy</p>
+                </div>
+              </div>
+              <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-teal-600 transition-colors" />
+            </a>
+            <a
+              href="/cookie-policy"
+              className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors group"
+            >
+              <div className="flex items-center gap-3">
+                <FileText className="w-5 h-5 text-teal-600" />
+                <div>
+                  <p className="font-semibold text-slate-900 dark:text-white">Cookie Policy</p>
+                  <p className="text-xs text-muted-foreground">Information about cookies we use</p>
+                </div>
+              </div>
+              <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-teal-600 transition-colors" />
+            </a>
+            <a
+              href="/cookie-preferences"
+              className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors group"
+            >
+              <div className="flex items-center gap-3">
+                <FileText className="w-5 h-5 text-teal-600" />
+                <div>
+                  <p className="font-semibold text-slate-900 dark:text-white">Cookie Preferences</p>
+                  <p className="text-xs text-muted-foreground">Manage your cookie settings</p>
+                </div>
+              </div>
+              <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-teal-600 transition-colors" />
+            </a>
+          </div>
         </section>
 
         {/* Save */}

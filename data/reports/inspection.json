@@ -1,0 +1,582 @@
+{
+  "source": "facebook/empathetic_dialogues (ParlAI release tarball)",
+  "source_url": "https://dl.fbaipublicfiles.com/parlai/empatheticdialogues/empatheticdialogues.tar.gz",
+  "declared_license": "cc-by-nc-4.0",
+  "inspected_at_utc": "2026-10-01T01:14:03.560445+00:00",
+  "splits": {
+    "train": {
+      "split": "train",
+      "file": "train.csv",
+      "header": [
+        "conv_id",
+        "utterance_idx",
+        "context",
+        "prompt",
+        "speaker_idx",
+        "utterance",
+        "selfeval",
+        "tags"
+      ],
+      "total_physical_lines": 76674,
+      "data_rows_parsed": 76668,
+      "ragged_rows": 5,
+      "ragged_examples": [
+        {
+          "line": 2355,
+          "expected_fields": 8,
+          "got_fields": 10,
+          "preview": "hit:362_conv:724 | 1 | afraid | I haven't heard from my friend in 3 days. His family doesn't know where he is. | 1 | I haven't heard from my friend in 3 days. His family doesn't know where he is.,5|5|"
+        },
+        {
+          "line": 36628,
+          "expected_fields": 8,
+          "got_fields": 12,
+          "preview": "hit:5802_conv:11605 | 1 | trusting | I knew i shouldnt have trusted my brother with my dog! | 238 | I knew i shouldnt have trusted my brother with my dog!,5|4|4_5|5|5,\nhit:5802_conv:11605,2,trusting,I"
+        },
+        {
+          "line": 49433,
+          "expected_fields": 8,
+          "got_fields": 10,
+          "preview": "hit:7600_conv:15200 | 1 | terrified | I saw a plane once that was flying so low I thought it was going to crash. I was beyond scared. | 548 | I saw a plane once that was flying so low I thought it was"
+        },
+        {
+          "line": 56957,
+          "expected_fields": 8,
+          "got_fields": 10,
+          "preview": "hit:8946_conv:17892 | 1 | content | I've been working at my job for several years and I'm very comfortable here. Not sure if that is a negative or positive thing. | 99 | I've been working at my job fo"
+        },
+        {
+          "line": 65019,
+          "expected_fields": 8,
+          "got_fields": 10,
+          "preview": "hit:10475_conv:20951 | 1 | faithful | I promised to visit a friend in prison every week. I enjoyed each time. | 159 | I promised to visit a friend in prison every week. I enjoyed each time,4|4|4_5|5|5"
+        }
+      ],
+      "conversations": 17839,
+      "multi_turn_conversations": 17780,
+      "turns_per_conversation_histogram": {
+        "1": 59,
+        "2": 12,
+        "3": 37,
+        "4": 13738,
+        "5": 3114,
+        "6": 440,
+        "7": 200,
+        "8": 239
+      },
+      "non_monotonic_utterance_idx_conversations": 0,
+      "speaker_idx_distinct_values": 789,
+      "speaker_idx_top20": [
+        [
+          "27",
+          2808
+        ],
+        [
+          "1",
+          2580
+        ],
+        [
+          "126",
+          1937
+        ],
+        [
+          "4",
+          1885
+        ],
+        [
+          "238",
+          1747
+        ],
+        [
+          "262",
+          1550
+        ],
+        [
+          "209",
+          1546
+        ],
+        [
+          "322",
+          1542
+        ],
+        [
+          "296",
+          1477
+        ],
+        [
+          "10",
+          1286
+        ],
+        [
+          "244",
+          1107
+        ],
+        [
+          "7",
+          1087
+        ],
+        [
+          "59",
+          978
+        ],
+        [
+          "11",
+          930
+        ],
+        [
+          "243",
+          919
+        ],
+        [
+          "389",
+          847
+        ],
+        [
+          "332",
+          824
+        ],
+        [
+          "375",
+          814
+        ],
+        [
+          "220",
+          811
+        ],
+        [
+          "196",
+          807
+        ]
+      ],
+      "speaker_idx_is_binary": false,
+      "emotion_label_count": 32,
+      "emotion_labels": {
+        "surprised": 3956,
+        "excited": 2935,
+        "angry": 2740,
+        "proud": 2719,
+        "annoyed": 2642,
+        "sad": 2634,
+        "afraid": 2510,
+        "lonely": 2503,
+        "terrified": 2487,
+        "grateful": 2487,
+        "guilty": 2463,
+        "anxious": 2456,
+        "disgusted": 2447,
+        "confident": 2440,
+        "anticipating": 2439,
+        "hopeful": 2404,
+        "furious": 2394,
+        "impressed": 2381,
+        "disappointed": 2356,
+        "nostalgic": 2350,
+        "joyful": 2346,
+        "jealous": 2329,
+        "prepared": 2292,
+        "content": 2214,
+        "devastated": 2192,
+        "embarrassed": 2191,
+        "sentimental": 2073,
+        "caring": 2054,
+        "trusting": 2001,
+        "ashamed": 1976,
+        "apprehensive": 1822,
+        "faithful": 1435
+      },
+      "artifact_token_counts": {
+        "_comma_": 29094,
+        "__": 15
+      },
+      "empty_utterance_rows": 0,
+      "empty_context_rows": 0,
+      "control_char_rows": 0,
+      "mojibake_rows": 0,
+      "broken_encoding_placeholder_rows": 0,
+      "utterance_idx_distinct": 8
+    },
+    "validation": {
+      "split": "validation",
+      "file": "valid.csv",
+      "header": [
+        "conv_id",
+        "utterance_idx",
+        "context",
+        "prompt",
+        "speaker_idx",
+        "utterance",
+        "selfeval",
+        "tags"
+      ],
+      "total_physical_lines": 12031,
+      "data_rows_parsed": 6313,
+      "ragged_rows": 5717,
+      "ragged_examples": [
+        {
+          "line": 3,
+          "expected_fields": 8,
+          "got_fields": 9,
+          "preview": "hit:3_conv:6 | 2 | terrified | Today_comma_as i was leaving for work in the morning_comma_i had a tire burst in the middle of a busy road. That scared the hell out of me! | 7 | Are you fine now? | 4|5"
+        },
+        {
+          "line": 5,
+          "expected_fields": 8,
+          "got_fields": 9,
+          "preview": "hit:3_conv:6 | 4 | terrified | Today_comma_as i was leaving for work in the morning_comma_i had a tire burst in the middle of a busy road. That scared the hell out of me! | 7 | Cool :) Is your car dam"
+        },
+        {
+          "line": 8,
+          "expected_fields": 8,
+          "got_fields": 9,
+          "preview": "hit:4_conv:9 | 2 | surprised | I was walking through my hallway a few week ago_comma_ and my son was hiding under the table and grabbed my ankle. I thought i was got.  | 4 | That's funny_comma_ hope h"
+        },
+        {
+          "line": 10,
+          "expected_fields": 8,
+          "got_fields": 9,
+          "preview": "hit:4_conv:9 | 4 | surprised | I was walking through my hallway a few week ago_comma_ and my son was hiding under the table and grabbed my ankle. I thought i was got.  | 4 | I would probably scream al"
+        },
+        {
+          "line": 12,
+          "expected_fields": 8,
+          "got_fields": 9,
+          "preview": "hit:6_conv:12 | 2 | excited | I'm overly excited today because will be flying outside the country for the first time tomorrow. | 11 | Wow! That sounds amazing. Where are you going?  | I have clicked t"
+        }
+      ],
+      "conversations": 2759,
+      "multi_turn_conversations": 2756,
+      "turns_per_conversation_histogram": {
+        "1": 3,
+        "2": 2026,
+        "3": 662,
+        "4": 68
+      },
+      "non_monotonic_utterance_idx_conversations": 0,
+      "speaker_idx_distinct_values": 79,
+      "speaker_idx_top20": [
+        [
+          "60",
+          264
+        ],
+        [
+          "725",
+          240
+        ],
+        [
+          "567",
+          234
+        ],
+        [
+          "580",
+          232
+        ],
+        [
+          "473",
+          218
+        ],
+        [
+          "327",
+          181
+        ],
+        [
+          "391",
+          179
+        ],
+        [
+          "340",
+          176
+        ],
+        [
+          "568",
+          175
+        ],
+        [
+          "111",
+          174
+        ],
+        [
+          "326",
+          172
+        ],
+        [
+          "44",
+          169
+        ],
+        [
+          "284",
+          162
+        ],
+        [
+          "547",
+          155
+        ],
+        [
+          "259",
+          151
+        ],
+        [
+          "250",
+          147
+        ],
+        [
+          "147",
+          145
+        ],
+        [
+          "503",
+          142
+        ],
+        [
+          "607",
+          124
+        ],
+        [
+          "318",
+          123
+        ]
+      ],
+      "speaker_idx_is_binary": false,
+      "emotion_label_count": 32,
+      "emotion_labels": {
+        "surprised": 334,
+        "annoyed": 282,
+        "impressed": 231,
+        "sad": 229,
+        "excited": 225,
+        "embarrassed": 218,
+        "lonely": 217,
+        "prepared": 217,
+        "disappointed": 215,
+        "confident": 212,
+        "afraid": 207,
+        "jealous": 202,
+        "content": 199,
+        "angry": 196,
+        "joyful": 192,
+        "terrified": 190,
+        "sentimental": 189,
+        "hopeful": 188,
+        "disgusted": 187,
+        "proud": 187,
+        "anxious": 183,
+        "furious": 179,
+        "nostalgic": 179,
+        "apprehensive": 173,
+        "devastated": 173,
+        "grateful": 172,
+        "anticipating": 171,
+        "trusting": 170,
+        "caring": 165,
+        "guilty": 161,
+        "ashamed": 158,
+        "faithful": 112
+      },
+      "artifact_token_counts": {
+        "_comma_": 2894,
+        "__": 2
+      },
+      "empty_utterance_rows": 0,
+      "empty_context_rows": 0,
+      "control_char_rows": 0,
+      "mojibake_rows": 0,
+      "broken_encoding_placeholder_rows": 0,
+      "utterance_idx_distinct": 4
+    },
+    "test": {
+      "split": "test",
+      "file": "test.csv",
+      "header": [
+        "conv_id",
+        "utterance_idx",
+        "context",
+        "prompt",
+        "speaker_idx",
+        "utterance",
+        "selfeval",
+        "tags"
+      ],
+      "total_physical_lines": 10944,
+      "data_rows_parsed": 5697,
+      "ragged_rows": 5246,
+      "ragged_examples": [
+        {
+          "line": 3,
+          "expected_fields": 8,
+          "got_fields": 9,
+          "preview": "hit:0_conv:0 | 2 | guilty | I felt guilty when I was driving home one night and a person tried to fly into my lane_comma_ and didn't see me. I honked and they swerved back into their lane_comma_ slamm"
+        },
+        {
+          "line": 5,
+          "expected_fields": 8,
+          "got_fields": 9,
+          "preview": "hit:0_conv:0 | 4 | guilty | I felt guilty when I was driving home one night and a person tried to fly into my lane_comma_ and didn't see me. I honked and they swerved back into their lane_comma_ slamm"
+        },
+        {
+          "line": 8,
+          "expected_fields": 8,
+          "got_fields": 9,
+          "preview": "hit:34_conv:69 | 2 | caring | My mother stopped by my house one day and said she saw 3 dogs on the road_comma_ down from our house. They were starving_comma_ with ribs showing_comma_ and it was a moth"
+        },
+        {
+          "line": 10,
+          "expected_fields": 8,
+          "got_fields": 9,
+          "preview": "hit:34_conv:69 | 4 | caring | My mother stopped by my house one day and said she saw 3 dogs on the road_comma_ down from our house. They were starving_comma_ with ribs showing_comma_ and it was a moth"
+        },
+        {
+          "line": 12,
+          "expected_fields": 8,
+          "got_fields": 9,
+          "preview": "hit:37_conv:74 | 2 | lonely | I just broke up with my girlfriend_comma_ we were together for 8 years_comma_ i feel so empty. | 43 | sorry to hear! do you have any idea about the break up? did you thin"
+        }
+      ],
+      "conversations": 2540,
+      "multi_turn_conversations": 2536,
+      "turns_per_conversation_histogram": {
+        "1": 4,
+        "2": 1984,
+        "3": 483,
+        "4": 69
+      },
+      "non_monotonic_utterance_idx_conversations": 0,
+      "speaker_idx_distinct_values": 70,
+      "speaker_idx_top20": [
+        [
+          "343",
+          243
+        ],
+        [
+          "45",
+          192
+        ],
+        [
+          "437",
+          180
+        ],
+        [
+          "188",
+          175
+        ],
+        [
+          "481",
+          173
+        ],
+        [
+          "64",
+          159
+        ],
+        [
+          "387",
+          155
+        ],
+        [
+          "317",
+          154
+        ],
+        [
+          "50",
+          151
+        ],
+        [
+          "117",
+          146
+        ],
+        [
+          "310",
+          146
+        ],
+        [
+          "507",
+          144
+        ],
+        [
+          "628",
+          138
+        ],
+        [
+          "138",
+          136
+        ],
+        [
+          "630",
+          135
+        ],
+        [
+          "466",
+          134
+        ],
+        [
+          "423",
+          133
+        ],
+        [
+          "49",
+          120
+        ],
+        [
+          "278",
+          119
+        ],
+        [
+          "313",
+          113
+        ]
+      ],
+      "speaker_idx_is_binary": false,
+      "emotion_label_count": 32,
+      "emotion_labels": {
+        "surprised": 291,
+        "grateful": 221,
+        "proud": 221,
+        "sentimental": 205,
+        "excited": 202,
+        "annoyed": 198,
+        "sad": 195,
+        "disgusted": 189,
+        "disappointed": 188,
+        "joyful": 186,
+        "jealous": 183,
+        "angry": 181,
+        "embarrassed": 179,
+        "impressed": 178,
+        "caring": 177,
+        "hopeful": 175,
+        "nostalgic": 173,
+        "prepared": 173,
+        "content": 172,
+        "anxious": 171,
+        "lonely": 170,
+        "confident": 170,
+        "anticipating": 165,
+        "afraid": 164,
+        "apprehensive": 158,
+        "terrified": 155,
+        "furious": 153,
+        "guilty": 149,
+        "devastated": 148,
+        "trusting": 147,
+        "ashamed": 143,
+        "faithful": 117
+      },
+      "artifact_token_counts": {
+        "_comma_": 3058
+      },
+      "empty_utterance_rows": 0,
+      "empty_context_rows": 0,
+      "control_char_rows": 0,
+      "mojibake_rows": 0,
+      "broken_encoding_placeholder_rows": 0,
+      "utterance_idx_distinct": 4
+    }
+  },
+  "conversation_overlap_between_official_splits": {
+    "train|validation": 0,
+    "test|train": 0,
+    "test|validation": 0
+  },
+  "totals": {
+    "data_rows": 88678,
+    "conversations": 23138,
+    "ragged_rows": 10968
+  }
+}

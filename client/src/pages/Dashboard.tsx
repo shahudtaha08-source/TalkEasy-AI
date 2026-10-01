@@ -10,28 +10,9 @@ import {
   Meh, Angry, Sun, Lightbulb
 } from "lucide-react";
 import { Link } from "wouter";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useTranslation } from "@/i18n/LanguageContext";
-
-// Daily thoughts - curated wellbeing/psychology-informed messages
-const DAILY_THOUGHTS = [
-  "Small steps forward are still progress. Be patient with yourself.",
-  "Your feelings are valid, but they don't define your whole story.",
-  "Rest is not a reward for productivity—it's a basic human need.",
-  "Progress isn't always linear. Some days are harder, and that's okay.",
-  "Asking for help is a sign of strength, not weakness.",
-  "You deserve the same kindness you give to others.",
-  "It's okay to not be okay sometimes. What matters is what you do next.",
-  "Your worth is not measured by your productivity.",
-  "Taking care of yourself isn't selfish—it's necessary.",
-  "Tomorrow is a new opportunity. Today doesn't have to be perfect.",
-];
-
-function getDailyThought(): string {
-  const today = new Date();
-  const dayOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000);
-  return DAILY_THOUGHTS[Math.floor(dayOfYear) % DAILY_THOUGHTS.length];
-}
+import { getThought, generateWellnessInsights } from "@shared/wellness-insights";
 
 // Pattern Engine
 function usePatternInsights(moods: any[], habits: any[], journals: any[]) {
@@ -265,7 +246,7 @@ export default function Dashboard() {
           </div>
           <div className="flex-1 flex items-center justify-center text-center py-4">
             <p className="text-sm text-amber-900 dark:text-amber-100 leading-relaxed italic">
-              "{getDailyThought()}"
+              "{getThought({ mood: todayMood?.mood, stressLevel: undefined })}"
             </p>
           </div>
           <p className="text-xs text-amber-700 dark:text-amber-300 text-center mt-2">

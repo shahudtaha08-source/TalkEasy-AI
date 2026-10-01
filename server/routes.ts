@@ -4,7 +4,7 @@ import { storage } from "./storage";
 import { setupLocalAuth, isAuthenticated } from "./auth";
 import { api } from "@shared/routes";
 import { db } from "./db";
-import { moods, conversations, messages, users, journals, sleepEntries } from "@shared/schema";
+import { moods, conversations, messages, users, journals, sleepEntries, moodEntries, waterEntries, stressEntries, healthDailyRecords, reports } from "@shared/schema";
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { getAIService, SAFETY_SYSTEM_PROMPT, STANDARD_SYSTEM_PROMPT } from "./ai-service";
 import { SafetyDetector, SafetyEventLogger } from "./safety-detection";
@@ -97,6 +97,210 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
         res.status(201).json(created);
       }
     } catch { res.status(400).json({ message: "Failed to save sleep entry" }); }
+  });
+
+  // ─── v6.0 NEW ROUTES ─────────────────────────────────────────────────────────────
+
+  // Mood entries (detailed mood tracking with factors + intensity)
+  app.get("/api/mood-entries", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const limit = parseInt(req.query.limit as string) || 30;
+      const entries = await db
+        .select()
+        .from(moodEntries)
+        .where(eq(moodEntries.userId, userId))
+        .orderBy(desc(moodEntries.date))
+        .limit(limit);
+      res.json(entries);
+    } catch { res.status(400).json({ message: "Failed to fetch mood entries" }); }
+  });
+
+  app.post("/api/mood-entries", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { mood, intensity, factors, contextNote, date } = req.body;
+      const [created] = await db
+        .insert(moodEntries)
+        .values({ userId, mood, intensity, factors, contextNote, date })
+        .returning();
+      res.status(201).json(created);
+    } catch { res.status(400).json({ message: "Failed to create mood entry" }); }
+  });
+
+  // Water intake entries
+  app.get("/api/water-entries", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const date = req.query.date as string;
+      const whereClause = date
+        ? and(eq(waterEntries.userId, userId), eq(waterEntries.date, date))
+        : eq(waterEntries.userId, userId);
+      
+      const entries = await db
+        .select()
+        .from(waterEntries)
+        .where(whereClause)
+        .orderBy(desc(waterEntries.loggedAt))
+        .limit(100);
+      res.json(entries);
+    } catch { res.status(400).json({ message: "Failed to fetch water entries" }); }
+  });
+
+  app.post("/api/water-entries", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { amountMl, date } = req.body;
+      const [created] = await db
+        .insert(waterEntries)
+        .values({ userId, amountMl, date })
+        .returning();
+      res.status(201).json(created);
+    } catch { res.status(400).json({ message: "Failed to create water entry" }); }
+  });
+
+  app.delete("/api/water-entries/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      await db.delete(waterEntries).where(eq(waterEntries.id, parseInt(req.params.id)));
+      res.json({ success: true });
+    } catch { res.status(400).json({ message: "Failed to delete water entry" }); }
+  });
+
+  // Stress entries
+  app.get("/api/stress-entries", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const limit = parseInt(req.query.limit as string) || 30;
+      const entries = await db
+        .select()
+        .from(stressEntries)
+        .where(eq(stressEntries.userId, userId))
+        .orderBy(desc(stressEntries.date))
+        .limit(limit);
+      res.json(entries);
+    } catch { res.status(400).json({ message: "Failed to fetch stress entries" }); }
+  });
+
+  app.post("/api/stress-entries", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { level, score, note, date } = req.body;
+      const [created] = await db
+        .insert(stressEntries)
+        .values({ userId, level, score, note, date })
+        .returning();
+      res.status(201).json(created);
+    } catch { res.status(400).json({ message: "Failed to create stress entry" }); }
+  });
+
+  app.patch("/api/stress-entries/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const { interventionViewed } = req.body;
+      const [updated] = await db
+        .update(stressEntries)
+        .set({ interventionViewed })
+        .where(eq(stressEntries.id, parseInt(req.params.id)))
+        .returning();
+      res.json(updated);
+    } catch { res.status(400).json({ message: "Failed to update stress entry" }); }
+  });
+
+  // Health daily records
+  app.get("/api/health-daily-records", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const limit = parseInt(req.query.limit as string) || 90;
+      const entries = await db
+        .select()
+        .from(healthDailyRecords)
+        .where(eq(healthDailyRecords.userId, userId))
+        .orderBy(desc(healthDailyRecords.date))
+        .limit(limit);
+      res.json(entries);
+    } catch { res.status(400).json({ message: "Failed to fetch health records" }); }
+  });
+
+  app.get("/api/health-daily-records/latest", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const [latest] = await db
+        .select()
+        .from(healthDailyRecords)
+        .where(eq(healthDailyRecords.userId, userId))
+        .orderBy(desc(healthDailyRecords.date))
+        .limit(1);
+      res.json(latest || null);
+    } catch { res.status(400).json({ message: "Failed to fetch latest health record" }); }
+  });
+
+  app.post("/api/health-daily-records", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { date, heartRate, spo2, systolicBp, diastolicBp, ecgStatus, steps, isDemo, sleepHours, waterMl, stressLevel, mood, moodIntensity } = req.body;
+
+      // Check if record exists for this date
+      const [existing] = await db
+        .select()
+        .from(healthDailyRecords)
+        .where(and(eq(healthDailyRecords.userId, userId), eq(healthDailyRecords.date, date)));
+
+      if (existing) {
+        // Update existing record
+        const [updated] = await db
+          .update(healthDailyRecords)
+          .set({ heartRate, spo2, systolicBp, diastolicBp, ecgStatus, steps, isDemo, sleepHours, waterMl, stressLevel, mood, moodIntensity, updatedAt: new Date() })
+          .where(eq(healthDailyRecords.id, existing.id))
+          .returning();
+        res.json(updated);
+      } else {
+        // Create new record
+        const [created] = await db
+          .insert(healthDailyRecords)
+          .values({ userId, date, heartRate, spo2, systolicBp, diastolicBp, ecgStatus, steps, isDemo, sleepHours, waterMl, stressLevel, mood, moodIntensity })
+          .returning();
+        res.status(201).json(created);
+      }
+    } catch { res.status(400).json({ message: "Failed to save health record" }); }
+  });
+
+  // Reports
+  app.get("/api/reports", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const reportsList = await db
+        .select()
+        .from(reports)
+        .where(eq(reports.userId, userId))
+        .orderBy(desc(reports.generatedAt));
+      res.json(reportsList);
+    } catch { res.status(400).json({ message: "Failed to fetch reports" }); }
+  });
+
+  app.post("/api/reports", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { type, title, periodStart, periodEnd, summaryJson } = req.body;
+      const [created] = await db
+        .insert(reports)
+        .values({ userId, type, title, periodStart, periodEnd, summaryJson })
+        .returning();
+      res.status(201).json(created);
+    } catch { res.status(400).json({ message: "Failed to create report" }); }
+  });
+
+  app.get("/api/reports/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const report = await db
+        .select()
+        .from(reports)
+        .where(eq(reports.id, parseInt(req.params.id)))
+        .limit(1);
+      if (report.length === 0) {
+        res.status(404).json({ message: "Report not found" });
+      } else {
+        res.json(report[0]);
+      }
+    } catch { res.status(400).json({ message: "Failed to fetch report" }); }
   });
 
   app.get(api.chat.list.path, isAuthenticated, async (req: any, res) => {

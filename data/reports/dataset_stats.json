@@ -1,0 +1,157 @@
+{
+  "generated_at_utc": "2026-10-01T01:25:24.009482+00:00",
+  "seed": 42,
+  "oversample_safety": 2,
+  "dataset_version": "v1.0.0",
+  "sources": {
+    "empathetic_dialogues": {
+      "id": "facebook/empathetic_dialogues",
+      "license": "CC-BY-NC-4.0",
+      "commercial_use": "NOT PERMITTED without separate permission",
+      "examples": 16974
+    },
+    "talkeasy_curated": {
+      "id": "talkeasy-curated-v1",
+      "license": "TalkEasy project",
+      "examples": 85,
+      "safety_examples": 17,
+      "languages": {
+        "English": 64,
+        "Hindi": 10,
+        "Hinglish": 6,
+        "Urdu": 5
+      },
+      "languages_deliberately_excluded": [
+        "Marathi",
+        "Tamil",
+        "Telugu",
+        "Malayalam",
+        "Kannada",
+        "Bengali",
+        "Gujarati"
+      ],
+      "exclusion_reason": "Only machine translation was available; the project brief forbids treating machine-translated text as quality training data."
+    }
+  },
+  "total_examples": 17081,
+  "train": {
+    "examples": 13655,
+    "safety_examples": 33,
+    "conversations": 6688,
+    "language_distribution": {
+      "English": 13632,
+      "Hindi": 13,
+      "Urdu": 6,
+      "Hinglish": 4
+    },
+    "top_categories": {
+      "positive": 1059,
+      "anger": 905,
+      "anticipation": 887,
+      "fear": 823,
+      "anxiety": 790,
+      "surprise": 686,
+      "shame": 678,
+      "trust": 551,
+      "sadness": 535,
+      "loneliness": 503,
+      "grief": 477,
+      "hopeful": 475,
+      "confidence": 458,
+      "contentment": 453,
+      "pride": 450
+    },
+    "category_count": 45,
+    "messages_per_example": {
+      "2": 6764,
+      "4": 6677,
+      "6": 182,
+      "8": 32
+    },
+    "avg_turns": 3.05,
+    "avg_user_chars": 81.4,
+    "avg_assistant_chars": 65.4,
+    "avg_total_chars": 146.8
+  },
+  "validation": {
+    "examples": 1708,
+    "safety_examples": 3,
+    "conversations": 839,
+    "language_distribution": {
+      "English": 1705,
+      "Hinglish": 1,
+      "Urdu": 1,
+      "Hindi": 1
+    },
+    "top_categories": {
+      "positive": 133,
+      "anger": 114,
+      "anticipation": 111,
+      "fear": 102,
+      "anxiety": 102,
+      "shame": 86,
+      "surprise": 84,
+      "trust": 66,
+      "sadness": 64,
+      "loneliness": 64,
+      "grief": 60,
+      "hopeful": 60,
+      "contentment": 59,
+      "confidence": 57,
+      "pride": 56
+    },
+    "category_count": 34,
+    "messages_per_example": {
+      "2": 854,
+      "4": 839,
+      "6": 13,
+      "8": 2
+    },
+    "avg_turns": 3.02,
+    "avg_user_chars": 78.5,
+    "avg_assistant_chars": 64.8,
+    "avg_total_chars": 143.3
+  },
+  "test": {
+    "examples": 1718,
+    "safety_examples": 3,
+    "conversations": 839,
+    "language_distribution": {
+      "English": 1717,
+      "Hinglish": 1
+    },
+    "top_categories": {
+      "positive": 133,
+      "anger": 114,
+      "anticipation": 114,
+      "fear": 106,
+      "anxiety": 100,
+      "shame": 85,
+      "surprise": 84,
+      "trust": 67,
+      "loneliness": 64,
+      "sadness": 64,
+      "hopeful": 60,
+      "grief": 60,
+      "confidence": 59,
+      "pride": 57,
+      "contentment": 56
+    },
+    "category_count": 36,
+    "messages_per_example": {
+      "2": 853,
+      "4": 838,
+      "6": 22,
+      "8": 5
+    },
+    "avg_turns": 3.04,
+    "avg_user_chars": 82.2,
+    "avg_assistant_chars": 66.9,
+    "avg_total_chars": 149.10000000000002
+  },
+  "split_ratios": {
+    "train": 0.7994,
+    "validation": 0.1,
+    "test": 0.1006
+  }
+}
