@@ -198,6 +198,53 @@ check("every ED category has a mood", all(
     c in CATEGORY_TO_MOOD for c in EMOTION_TO_CATEGORY.values()
 ), True)
 
+# ------------------------------------------------- non-Latin scripts
+# Regression: is_degenerate() counted word characters with str.isalpha(),
+# which returns False for combining marks. Devanagari vowel signs (matras)
+# are category Mn, so EVERY Hindi example was judged degenerate and the
+# validator rejected the whole multilingual set.
+DEVA = "मुझे रात में सो नहीं आता, मन बहुत चलता रहता है।"
+DEVA_SHORT = "मैं जीने नहीं चाहता।"
+DEVANAGARI_STRESS = "कल परीक्षा है और मैं बहुत घबरा हुआ हूँ।"
+DEVANAGARI_POSITIVE = "आज बहुत अच्छा दिन था, बस बताना चाहता था।"
+
+check("devanagari sentence is not degenerate", is_degenerate(DEVA), False)
+check("short devanagari is not degenerate", is_degenerate(DEVA_SHORT), False)
+check("devanagari stress is not degenerate", is_degenerate(DEVANAGARI_STRESS), False)
+check("devanagari positive is not degenerate", is_degenerate(DEVANAGARI_POSITIVE), False)
+
+ARABIC = "أنا بمرّ بوقت صعب هذا الأسبوع"
+check("arabic script is not degenerate", is_degenerate(ARABIC), False)
+
+check("digit soup still degenerate", is_degenerate("1234 5678 9012"), True)
+check("empty still degenerate", is_degenerate(""), True)
+
+# Devanagari must still be readable by the crisis and PII checks rather than
+# crashing on a script they were never written for.
+# NOTE: "मैं जीने नहीं चाहता" is "I don't want to live" and IS a crisis; it is
+# asserted as such in the non-English coverage section below.
+check("devanagari crisis text does not crash", isinstance(is_crisis_context(DEVA_SHORT), bool), True)
+
+# ------------------------------------ non-English crisis coverage
+# Regression: every CRISIS_PATTERNS regex was English-only, so Hindi crisis
+# disclosures ("मैं जीने नहीं चाहता" = I don't want to live) were silently
+# treated as ordinary chat. The deterministic safety layer is the one thing
+# that must not depend on the model behaving well.
+check_true("hindi: don't want to live", is_crisis_context("मैं जीने नहीं चाहता।"))
+check_true("hindi: want to die", is_crisis_context("मर जाना चाहता हूं"))
+check_true("hindi: suicide word", is_crisis_context("आत्महत्या के बारे में सोच रहा हूं"))
+check_true("hindi: self-harm verb", is_crisis_context("मैं खुद को काटूंगा"))
+check_true("hindi: hurt myself", is_crisis_context("मैं खुद को नुकसान पहुंचाने का सोच रहा हूं"))
+check_true("hinglish: jine nahi chahta", is_crisis_context("main jine nahi chahta"))
+check_true("roman urdu: marna nahi chahta", is_crisis_context("main marna nahi chahta"))
+
+# Guard against over-triggering: ordinary Hindi/Urdu must stay non-crisis,
+# otherwise the app would page users out for everyday conversation.
+check_false("hindi: ordinary exam worry", is_crisis_context(DEVANAGARI_STRESS))
+check_false("hindi: ordinary good day", is_crisis_context(DEVANAGARI_POSITIVE))
+check_false("hindi: ordinary sleeplessness", is_crisis_context(DEVA))
+check_false("urdu: ordinary complaint", is_crisis_context("मुझे बहुत थकान है"))
+
 # ---------------------------------------------------------------- report
 print(f"common.py tests: {PASSED} passed, {len(FAILED)} failed")
 for f in FAILED:

@@ -22,6 +22,30 @@ export class SafetyDetector {
     /\b(end it all|end my life)\b/i,
     /\b(no reason to live|pointless|hopeless)\b/i,
     /\b(plan|planning|method|ways to) (kill|die|end)\b/i,
+    // Hindi / Devanagari. TalkEasy ships Hindi, Hinglish and Roman Urdu, but
+    // this list was previously English-only, so a Hindi user writing
+    // "मैं जीने नहीं चाहता" ("I don't want to live") or "आत्महत्या" received no
+    // crisis detection at all. JS \b does not fire around Devanagari, so these
+    // match plain substrings.
+    /(जीने नहीं चाहता)/,
+    /(जीने की इच्छा नहीं)/,
+    /(मर जाना|मरना चाहता|मर जाने)/,
+    /(आत्महत्या|आत्म हत्या|सुकृत्या)/,
+    /(खुद को (नुकसान|हानि|चोट) पहुंचा)/,
+    /(स्वयं को (नुकसान|हानि) पहुंचा)/,
+    /(खुद को (काट|मार)|स्वयं को (काट|मार))/,
+    /(जीवन समाप्त|ज़िंदगी (खत्म|समाप्त))/,
+    /(बिना मेरे (जीने|रहने))/,
+    /(कोई कारण नहीं (जीने|रहने))/,
+    // Hinglish (Latin script) - a very common input form for these users.
+    /\bma(i|ko) (khud|self) (ko)? (maar|kat|nuksan)\b/i,
+    /\b(jine|marne|jeena) nahi chahta\b/i,
+    /\batmahatya\b/i,
+    /\bkhatam karna hai\b/i,
+    // Roman Urdu.
+    /\b(marna|jeena) nahi chahta\b/i,
+    /\b(khud|apne) (ko|apko) (qatil|mar)\b/i,
+    /\b(intahar|atmaahatya)\b/i,
   ];
 
   private static readonly SUICIDE_INTENT_PATTERNS = [

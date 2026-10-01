@@ -231,6 +231,16 @@ def has_personal_identifiers(text: str) -> bool:
     return bool(_URL.search(text) or _EMAIL.search(text) or _PHONE.search(text))
 
 
+def _is_word_char(ch: str) -> bool:
+    """True for letters and combining marks.
+
+    Combining marks matter: Devanagari vowel signs (matras) are category Mn,
+    and ``str.isalpha()`` returns False for them. Counting only isalpha()
+    characters made every legitimate Hindi example look like punctuation soup.
+    """
+    return unicodedata.category(ch)[0] in ("L", "M")
+
+
 def is_degenerate(text: str) -> bool:
     """Junk that survives length checks but teaches nothing."""
     if not text or len(text.strip()) < 2:
@@ -239,8 +249,11 @@ def is_degenerate(text: str) -> bool:
         return True
     if _REPEAT_CHAR.search(text):
         return True
-    letters = sum(ch.isalpha() for ch in text)
-    if letters / max(len(text), 1) < 0.55:
+    non_space = sum(1 for ch in text if not ch.isspace())
+    if non_space == 0:
+        return True
+    word_chars = sum(1 for ch in text if _is_word_char(ch))
+    if word_chars / non_space < 0.55:
         # Heavy on punctuation/digits - usually a table, URL remnant or emoji soup.
         return True
     return False
@@ -262,6 +275,30 @@ CRISIS_PATTERNS = [
     re.compile(r"\b(going to|planning to|about to|decided to)\s+(kill|end|take)\b", re.IGNORECASE),
     re.compile(r"\bno reason to live\b", re.IGNORECASE),
     re.compile(r"\bwake up dead\b", re.IGNORECASE),
+    # -- Hindi / Devanagari ------------------------------------------------
+    # The layer above is English-only, which meant a Hindi user writing
+    # "मैं जीने नहीं चाहता" ("I don't want to live") or "आत्महत्या" was NOT
+    # flagged as a crisis at all. Since the app ships Hindi, Hinglish and
+    # Roman Urdu, the deterministic detector has to cover those scripts too.
+    # Unicode word boundaries (\b) do not fire around Devanagari, so these
+    # patterns match on plain substring alternatives instead.
+    re.compile(r"(जीने नहीं चाहता|जीने की इच्छा नहीं|जीना नहीं चाहता)"),
+    re.compile(r"(मर जाना|मरना चाहता|मर जाने)"),
+    re.compile(r"(आत्महत्या|आत्म हत्या|सुकृत्या)"),
+    re.compile(r"(खुद को (नुकसान|हानि|चोट) पहुंचा|स्वयं को (नुकसान|हानि) पहुंचा)"),
+    re.compile(r"(खुद को (काट|मार)|स्वयं को (काट|मार))"),
+    re.compile(r"(जीवन समाप्त|ज़िंदगी (खत्म|समाप्त))"),
+    re.compile(r"(बिना मेरे (जीने|रहने))"),
+    re.compile(r"(कोई कारण नहीं (जीने|रहने))"),
+    # Hinglish written in Latin script (very common input).
+    re.compile(r"\bma(i|ko)\s+(khud|self)\s+(ko)?\s*(de|ko)\s*(maar|kat|nuksan)\b", re.IGNORECASE),
+    re.compile(r"\b(jine|marne|jeena)\s+nahi\s+chahta\b", re.IGNORECASE),
+    re.compile(r"\batmahatya\b", re.IGNORECASE),
+    re.compile(r"\bkhatam\s+karna\s+hai\b", re.IGNORECASE),
+    # Roman Urdu.
+    re.compile(r"\b(marna|jeena)\s+nahi\s+chahta\b", re.IGNORECASE),
+    re.compile(r"\b(khud|apne)\s+(ko|apko)\s+(qatil|mar)\b", re.IGNORECASE),
+    re.compile(r"\b(intahar|atmaahatya)\b", re.IGNORECASE),
 ]
 
 VIOLENCE_PATTERNS = [

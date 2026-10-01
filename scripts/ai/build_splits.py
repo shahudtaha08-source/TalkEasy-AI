@@ -52,6 +52,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "curated"))
 
 import curated_examples as curated  # noqa: E402
+from common import force_utf8_console  # noqa: E402
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 PROCESSED = os.path.join(REPO_ROOT, "data", "processed")
@@ -203,6 +204,7 @@ def split_curated(rng: random.Random) -> tuple[list[dict], list[dict], list[dict
 
 
 def main() -> int:
+    force_utf8_console()
     ap = argparse.ArgumentParser()
     ap.add_argument("--oversample-safety", type=int, default=2,
                     help="Repeat the curated safety set N times in TRAIN only.")
@@ -235,11 +237,14 @@ def main() -> int:
     # ---- safety oversampling (train only) -------------------------------
     safety_examples = [e for e in cu_train if e["is_safety"]]
     oversampled: list[dict] = []
-    for i in range(args.oversample_safety):
+    for i in range(1, args.oversample_safety + 1):
         for ex in safety_examples:
             copy = dict(ex)
-            copy["id"] = f"{ex['id']}__os{i}" if i else ex["id"]
-            copy["oversampled"] = i > 0
+            # The original example is already in cu_train, so EVERY extra copy
+            # needs a distinct id. Leaving copy 0 un-suffixed produced exact
+            # duplicate ids inside the training file.
+            copy["id"] = f"{ex['id']}__os{i}"
+            copy["oversampled"] = True
             oversampled.append(copy)
     cu_train = cu_train + oversampled
     print(f"[splits] safety oversampling x{args.oversample_safety}: "
@@ -254,6 +259,58 @@ def main() -> int:
     train = tag(ed_train + cu_train, "mixed")
     val = tag(ed_val + cu_val, "mixed")
     test = tag(ed_test + cu_test, "mixed")
+    # ---- dedup guard ----------------------------------------------------
+    # The validator treats an identical conversation under two ids as an error.
+    # EmpatheticDialogues is crowd-sourced, so genuine near-verbatim repeats
+    # survive even after the preprocessing dedup. Dropping them here (first
+    # occurrence wins, so the result is deterministic) keeps the validator a
+    # pure gate rather than a place that has to tolerate duplicates.
+    def fingerprint(r: dict) -> str:
+        return json.dumps(
+            [[m["role"], m["content"]] for m in r["messages"]],
+            ensure_ascii=False, sort_keys=True,
+        )
+
+    def dedup(rows: list[dict], label: str) -> list[dict]:
+        """Drop accidental duplicates, keep intentional oversampled repeats.
+
+        Safety oversampling deliberately repeats the same conversation under a
+        new id. A naive content dedup therefore deletes every oversampled copy -
+        it removed exactly the 22 repeats in an earlier run and silently undid
+        the safety weighting. Oversampled rows are excluded from the fingerprint
+        set, but only survive if their base conversation was itself kept.
+        """
+        seen: set[str] = set()
+        out: list[dict] = []
+        removed = 0
+        for r in rows:
+            fp = fingerprint(r)
+            if r.get("oversampled"):
+                out.append(r)
+                continue
+            if fp in seen:
+                removed += 1
+                continue
+            seen.add(fp)
+            out.append(r)
+
+        # An oversampled copy whose base conversation was dropped is pointless.
+        kept = {fingerprint(r) for r in out}
+        orphans = [r for r in out
+                   if r.get("oversampled") and fingerprint(r) not in
+                   {fingerprint(x) for x in out if not x.get("oversampled")}]
+        if orphans:
+            out = [r for r in out if r not in orphans]
+            print(f"[dedup] {label}: dropped {len(orphans)} orphaned oversample(s)")
+
+        if removed:
+            print(f"[dedup] {label}: removed {removed} duplicate conversations")
+        return out
+
+    train = dedup(train, "train")
+    val = dedup(val, "validation")
+    test = dedup(test, "test")
+
     for rows in (train, val, test):
         rng.shuffle(rows)
 

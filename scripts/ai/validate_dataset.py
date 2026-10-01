@@ -33,6 +33,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from common import (  # noqa: E402
     find_fabricated_crisis_numbers,
+    force_utf8_console,
     find_unsafe_assistant_patterns,
     has_personal_identifiers,
     is_degenerate,
@@ -190,6 +191,7 @@ def load_jsonl(path: str) -> list[dict]:
 
 
 def main() -> int:
+    force_utf8_console()
     ap = argparse.ArgumentParser()
     ap.add_argument("--files", nargs="*", default=None)
     args = ap.parse_args()
@@ -214,7 +216,7 @@ def main() -> int:
         name = os.path.basename(path)
         rows = load_jsonl(path)
         per_file[name] = len(rows)
-        seen_fingerprints: set[str] = set()
+        seen_base: set[str] = set()
         for i, ex in enumerate(rows):
             where = f"{name}#{i}"
             v.check_structure(ex, where)
@@ -229,14 +231,24 @@ def main() -> int:
 
             # Content fingerprint: identical text under a different id is
             # still a duplicate and would leak across splits.
+            #
+            # Intentional safety oversampling is the one allowed exception: a
+            # repeat carrying `oversampled: true` shares content with its base
+            # example on purpose. It must still have its own unique id.
+            #
+            # Only NON-oversampled rows are entered into `seen_base`. Recording
+            # oversampled fingerprints here too meant that whenever the shuffle
+            # placed an oversampled copy ahead of its own base example, the base
+            # row was wrongly reported as a duplicate.
             fp = json.dumps(
                 [[m.get("role"), m.get("content")] for m in ex.get("messages", [])],
                 ensure_ascii=False,
                 sort_keys=True,
             )
-            if fp in seen_fingerprints:
-                v.err(where, "exact duplicate conversation inside the same file")
-            seen_fingerprints.add(fp)
+            if not ex.get("oversampled"):
+                if fp in seen_base:
+                    v.err(where, "exact duplicate conversation inside the same file")
+                seen_base.add(fp)
             contents_by_split.setdefault(name, set()).add(fp)
 
         split = name.replace("talkeasy_", "").replace(".jsonl", "")

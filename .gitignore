@@ -5,3 +5,12 @@ server/public
 vite.config.ts.*
 *.tar.gz
 .env
+
+# TalkEasy AI training artifacts
+__pycache__/
+*.py[cod]
+artifacts/
+Modelfile
+data/reports/*.json
+*.gguf
+
