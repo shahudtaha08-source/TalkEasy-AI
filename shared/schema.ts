@@ -198,6 +198,78 @@ export const reports = pgTable("reports", {
   generatedAt: timestamp("generated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
 }, (table) => [index("IDX_reports_user").on(table.userId)]);
 
+// ─── PERSONAL GOALS ────────────────────────────────────────────────────────────
+export const goals = pgTable("goals", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  title: text("title").notNull(),
+  description: text("description"),
+  focusArea: text("focus_area").notNull(), // Sleep | Mood | Stress | Hydration | Habits | Activity | Reflection | General wellness
+  target: real("target"),
+  unit: text("unit"),
+  currentProgress: real("current_progress").default(0).notNull(),
+  status: text("status").notNull().default("active"), // active | paused | completed | archived
+  deadline: date("deadline"),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  updatedAt: timestamp("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+}, (table) => [index("IDX_goals_user").on(table.userId), index("IDX_goals_status").on(table.status)]);
+
+// ─── REFLECTION PROMPTS & RESPONSES ───────────────────────────────────────────
+export const reflectionPrompts = pgTable("reflection_prompts", {
+  id: serial("id").primaryKey(),
+  prompt: text("prompt").notNull(),
+  category: text("category").notNull().default("daily"), // daily | weekly
+  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+}, (table) => [index("IDX_reflection_prompts_category").on(table.category)]);
+
+export const reflectionResponses = pgTable("reflection_responses", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  promptId: integer("prompt_id").notNull().references(() => reflectionPrompts.id),
+  response: text("response").notNull(),
+  date: date("date").notNull().default(sql`CURRENT_DATE`),
+  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+}, (table) => [index("IDX_reflection_responses_user_date").on(table.userId, table.date)]);
+
+// ─── SAFETY PLAN ───────────────────────────────────────────────────────────────
+export const safetyPlans = pgTable("safety_plans", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  trustedContacts: text("trusted_contacts"), // JSON array
+  safePlaces: text("safe_places"), // JSON array
+  copingStrategies: text("coping_strategies"), // JSON array
+  groundingTechniques: text("grounding_techniques"), // JSON array
+  reasonsToKeepGoing: text("reasons_to_keep_going"), // JSON array
+  professionalSupport: text("professional_support"), // JSON array
+  emergencyResources: text("emergency_resources"), // JSON array
+  notes: text("notes"),
+  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  updatedAt: timestamp("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+}, (table) => [index("IDX_safety_plans_user").on(table.userId)]);
+
+// ─── MICRO EXPERIMENTS / TALKEASY LAB ──────────────────────────────────────────
+export const experiments = pgTable("experiments", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  type: text("type").notNull(), // sleep | hydration | reflection | habit | stress | mood | activity
+  title: text("title").notNull(),
+  objective: text("objective"),
+  durationDays: integer("duration_days").notNull().default(7),
+  target: real("target"),
+  baselineStartDate: date("baseline_start_date"),
+  baselineEndDate: date("baseline_end_date"),
+  experimentStartDate: date("experiment_start_date"),
+  experimentEndDate: date("experiment_end_date"),
+  status: text("status").notNull().default("draft"), // draft | active | completed | cancelled
+  completedAt: timestamp("completed_at"),
+  baselineData: text("baseline_data"), // JSON
+  experimentData: text("experiment_data"), // JSON
+  result: text("result"),
+  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  updatedAt: timestamp("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+}, (table) => [index("IDX_experiments_user").on(table.userId), index("IDX_experiments_status").on(table.status)]);
+
 // ─── INSERT SCHEMAS ───────────────────────────────────────────────────────────
 
 export const insertConversationSchema = createInsertSchema(conversations).omit({ id: true, createdAt: true, userId: true });
@@ -213,6 +285,11 @@ export const insertWaterEntrySchema = createInsertSchema(waterEntries).omit({ id
 export const insertStressEntrySchema = createInsertSchema(stressEntries).omit({ id: true, createdAt: true, userId: true });
 export const insertHealthDailyRecordSchema = createInsertSchema(healthDailyRecords).omit({ id: true, createdAt: true, updatedAt: true, userId: true });
 export const insertReportSchema = createInsertSchema(reports).omit({ id: true, generatedAt: true, userId: true });
+export const insertGoalSchema = createInsertSchema(goals).omit({ id: true, createdAt: true, updatedAt: true, completedAt: true, userId: true });
+export const insertReflectionPromptSchema = createInsertSchema(reflectionPrompts).omit({ id: true, createdAt: true });
+export const insertReflectionResponseSchema = createInsertSchema(reflectionResponses).omit({ id: true, createdAt: true, userId: true });
+export const insertSafetyPlanSchema = createInsertSchema(safetyPlans).omit({ id: true, createdAt: true, updatedAt: true, userId: true });
+export const insertExperimentSchema = createInsertSchema(experiments).omit({ id: true, createdAt: true, updatedAt: true, completedAt: true, userId: true });
 
 // ─── TYPES ────────────────────────────────────────────────────────────────────
 
@@ -242,3 +319,13 @@ export type HealthDailyRecord = typeof healthDailyRecords.$inferSelect;
 export type InsertHealthDailyRecord = z.infer<typeof insertHealthDailyRecordSchema>;
 export type Report = typeof reports.$inferSelect;
 export type InsertReport = z.infer<typeof insertReportSchema>;
+export type Goal = typeof goals.$inferSelect;
+export type InsertGoal = z.infer<typeof insertGoalSchema>;
+export type ReflectionPrompt = typeof reflectionPrompts.$inferSelect;
+export type InsertReflectionPrompt = z.infer<typeof insertReflectionPromptSchema>;
+export type ReflectionResponse = typeof reflectionResponses.$inferSelect;
+export type InsertReflectionResponse = z.infer<typeof insertReflectionResponseSchema>;
+export type SafetyPlan = typeof safetyPlans.$inferSelect;
+export type InsertSafetyPlan = z.infer<typeof insertSafetyPlanSchema>;
+export type Experiment = typeof experiments.$inferSelect;
+export type InsertExperiment = z.infer<typeof insertExperimentSchema>;

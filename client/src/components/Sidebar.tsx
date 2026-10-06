@@ -11,14 +11,13 @@ import {
   HeartPulse,
   BookOpen,
   Book,
-  FlaskConical,
   Globe,
   Moon,
   Activity,
   Droplet,
   TrendingUp,
   FileText,
-  Brain
+  Brain, Target, Compass, Sparkles, Shield, User, LineChart, Zap, FlaskConical, CalendarClock, BookOpenCheck, Clock
 } from "lucide-react";
 import { useUser } from "@/hooks/use-user";
 import { isDemoMode, disableDemoMode } from "@/lib/demo-data";
@@ -54,6 +53,20 @@ export function Sidebar() {
     { href: "/statistics", label: t("statistics"), icon: PieChart },
     { href: "/history", label: t("emotionalHistory"), icon: History },
     { href: "/resources", label: t("resources"), icon: Book },
+    { href: "/goals", label: "Personal Goals", icon: Target },
+    { href: "/wellness-journey", label: "Wellness Journey", icon: Compass },
+    { href: "/reflections", label: "Reflections", icon: BookOpenCheck },
+    { href: "/pattern-explorer", label: "Pattern Explorer", icon: Sparkles },
+    { href: "/wellness-plan", label: "Wellness Plan", icon: FileText },
+    { href: "/safety-plan", label: "Safety Plan", icon: Shield },
+    { href: "/profile", label: "Profile", icon: User },
+    { href: "/wellness-dna", label: "Wellness DNA", icon: LineChart },
+    { href: "/then-vs-now", label: "Then vs Now", icon: Clock },
+    { href: "/focus-mode", label: "Focus Mode", icon: Zap },
+    { href: "/why-today", label: "Why Today", icon: CalendarClock },
+    { href: "/life-timeline", label: "Life Timeline", icon: History },
+    { href: "/since-last-checkin", label: "Since Last Check-in", icon: Clock },
+    { href: "/lab", label: "TalkEasy Lab", icon: FlaskConical },
     { href: "/help", label: t("findHelp"), icon: HeartPulse },
     { href: "/settings", label: t("settings"), icon: Settings },
   ];

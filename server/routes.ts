@@ -491,5 +491,46 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
     res.json(history);
   });
 
+
+  // Goals
+  app.get(api.goals.list.path, isAuthenticated, async (req: any, res) => res.json(await storage.getGoals(req.user.claims.sub)));
+  app.post(api.goals.create.path, isAuthenticated, async (req: any, res) => {
+    try { const input = api.goals.create.input.parse(req.body); res.status(201).json(await storage.createGoal(req.user.claims.sub, input)); }
+    catch { res.status(400).json({ message: 'Failed to create goal' }); }
+  });
+  app.patch('/api/goals/:id', isAuthenticated, async (req: any, res) => {
+    try { const input = api.goals.update.input.parse(req.body); const updates = { ...input, completedAt: input.completedAt ? new Date(input.completedAt) : undefined }; res.json(await storage.updateGoal(parseInt(req.params.id), updates as any)); }
+    catch { res.status(400).json({ message: 'Failed to update goal' }); }
+  });
+  app.delete('/api/goals/:id', isAuthenticated, async (req: any, res) => {
+    try { await storage.deleteGoal(parseInt(req.params.id)); res.json({ success: true }); }
+    catch { res.status(400).json({ message: 'Failed to delete goal' }); }
+  });
+
+  // Reflection prompts and responses
+  app.get(api.reflections.prompts.path, isAuthenticated, async (_req: any, res) => res.json(await storage.getReflectionPrompts()));
+  app.get(api.reflections.list.path, isAuthenticated, async (req: any, res) => res.json(await storage.getReflectionResponses(req.user.claims.sub)));
+  app.post(api.reflections.create.path, isAuthenticated, async (req: any, res) => {
+    try { const input = api.reflections.create.input.parse(req.body); res.status(201).json(await storage.createReflectionResponse(req.user.claims.sub, input)); }
+    catch { res.status(400).json({ message: 'Failed to create reflection response' }); }
+  });
+
+  // Safety plan
+  app.get(api.safetyPlan.get.path, isAuthenticated, async (req: any, res) => res.json(await storage.getSafetyPlan(req.user.claims.sub)));
+  app.post(api.safetyPlan.save.path, isAuthenticated, async (req: any, res) => {
+    try { const input = api.safetyPlan.save.input.parse(req.body); res.json(await storage.createOrUpdateSafetyPlan(req.user.claims.sub, input)); }
+    catch { res.status(400).json({ message: 'Failed to save safety plan' }); }
+  });
+
+  // Experiments
+  app.get(api.experiments.list.path, isAuthenticated, async (req: any, res) => res.json(await storage.getExperiments(req.user.claims.sub)));
+  app.post(api.experiments.create.path, isAuthenticated, async (req: any, res) => {
+    try { const input = api.experiments.create.input.parse(req.body); res.status(201).json(await storage.createExperiment(req.user.claims.sub, input)); }
+    catch { res.status(400).json({ message: 'Failed to create experiment' }); }
+  });
+  app.patch('/api/experiments/:id', isAuthenticated, async (req: any, res) => {
+    try { const input = api.experiments.update.input.parse(req.body); res.json(await storage.updateExperiment(parseInt(req.params.id), input)); }
+    catch { res.status(400).json({ message: 'Failed to update experiment' }); }
+  });
   return httpServer;
 }

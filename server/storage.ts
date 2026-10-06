@@ -1,9 +1,12 @@
 import { db } from "./db";
 import { 
   users, moods, habits, conversations, messages, journals,
-  type User, type InsertMood, type Mood, type InsertHabit, type Habit, type Journal, type InsertJournal
+  goals, reflectionPrompts, reflectionResponses, safetyPlans, experiments,
+  type User, type InsertMood, type Mood, type InsertHabit, type Habit, type Journal, type InsertJournal,
+  type Goal, type InsertGoal, type ReflectionPrompt, type ReflectionResponse, type InsertReflectionResponse,
+  type SafetyPlan, type InsertSafetyPlan, type Experiment, type InsertExperiment
 } from "@shared/schema";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, asc } from "drizzle-orm";
 
 export interface IStorage {
   // Moods
@@ -18,6 +21,26 @@ export interface IStorage {
   // Journals
   getJournals(userId: string): Promise<Journal[]>;
   createJournal(userId: string, journal: InsertJournal): Promise<Journal>;
+
+  // Goals
+  getGoals(userId: string): Promise<Goal[]>;
+  createGoal(userId: string, goal: InsertGoal): Promise<Goal>;
+  updateGoal(id: number, updates: Partial<Goal>): Promise<Goal>;
+  deleteGoal(id: number): Promise<void>;
+
+  // Reflections
+  getReflectionPrompts(): Promise<ReflectionPrompt[]>;
+  getReflectionResponses(userId: string): Promise<ReflectionResponse[]>;
+  createReflectionResponse(userId: string, response: InsertReflectionResponse): Promise<ReflectionResponse>;
+
+  // Safety Plan
+  getSafetyPlan(userId: string): Promise<SafetyPlan | null>;
+  createOrUpdateSafetyPlan(userId: string, plan: InsertSafetyPlan): Promise<SafetyPlan>;
+
+  // Experiments
+  getExperiments(userId: string): Promise<Experiment[]>;
+  createExperiment(userId: string, experiment: InsertExperiment): Promise<Experiment>;
+  updateExperiment(id: number, updates: Partial<Experiment>): Promise<Experiment>;
 
   // User
   updateUser(id: string, updates: Partial<User>): Promise<User>;
@@ -56,6 +79,66 @@ export class DatabaseStorage implements IStorage {
   async createJournal(userId: string, insertJournal: InsertJournal): Promise<Journal> {
     const [journal] = await db.insert(journals).values({ ...insertJournal, userId }).returning();
     return journal;
+  }
+
+  async getGoals(userId: string): Promise<Goal[]> {
+    return await db.select().from(goals).where(eq(goals.userId, userId)).orderBy(desc(goals.createdAt));
+  }
+
+  async createGoal(userId: string, insertGoal: InsertGoal): Promise<Goal> {
+    const [goal] = await db.insert(goals).values({ ...insertGoal, userId }).returning();
+    return goal;
+  }
+
+  async updateGoal(id: number, updates: Partial<Goal>): Promise<Goal> {
+    const [goal] = await db.update(goals).set({ ...updates, updatedAt: new Date() }).where(eq(goals.id, id)).returning();
+    return goal;
+  }
+
+  async deleteGoal(id: number): Promise<void> {
+    await db.delete(goals).where(eq(goals.id, id));
+  }
+
+  async getReflectionPrompts(): Promise<ReflectionPrompt[]> {
+    return await db.select().from(reflectionPrompts).orderBy(asc(reflectionPrompts.id));
+  }
+
+  async getReflectionResponses(userId: string): Promise<ReflectionResponse[]> {
+    return await db.select().from(reflectionResponses).where(eq(reflectionResponses.userId, userId)).orderBy(desc(reflectionResponses.createdAt));
+  }
+
+  async createReflectionResponse(userId: string, insertResponse: InsertReflectionResponse): Promise<ReflectionResponse> {
+    const [response] = await db.insert(reflectionResponses).values({ ...insertResponse, userId }).returning();
+    return response;
+  }
+
+  async getSafetyPlan(userId: string): Promise<SafetyPlan | null> {
+    const [plan] = await db.select().from(safetyPlans).where(eq(safetyPlans.userId, userId));
+    return plan || null;
+  }
+
+  async createOrUpdateSafetyPlan(userId: string, planData: InsertSafetyPlan): Promise<SafetyPlan> {
+    const existing = await this.getSafetyPlan(userId);
+    if (existing) {
+      const [updated] = await db.update(safetyPlans).set({ ...planData, updatedAt: new Date() }).where(eq(safetyPlans.id, existing.id)).returning();
+      return updated;
+    }
+    const [created] = await db.insert(safetyPlans).values({ ...planData, userId }).returning();
+    return created;
+  }
+
+  async getExperiments(userId: string): Promise<Experiment[]> {
+    return await db.select().from(experiments).where(eq(experiments.userId, userId)).orderBy(desc(experiments.createdAt));
+  }
+
+  async createExperiment(userId: string, insertExperiment: InsertExperiment): Promise<Experiment> {
+    const [experiment] = await db.insert(experiments).values({ ...insertExperiment, userId }).returning();
+    return experiment;
+  }
+
+  async updateExperiment(id: number, updates: Partial<Experiment>): Promise<Experiment> {
+    const [experiment] = await db.update(experiments).set({ ...updates, updatedAt: new Date() }).where(eq(experiments.id, id)).returning();
+    return experiment;
   }
 
   async updateUser(id: string, updates: Partial<User>): Promise<User> {

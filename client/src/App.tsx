@@ -1,3 +1,16 @@
+import PersonalGoals from "./pages/PersonalGoals";
+import WellnessDNA from "./pages/WellnessDNA";
+import Profile from "./pages/Profile";
+import SafetyPlan from "./pages/SafetyPlan";
+import PersonalWellnessPlan from "./pages/PersonalWellnessPlan";
+import PatternExplorer from "./pages/PatternExplorer";
+import ReflectionPrompts from "./pages/ReflectionPrompts";
+import WellnessJourney from "./pages/WellnessJourney";
+import SinceLastCheckin from "./pages/SinceLastCheckin";
+import LifeTimeline from "./pages/LifeTimeline";
+import WhyToday from "./pages/WhyToday";
+import FocusMode from "./pages/FocusMode";
+import ThenVsNow from "./pages/ThenVsNow";
 import { Switch, Route, Redirect } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -186,7 +199,91 @@ function Router() {
       </Route>
 
       <Route component={NotFound} />
-    </Switch>
+    
+      <Route path="/goals">
+        <ProtectedRoute>
+          <Layout><PersonalGoals /></Layout>
+        </ProtectedRoute>
+      </Route>
+
+      <Route path="/wellness-journey">
+        <ProtectedRoute>
+          <Layout><WellnessJourney /></Layout>
+        </ProtectedRoute>
+      </Route>
+
+      <Route path="/reflections">
+        <ProtectedRoute>
+          <Layout><ReflectionPrompts /></Layout>
+        </ProtectedRoute>
+      </Route>
+
+      <Route path="/pattern-explorer">
+        <ProtectedRoute>
+          <Layout><PatternExplorer /></Layout>
+        </ProtectedRoute>
+      </Route>
+
+      <Route path="/wellness-plan">
+        <ProtectedRoute>
+          <Layout><PersonalWellnessPlan /></Layout>
+        </ProtectedRoute>
+      </Route>
+
+      <Route path="/safety-plan">
+        <ProtectedRoute>
+          <Layout><SafetyPlan /></Layout>
+        </ProtectedRoute>
+      </Route>
+
+      <Route path="/profile">
+        <ProtectedRoute>
+          <Layout><Profile /></Layout>
+        </ProtectedRoute>
+      </Route>
+
+      <Route path="/wellness-dna">
+        <ProtectedRoute>
+          <Layout><WellnessDNA /></Layout>
+        </ProtectedRoute>
+      </Route>
+
+      <Route path="/then-vs-now">
+        <ProtectedRoute>
+          <Layout><ThenVsNow /></Layout>
+        </ProtectedRoute>
+      </Route>
+
+      <Route path="/focus-mode">
+        <ProtectedRoute>
+          <Layout><FocusMode /></Layout>
+        </ProtectedRoute>
+      </Route>
+
+      <Route path="/why-today">
+        <ProtectedRoute>
+          <Layout><WhyToday /></Layout>
+        </ProtectedRoute>
+      </Route>
+
+      <Route path="/life-timeline">
+        <ProtectedRoute>
+          <Layout><LifeTimeline /></Layout>
+        </ProtectedRoute>
+      </Route>
+
+      <Route path="/since-last-checkin">
+        <ProtectedRoute>
+          <Layout><SinceLastCheckin /></Layout>
+        </ProtectedRoute>
+      </Route>
+
+      <Route path="/lab">
+        <ProtectedRoute>
+          <Layout><TalkEasyLab /></Layout>
+        </ProtectedRoute>
+      </Route>
+</Switch>
   );
 }
 
@@ -204,3 +301,6 @@ function App() {
 }
 
 export default App;
+
+
+import TalkEasyLab from "./pages/TalkEasyLab";

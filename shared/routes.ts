@@ -117,12 +117,119 @@ export const api = {
         200: z.array(z.object({
           id: z.number(),
           date: z.string(),
-          type: z.enum(['mood', 'emotion']),
+          type: z.enum(['mood', 'emotion', 'journal']),
           value: z.string(),
           suggestion: z.string().optional(),
-          notes: z.string().optional()
+          notes: z.string().optional(),
+          tags: z.string().optional()
         }))
       }
+    }
+  },
+  goals: {
+    list: {
+      method: 'GET' as const,
+      path: '/api/goals',
+      responses: { 200: z.array(z.any()) }
+    },
+    create: {
+      method: 'POST' as const,
+      path: '/api/goals',
+      input: z.object({
+        title: z.string(),
+        description: z.string().optional(),
+        focusArea: z.string(),
+        target: z.number().optional(),
+        unit: z.string().optional(),
+        deadline: z.string().optional(),
+      }),
+      responses: { 201: z.any() }
+    },
+    update: {
+      method: 'PATCH' as const,
+      path: '/api/goals/:id',
+      input: z.object({
+        status: z.string().optional(),
+        currentProgress: z.number().optional(),
+        completedAt: z.string().optional(),
+      }),
+      responses: { 200: z.any() }
+    },
+    delete: {
+      method: 'DELETE' as const,
+      path: '/api/goals/:id',
+      responses: { 200: z.object({ success: z.boolean() }) }
+    }
+  },
+  reflections: {
+    prompts: {
+      method: 'GET' as const,
+      path: '/api/reflection-prompts',
+      responses: { 200: z.array(z.any()) }
+    },
+    list: {
+      method: 'GET' as const,
+      path: '/api/reflection-responses',
+      responses: { 200: z.array(z.any()) }
+    },
+    create: {
+      method: 'POST' as const,
+      path: '/api/reflection-responses',
+      input: z.object({
+        promptId: z.number(),
+        response: z.string(),
+        date: z.string().optional(),
+      }),
+      responses: { 201: z.any() }
+    }
+  },
+  safetyPlan: {
+    get: {
+      method: 'GET' as const,
+      path: '/api/safety-plan',
+      responses: { 200: z.any() }
+    },
+    save: {
+      method: 'POST' as const,
+      path: '/api/safety-plan',
+      input: z.object({
+        trustedContacts: z.string().optional(),
+        safePlaces: z.string().optional(),
+        copingStrategies: z.string().optional(),
+        groundingTechniques: z.string().optional(),
+        reasonsToKeepGoing: z.string().optional(),
+        professionalSupport: z.string().optional(),
+        emergencyResources: z.string().optional(),
+        notes: z.string().optional(),
+      }),
+      responses: { 200: z.any() }
+    }
+  },
+  experiments: {
+    list: {
+      method: 'GET' as const,
+      path: '/api/experiments',
+      responses: { 200: z.array(z.any()) }
+    },
+    create: {
+      method: 'POST' as const,
+      path: '/api/experiments',
+      input: z.object({
+        type: z.string(),
+        title: z.string(),
+        objective: z.string().optional(),
+        durationDays: z.number().optional(),
+        target: z.number().optional(),
+      }),
+      responses: { 201: z.any() }
+    },
+    update: {
+      method: 'PATCH' as const,
+      path: '/api/experiments/:id',
+      input: z.object({
+        status: z.string().optional(),
+      }),
+      responses: { 200: z.any() }
     }
   }
 };
