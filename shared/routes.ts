@@ -46,7 +46,15 @@ export const api = {
     create: {
       method: 'POST' as const,
       path: '/api/moods',
-      input: z.object({ mood: z.string(), notes: z.string().optional(), date: z.string().optional() }),
+      input: z.object({
+        mood: z.string(),
+        notes: z.string().optional(),
+        date: z.string().optional(),
+        // Detailed mood fields — persisted to mood_entries alongside the legacy row.
+        intensity: z.number().int().min(1).max(10).optional(),
+        factors: z.array(z.string()).optional(),
+        contextNote: z.string().optional(),
+      }),
       responses: { 201: z.custom<typeof moods.$inferSelect>() }
     }
   },
@@ -60,13 +68,23 @@ export const api = {
     create: {
       method: 'POST' as const,
       path: '/api/habits',
-      input: z.object({ type: z.string(), completed: z.boolean(), notes: z.string().optional(), date: z.string().optional() }),
+      input: z.object({
+        type: z.string(),
+        completed: z.boolean(),
+        completionPercentage: z.number().int().min(0).max(100).optional(),
+        notes: z.string().optional(),
+        date: z.string().optional(),
+      }),
       responses: { 201: z.custom<typeof habits.$inferSelect>() }
     },
     update: {
       method: 'PATCH' as const,
       path: '/api/habits/:id',
-      input: z.object({ completed: z.boolean().optional(), notes: z.string().optional() }),
+      input: z.object({
+        completed: z.boolean().optional(),
+        completionPercentage: z.number().int().min(0).max(100).optional(),
+        notes: z.string().optional(),
+      }),
       responses: { 200: z.custom<typeof habits.$inferSelect>() }
     }
   },
@@ -136,12 +154,13 @@ export const api = {
       method: 'POST' as const,
       path: '/api/goals',
       input: z.object({
-        title: z.string(),
+        title: z.string().min(1),
         description: z.string().optional(),
         focusArea: z.string(),
         target: z.number().optional(),
         unit: z.string().optional(),
-        deadline: z.string().optional(),
+        currentProgress: z.number().optional(),
+        deadline: z.string().optional().nullable(),
       }),
       responses: { 201: z.any() }
     },
@@ -149,9 +168,15 @@ export const api = {
       method: 'PATCH' as const,
       path: '/api/goals/:id',
       input: z.object({
-        status: z.string().optional(),
+        title: z.string().min(1).optional(),
+        description: z.string().optional().nullable(),
+        focusArea: z.string().optional(),
+        target: z.number().optional().nullable(),
+        unit: z.string().optional().nullable(),
         currentProgress: z.number().optional(),
-        completedAt: z.string().optional(),
+        status: z.string().optional(),
+        deadline: z.string().optional().nullable(),
+        completedAt: z.string().optional().nullable(),
       }),
       responses: { 200: z.any() }
     },

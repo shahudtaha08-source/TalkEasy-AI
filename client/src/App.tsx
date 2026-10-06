@@ -1,6 +1,5 @@
 import PersonalGoals from "./pages/PersonalGoals";
 import WellnessDNA from "./pages/WellnessDNA";
-import Profile from "./pages/Profile";
 import SafetyPlan from "./pages/SafetyPlan";
 import PersonalWellnessPlan from "./pages/PersonalWellnessPlan";
 import PatternExplorer from "./pages/PatternExplorer";
@@ -233,12 +232,6 @@ function Router() {
       <Route path="/safety-plan">
         <ProtectedRoute>
           <Layout><SafetyPlan /></Layout>
-        </ProtectedRoute>
-      </Route>
-
-      <Route path="/profile">
-        <ProtectedRoute>
-          <Layout><Profile /></Layout>
         </ProtectedRoute>
       </Route>
 

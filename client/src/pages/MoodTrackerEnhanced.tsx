@@ -162,7 +162,16 @@ export default function MoodTrackerEnhanced() {
       .filter(Boolean)
       .join(" | ");
 
-    logMood({ mood: selectedMood, notes, date: todayStr }, {
+    logMood(
+      {
+        mood: selectedMood,
+        notes,
+        date: todayStr,
+        intensity,
+        factors: selectedFactors,
+        contextNote: contextNote || undefined,
+      },
+      {
       onSuccess: () => {
         toast({ title: "Mood logged!", description: `Feeling ${selectedMood} today.` });
         setStep(1);
@@ -218,7 +227,7 @@ export default function MoodTrackerEnhanced() {
         {/* Step 1 — Select mood */}
         {step === 1 && (
           <div className="space-y-6">
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white">How are you feeling today?</h2>
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t("moodHowAreYou")}</h2>
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
               {MOODS.map((m) => (
                 <button
@@ -257,7 +266,7 @@ export default function MoodTrackerEnhanced() {
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white">
                   Why do you feel <span className="text-teal-600">{selectedMood}</span>?
                 </h2>
-                <p className="text-sm text-muted-foreground">Select all that apply (optional)</p>
+                <p className="text-sm text-muted-foreground">{t("moodSelectAllOptional")}</p>
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -294,16 +303,16 @@ export default function MoodTrackerEnhanced() {
                 <ArrowLeft className="w-5 h-5" />
               </button>
               <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                How intense is this feeling?
+                {t("moodHowIntense")}
               </h2>
             </div>
 
             {/* Intensity slider */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Mild</span>
+                <span className="text-sm text-muted-foreground">{t("moodIntensityMild")}</span>
                 <span className="text-2xl font-bold text-teal-600">{intensity}/10</span>
-                <span className="text-sm text-muted-foreground">Intense</span>
+                <span className="text-sm text-muted-foreground">{t("moodIntensityIntense")}</span>
               </div>
               <div className="flex items-center gap-3">
                 <button
@@ -352,7 +361,7 @@ export default function MoodTrackerEnhanced() {
 
             {/* Summary */}
             <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 text-sm space-y-1.5">
-              <p><strong>Mood:</strong> {selectedMood} {moodConfig?.emoji}</p>
+              <p><strong>{t("moodLabel")}:</strong> {selectedMood} {moodConfig?.emoji}</p>
               {selectedFactors.length > 0 && (
                 <p><strong>Factors:</strong> {selectedFactors.join(", ")}</p>
               )}
@@ -379,10 +388,11 @@ export default function MoodTrackerEnhanced() {
 // ─── Mood History Component ───────────────────────────────────────────────────
 
 function MoodHistory({ moods }: { moods: any[] | undefined }) {
+  const { t } = useTranslation();
   if (!moods?.length) return null;
   return (
     <div className="mt-4">
-      <h3 className="text-2xl font-display font-bold mb-6">Recent Moods</h3>
+      <h3 className="text-2xl font-display font-bold mb-6">{t("recentMoods")}</h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {moods.slice(0, 6).map((m: any) => {
           const cfg = MOODS.find((x) => x.value === m.mood) || MOODS[0];

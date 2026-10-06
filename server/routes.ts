@@ -21,7 +21,24 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
 
   app.get(api.moods.list.path, isAuthenticated, async (req: any, res) => res.json(await storage.getMoods(req.user.claims.sub)));
   app.post(api.moods.create.path, isAuthenticated, async (req: any, res) => {
-    try { const input = api.moods.create.input.parse(req.body); res.status(201).json(await storage.createMood(req.user.claims.sub, input)); }
+    try {
+      const userId = req.user.claims.sub;
+      const { intensity, factors, contextNote, ...legacy } = api.moods.create.input.parse(req.body);
+      const created = await storage.createMood(userId, legacy);
+      // Mirror into the structured mood_entries table so trends/statistics can
+      // read intensity, factors and the context note as real columns.
+      try {
+        await db.insert(moodEntries).values({
+          userId,
+          mood: legacy.mood,
+          intensity: intensity ?? 5,
+          factors: factors && factors.length ? JSON.stringify(factors) : null,
+          contextNote: contextNote ?? legacy.notes ?? null,
+          ...(legacy.date ? { date: legacy.date } : {}),
+        });
+      } catch { /* structured copy is best-effort; legacy row is authoritative */ }
+      res.status(201).json(created);
+    }
     catch { res.status(400).json({ message: "Failed to create mood" }); }
   });
 
@@ -31,8 +48,8 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
     catch { res.status(400).json({ message: "Failed to create habit" }); }
   });
   app.patch("/api/habits/:id", isAuthenticated, async (req: any, res) => {
-    try { const input = api.habits.update.input.parse(req.body); res.json(await storage.updateHabit(parseInt(req.params.id), input)); }
-    catch { res.status(400).json({ message: "Failed to update habit" }); }
+    try { const input = api.habits.update.input.parse(req.body); res.json(await storage.updateHabit(req.user.claims.sub, parseInt(req.params.id), input)); }
+    catch (err: any) { res.status(err?.status ?? 400).json({ message: err?.status === 404 ? "Habit not found" : "Failed to update habit" }); }
   });
 
   app.get(api.journals.list.path, isAuthenticated, async (req: any, res) => res.json(await storage.getJournals(req.user.claims.sub)));
@@ -44,13 +61,20 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
     try {
       const id = parseInt(req.params.id);
       const updates = req.body;
-      const [journal] = await db.update(journals).set(updates).where(eq(journals.id, id)).returning();
+      const [journal] = await db.update(journals)
+        .set(updates)
+        .where(and(eq(journals.id, id), eq(journals.userId, req.user.claims.sub)))
+        .returning();
+      if (!journal) return res.status(404).json({ message: "Journal not found" });
       res.json(journal);
     } catch { res.status(400).json({ message: "Failed to update journal" }); }
   });
   app.delete("/api/journals/:id", isAuthenticated, async (req: any, res) => {
     try {
-      await db.delete(journals).where(eq(journals.id, parseInt(req.params.id)));
+      const deleted = await db.delete(journals)
+        .where(and(eq(journals.id, parseInt(req.params.id)), eq(journals.userId, req.user.claims.sub)))
+        .returning();
+      if (deleted.length === 0) return res.status(404).json({ message: "Journal not found" });
       res.json({ success: true });
     } catch { res.status(400).json({ message: "Failed to delete journal" }); }
   });
@@ -499,12 +523,12 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
     catch { res.status(400).json({ message: 'Failed to create goal' }); }
   });
   app.patch('/api/goals/:id', isAuthenticated, async (req: any, res) => {
-    try { const input = api.goals.update.input.parse(req.body); const updates = { ...input, completedAt: input.completedAt ? new Date(input.completedAt) : undefined }; res.json(await storage.updateGoal(parseInt(req.params.id), updates as any)); }
-    catch { res.status(400).json({ message: 'Failed to update goal' }); }
+    try { const input = api.goals.update.input.parse(req.body); const updates = { ...input, completedAt: input.completedAt ? new Date(input.completedAt) : undefined }; res.json(await storage.updateGoal(req.user.claims.sub, parseInt(req.params.id), updates as any)); }
+    catch (err: any) { res.status(err?.status ?? 400).json({ message: err?.status === 404 ? 'Goal not found' : 'Failed to update goal' }); }
   });
   app.delete('/api/goals/:id', isAuthenticated, async (req: any, res) => {
-    try { await storage.deleteGoal(parseInt(req.params.id)); res.json({ success: true }); }
-    catch { res.status(400).json({ message: 'Failed to delete goal' }); }
+    try { await storage.deleteGoal(req.user.claims.sub, parseInt(req.params.id)); res.json({ success: true }); }
+    catch (err: any) { res.status(err?.status ?? 400).json({ message: err?.status === 404 ? 'Goal not found' : 'Failed to delete goal' }); }
   });
 
   // Reflection prompts and responses
@@ -529,8 +553,8 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
     catch { res.status(400).json({ message: 'Failed to create experiment' }); }
   });
   app.patch('/api/experiments/:id', isAuthenticated, async (req: any, res) => {
-    try { const input = api.experiments.update.input.parse(req.body); res.json(await storage.updateExperiment(parseInt(req.params.id), input)); }
-    catch { res.status(400).json({ message: 'Failed to update experiment' }); }
+    try { const input = api.experiments.update.input.parse(req.body); res.json(await storage.updateExperiment(req.user.claims.sub, parseInt(req.params.id), input)); }
+    catch (err: any) { res.status(err?.status ?? 400).json({ message: err?.status === 404 ? 'Experiment not found' : 'Failed to update experiment' }); }
   });
   return httpServer;
 }

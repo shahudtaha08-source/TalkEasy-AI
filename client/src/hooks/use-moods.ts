@@ -16,10 +16,29 @@ export function useMoods() {
   });
 }
 
+export function useMoodEntries(limit = 30) {
+  return useQuery({
+    queryKey: ["/api/mood-entries", limit],
+    queryFn: async () => {
+      if (isDemoMode()) return [];
+      const res = await fetch(`/api/mood-entries?limit=${limit}`, { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch mood entries");
+      return await res.json();
+    },
+  });
+}
+
 export function useCreateMood() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data: { mood: string; notes?: string; date?: string }) => {
+    mutationFn: async (data: {
+      mood: string;
+      notes?: string;
+      date?: string;
+      intensity?: number;
+      factors?: string[];
+      contextNote?: string;
+    }) => {
       if (isDemoMode()) {
         return createDemoMood(data);
       }
@@ -34,6 +53,7 @@ export function useCreateMood() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [api.moods.list.path] });
+      queryClient.invalidateQueries({ queryKey: ["/api/mood-entries"] });
       queryClient.invalidateQueries({ queryKey: [api.history.emotional.path] });
     },
   });

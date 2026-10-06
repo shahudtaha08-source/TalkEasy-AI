@@ -16,7 +16,7 @@ export interface IStorage {
   // Habits
   getHabits(userId: string, date?: string): Promise<Habit[]>;
   createHabit(userId: string, habit: InsertHabit): Promise<Habit>;
-  updateHabit(id: number, updates: Partial<InsertHabit>): Promise<Habit>;
+  updateHabit(userId: string, id: number, updates: Partial<InsertHabit>): Promise<Habit>;
 
   // Journals
   getJournals(userId: string): Promise<Journal[]>;
@@ -25,8 +25,8 @@ export interface IStorage {
   // Goals
   getGoals(userId: string): Promise<Goal[]>;
   createGoal(userId: string, goal: InsertGoal): Promise<Goal>;
-  updateGoal(id: number, updates: Partial<Goal>): Promise<Goal>;
-  deleteGoal(id: number): Promise<void>;
+  updateGoal(userId: string, id: number, updates: Partial<Goal>): Promise<Goal>;
+  deleteGoal(userId: string, id: number): Promise<void>;
 
   // Reflections
   getReflectionPrompts(): Promise<ReflectionPrompt[]>;
@@ -40,7 +40,7 @@ export interface IStorage {
   // Experiments
   getExperiments(userId: string): Promise<Experiment[]>;
   createExperiment(userId: string, experiment: InsertExperiment): Promise<Experiment>;
-  updateExperiment(id: number, updates: Partial<Experiment>): Promise<Experiment>;
+  updateExperiment(userId: string, id: number, updates: Partial<Experiment>): Promise<Experiment>;
 
   // User
   updateUser(id: string, updates: Partial<User>): Promise<User>;
@@ -67,8 +67,9 @@ export class DatabaseStorage implements IStorage {
     return habit;
   }
 
-  async updateHabit(id: number, updates: Partial<InsertHabit>): Promise<Habit> {
-    const [habit] = await db.update(habits).set(updates).where(eq(habits.id, id)).returning();
+  async updateHabit(userId: string, id: number, updates: Partial<InsertHabit>): Promise<Habit> {
+    const [habit] = await db.update(habits).set(updates).where(and(eq(habits.userId, userId), eq(habits.id, id))).returning();
+    if (!habit) throw Object.assign(new Error("Habit not found"), { status: 404 });
     return habit;
   }
 
@@ -90,13 +91,15 @@ export class DatabaseStorage implements IStorage {
     return goal;
   }
 
-  async updateGoal(id: number, updates: Partial<Goal>): Promise<Goal> {
-    const [goal] = await db.update(goals).set({ ...updates, updatedAt: new Date() }).where(eq(goals.id, id)).returning();
+  async updateGoal(userId: string, id: number, updates: Partial<Goal>): Promise<Goal> {
+    const [goal] = await db.update(goals).set({ ...updates, updatedAt: new Date() }).where(and(eq(goals.userId, userId), eq(goals.id, id))).returning();
+    if (!goal) throw Object.assign(new Error("Goal not found"), { status: 404 });
     return goal;
   }
 
-  async deleteGoal(id: number): Promise<void> {
-    await db.delete(goals).where(eq(goals.id, id));
+  async deleteGoal(userId: string, id: number): Promise<void> {
+    const deleted = await db.delete(goals).where(and(eq(goals.userId, userId), eq(goals.id, id))).returning();
+    if (deleted.length === 0) throw Object.assign(new Error("Goal not found"), { status: 404 });
   }
 
   async getReflectionPrompts(): Promise<ReflectionPrompt[]> {
@@ -136,8 +139,9 @@ export class DatabaseStorage implements IStorage {
     return experiment;
   }
 
-  async updateExperiment(id: number, updates: Partial<Experiment>): Promise<Experiment> {
-    const [experiment] = await db.update(experiments).set({ ...updates, updatedAt: new Date() }).where(eq(experiments.id, id)).returning();
+  async updateExperiment(userId: string, id: number, updates: Partial<Experiment>): Promise<Experiment> {
+    const [experiment] = await db.update(experiments).set({ ...updates, updatedAt: new Date() }).where(and(eq(experiments.userId, userId), eq(experiments.id, id))).returning();
+    if (!experiment) throw Object.assign(new Error("Experiment not found"), { status: 404 });
     return experiment;
   }
 

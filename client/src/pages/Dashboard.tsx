@@ -152,7 +152,7 @@ export default function Dashboard() {
             </div>
           ) : (
             <div>
-              <p className="text-muted-foreground text-sm mb-3">No mood logged yet today.</p>
+              <p className="text-muted-foreground text-sm mb-3">{t("dashNoMoodYet")}</p>
               <Link href="/mood" className="text-teal-600 font-semibold hover:underline flex items-center gap-1 text-sm">
                 {t("logNow")} <ArrowRight className="w-3 h-3" />
               </Link>
@@ -194,7 +194,7 @@ export default function Dashboard() {
             ))}
             {totalHabits === 0 && (
               <div className="text-center py-4">
-                <p className="text-muted-foreground text-sm">No habits tracked today.</p>
+                <p className="text-muted-foreground text-sm">{t("noHabitsToday")}</p>
                 <Link href="/habits" className="text-teal-600 text-sm font-medium hover:underline">{t("addHabit")} →</Link>
               </div>
             )}
@@ -228,7 +228,7 @@ export default function Dashboard() {
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center text-center py-6">
               <BookMarked className="w-10 h-10 text-slate-300 mb-3" />
-              <p className="text-muted-foreground text-sm mb-3">No journal entries yet.</p>
+              <p className="text-muted-foreground text-sm mb-3">{t("dashNoJournalYet")}</p>
               <Link href="/journal" className="text-teal-600 font-semibold text-sm hover:underline flex items-center gap-1">
                 {t("writeFirstEntry")} <ArrowRight className="w-3 h-3" />
               </Link>
@@ -263,7 +263,7 @@ export default function Dashboard() {
             <h3 className="font-bold text-base flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-indigo-500" /> {t("patternInsights")}
             </h3>
-            <Link href="/history" className="text-xs text-teal-600 font-medium hover:underline">Full timeline</Link>
+            <Link href="/history" className="text-xs text-teal-600 font-medium hover:underline">{t("dashFullTimeline")}</Link>
           </div>
           {insights.length > 0 ? (
             <div className="space-y-3">
@@ -280,7 +280,7 @@ export default function Dashboard() {
           ) : (
             <div className="text-center py-6">
               <TrendingUp className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">Log moods and journals to see insights.</p>
+              <p className="text-sm text-muted-foreground">{t("dashLogToSeeInsights")}</p>
             </div>
           )}
         </div>

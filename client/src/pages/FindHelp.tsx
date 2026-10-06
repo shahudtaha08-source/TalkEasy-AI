@@ -4,7 +4,7 @@ import {
   Hospital, Filter, X, Wifi, WifiOff, Search, ChevronDown
 } from "lucide-react";
 import { useTranslation } from "@/i18n/LanguageContext";
-import { STATE_NAMES, getCitiesForState, searchCities } from "@shared/data/india-locations";
+import { STATE_NAMES, getCitiesForState, searchCities, nearestState } from "@shared/data/india-locations";
 
 // ─── Emergency Resources ──────────────────────────────────────────────────────
 const EMERGENCY_RESOURCES = [
@@ -193,11 +193,13 @@ function FilterSelect({
   value,
   options,
   onChange,
+  labelMap,
 }: {
   label: string;
   value: string;
   options: string[];
   onChange: (v: string) => void;
+  labelMap?: Record<string, string>;
 }) {
   return (
     <div className="flex flex-col gap-1">
@@ -208,7 +210,7 @@ function FilterSelect({
         className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer"
       >
         {options.map((o) => (
-          <option key={o} value={o}>{o}</option>
+          <option key={o} value={o}>{labelMap?.[o] ?? o}</option>
         ))}
       </select>
     </div>
@@ -225,12 +227,35 @@ export default function FindHelp() {
   const [budget,   setBudget]   = useState("All");
   const [mode,     setMode]     = useState("All");
   const [showFilters, setShowFilters] = useState(false);
+  const [locStatus, setLocStatus] = useState<"idle" | "loading" | "ok" | "denied">("idle");
 
   const cities = useMemo(() => (state ? getCitiesForState(state) : []), [state]);
 
   const handleStateChange = useCallback((s: string) => {
     setState(s);
     setCity("");
+  }, []);
+
+  const handleUseLocation = useCallback(() => {
+    if (!("geolocation" in navigator)) {
+      setLocStatus("denied");
+      return;
+    }
+    setLocStatus("loading");
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const nearest = nearestState(pos.coords.latitude, pos.coords.longitude);
+        if (nearest) {
+          setState(nearest.state);
+          setCity("");
+          setLocStatus("ok");
+        } else {
+          setLocStatus("denied");
+        }
+      },
+      () => setLocStatus("denied"),
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 600000 }
+    );
   }, []);
 
   const filtered = useMemo(() => {
@@ -283,45 +308,64 @@ export default function FindHelp() {
       <div className="glass-card rounded-2xl p-6 space-y-4">
         <div className="flex justify-between items-center flex-wrap gap-3">
           <h2 className="font-bold text-base flex items-center gap-2">
-            <MapPin className="w-4 h-4 text-teal-600" /> Find Support Near You
-            <span className="ml-1 text-xs font-normal text-muted-foreground bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">India</span>
+            <MapPin className="w-4 h-4 text-teal-600" /> {t("findSupportNearYou")}
+            <span className="ml-1 text-xs font-normal text-muted-foreground bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">{t("indiaLabel")}</span>
           </h2>
-          <button
-            onClick={() => setShowFilters((f) => !f)}
-            className={`flex items-center gap-2 text-sm font-medium px-3 py-1.5 rounded-full border transition ${
-              showFilters || hasActiveFilters
-                ? "bg-teal-600 text-white border-teal-600"
-                : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300"
-            }`}
-          >
-            <Filter className="w-4 h-4" />
-            Filters {hasActiveFilters && "●"}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleUseLocation}
+              disabled={locStatus === "loading"}
+              className="flex items-center gap-2 text-sm font-medium px-3 py-1.5 rounded-full border border-teal-600 text-teal-700 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/20 transition disabled:opacity-60"
+            >
+              <MapPin className="w-4 h-4" />
+              {locStatus === "loading" ? t("detectingLocation") : t("useMyLocation")}
+            </button>
+            <button
+              onClick={() => setShowFilters((f) => !f)}
+              className={`flex items-center gap-2 text-sm font-medium px-3 py-1.5 rounded-full border transition ${
+                showFilters || hasActiveFilters
+                  ? "bg-teal-600 text-white border-teal-600"
+                  : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300"
+              }`}
+            >
+              <Filter className="w-4 h-4" />
+              {t("budgetLabel")} / {t("modeLabel")} {hasActiveFilters && "●"}
+            </button>
+          </div>
         </div>
+
+        {locStatus !== "idle" && (
+          <p className={`text-xs flex items-center gap-1.5 ${locStatus === "ok" ? "text-teal-600" : "text-amber-600"}`}>
+            {locStatus === "ok" ? t("locationFound") : locStatus === "denied" ? t("locationDenied") : t("detectingLocation")}
+          </p>
+        )}
+        <p className="text-xs text-muted-foreground">{t("locationPrivacyNote")}</p>
 
         {/* State + City */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <ComboBox
-            label="State / Union Territory"
+            label={t("stateLabel")}
             value={state}
             options={STATE_NAMES}
             onChange={handleStateChange}
-            placeholder="Select a state…"
+            placeholder={t("selectStatePlaceholder")}
           />
           <ComboBox
-            label="City"
+            label={t("cityLabel")}
             value={city}
             options={cities}
             onChange={setCity}
-            placeholder={state ? "Select a city…" : "Select state first"}
+            placeholder={state ? t("selectCityPlaceholder") : t("selectStateFirst")}
           />
         </div>
 
         {/* Advanced filters */}
         {showFilters && (
           <div className="grid grid-cols-2 gap-4 pt-2 border-t border-border">
-            <FilterSelect label="Budget"      value={budget} options={BUDGETS} onChange={setBudget} />
-            <FilterSelect label="Mode"        value={mode}   options={MODES}   onChange={setMode} />
+            <FilterSelect label={t("budgetLabel")} value={budget} options={BUDGETS} onChange={setBudget}
+              labelMap={{ All: t("all"), low: t("budgetLow"), medium: t("budgetMedium"), high: t("budgetHigh") }} />
+            <FilterSelect label={t("modeLabel")}   value={mode}   options={MODES}   onChange={setMode}
+              labelMap={{ All: t("all"), online: t("modeOnline"), offline: t("modeOffline") }} />
           </div>
         )}
 
@@ -348,7 +392,7 @@ export default function FindHelp() {
           {filtered.length === 0 ? (
             <div className="glass-card rounded-2xl p-10 text-center">
               <MapPin className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-              <p className="font-semibold text-slate-600 dark:text-slate-300">No listed providers for this location.</p>
+              <p className="font-semibold text-slate-600 dark:text-slate-300">{t("noProviders")}</p>
               <p className="text-sm text-muted-foreground mt-1">
                 Try the online platforms below or call a helpline above.
               </p>
@@ -368,7 +412,7 @@ export default function FindHelp() {
                         : "bg-blue-100 text-blue-700 dark:bg-blue-900/30"
                     }`}>
                       {p.mode === "online" ? <Wifi className="w-3 h-3" /> : <WifiOff className="w-3 h-3" />}
-                      {p.mode}
+                      {p.mode === "online" ? t("modeOnline") : t("modeOffline")}
                     </span>
                   </div>
                   <div className="flex flex-wrap gap-2 mt-2 mb-3">
