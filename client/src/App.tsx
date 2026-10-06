@@ -198,7 +198,7 @@ function Router() {
         <ResetPassword />
       </Route>
 
-      <Route component={NotFound} />
+
     
       <Route path="/goals">
         <ProtectedRoute>
@@ -283,7 +283,8 @@ function Router() {
           <Layout><TalkEasyLab /></Layout>
         </ProtectedRoute>
       </Route>
-</Switch>
+              <Route component={NotFound} />
+    </Switch>
   );
 }
 
