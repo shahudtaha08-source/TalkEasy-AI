@@ -435,4 +435,120 @@ export interface Translations {
   newPassword: string;
   confirmPassword: string;
   passwordsNoMatch: string;
+
+  /* ── V6.1.2 · sidebar disclaimer ── */
+  dismissDisclaimer: string;
+  resetSidebarDisclaimer: string;
+
+  /* ── V6.1.2 · version / app info ── */
+  versionLabel: string;
+  appInformation: string;
+
+  /* ── V6.1.2 · global search ── */
+  searchPlaceholder: string;
+  searchNoResults: string;
+  searchOpen: string;
+  searchCategoryApp: string;
+  descDashboard: string;
+  descSupportChat: string;
+  descMood: string;
+  descStress: string;
+  descSleep: string;
+  descWater: string;
+  descHabits: string;
+  descGoals: string;
+  descJournal: string;
+  descReflections: string;
+  descStatistics: string;
+  descTrends30: string;
+  descTrends90: string;
+  descPatternExplorer: string;
+  descWellnessDna: string;
+  descThenVsNow: string;
+  descWhyToday: string;
+  descSinceCheckin: string;
+  descLifeTimeline: string;
+  descWellnessJourney: string;
+  descWellnessPlan: string;
+  descLab: string;
+  descReports: string;
+  descResources: string;
+  descFindHelp: string;
+  descSafetyPlan: string;
+  descSettings: string;
+
+  /* ── V6.1.2 · suggested starter goals ── */
+  suggestedGoalsTitle: string;
+  suggestedGoalsHint: string;
+  addGoalSuggestion: string;
+  suggestionSleepTitle: string;
+  suggestionSleepDesc: string;
+  suggestionHabitsTitle: string;
+  suggestionHabitsDesc: string;
+  suggestionHydrationTitle: string;
+  suggestionHydrationDesc: string;
+
+  /* ── V6.1.2 · landing positioning ── */
+  platformFeaturesIntro: string;
+  platformFeaturesSub: string;
+  groupSupportReflection: string;
+  groupSupportReflectionDesc: string;
+  groupDailyWellness: string;
+  groupDailyWellnessDesc: string;
+  groupPersonalGrowth: string;
+  groupPersonalGrowthDesc: string;
+  groupInsights: string;
+  groupInsightsDesc: string;
+  groupSupportSafety: string;
+  groupSupportSafetyDesc: string;
+
+  /* ── V6.1.2 · machine learning layer ── */
+  mlInsightsTitle: string;
+  mlInsightsSubtitle: string;
+  mlNotEnoughData: string;
+  mlUnavailable: string;
+  mlObservationNote: string;
+  mlSafetyNote: string;
+  confidenceHigh: string;
+  confidenceModerate: string;
+  confidenceLow: string;
+  confidenceInsufficient: string;
+  mlPatternsTitle: string;
+  mlPatternTogether: string;
+  mlPatternOpposite: string;
+  mlPairSleepMood: string;
+  mlPairSleepStress: string;
+  mlPairWaterStress: string;
+  mlPairHabitsMood: string;
+  mlPairStepsMood: string;
+  mlPairWaterMood: string;
+  mlPairStressMood: string;
+  mlAnomaliesTitle: string;
+  mlAnomalyHigh: string;
+  mlAnomalyLow: string;
+  mlMetricMood: string;
+  mlMetricStress: string;
+  mlMetricSleep: string;
+  mlMetricWater: string;
+  mlMetricHabits: string;
+  mlMetricActivity: string;
+  mlClustersTitle: string;
+  mlClusterBalanced: string;
+  mlClusterHighStress: string;
+  mlClusterLowSleep: string;
+  mlClusterActive: string;
+  mlClusterRecovery: string;
+  mlForecastsTitle: string;
+  mlForecastNote: string;
+  mlForecastRange: string;
+  mlDnaTitle: string;
+  mlDnaSubtitle: string;
+  mlDnaSleepConsistency: string;
+  mlDnaMoodStability: string;
+  mlDnaStressVariability: string;
+  mlDnaHydrationConsistency: string;
+  mlDnaHabitConsistency: string;
+  mlDnaActivityConsistency: string;
+  mlDnaRecovery: string;
+  mlSamplesLabel: string;
 }

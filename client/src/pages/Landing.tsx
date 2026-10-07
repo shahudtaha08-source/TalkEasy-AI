@@ -5,11 +5,14 @@ import { useLocation } from "wouter";
 import {
   Smile, BookOpen, Activity, MessageCircle, TrendingUp, HeartPulse,
   FlaskConical, CheckCircle, ArrowRight, Lock, User, Mail, Globe,
-  Shield, KeyRound, Loader2, Sparkles, X
+  Shield, KeyRound, Loader2, Sparkles, X, Droplet, Brain, Moon,
+  Target, Compass, FileText, LineChart, Book, BookOpenCheck, PieChart
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { TalkEasyLogo } from "@/components/TalkEasyLogo";
 import { useTranslation } from "@/i18n/LanguageContext";
 import { LanguageCode } from "@/i18n/translations";
+import type { Translations } from "@/i18n/translations";
 
 const LANGUAGES: LanguageCode[] = [
   "English", "Hindi", "Urdu", "Marathi", "Tamil",
@@ -17,6 +20,77 @@ const LANGUAGES: LanguageCode[] = [
 ];
 
 const AGE_GROUPS = ["Teen (13-19)", "Young Adult (20-35)", "Adult (36-55)", "Senior (55+)"];
+
+interface FeatureItem {
+  icon: LucideIcon;
+  titleKey: keyof Translations;
+  descKey: keyof Translations;
+}
+
+interface FeatureGroup {
+  icon: LucideIcon;
+  titleKey: keyof Translations;
+  descKey: keyof Translations;
+  items: FeatureItem[];
+}
+
+/** Grouped presentation of the real TalkEasy product capabilities. */
+const FEATURE_GROUPS: FeatureGroup[] = [
+  {
+    icon: MessageCircle,
+    titleKey: "groupSupportReflection",
+    descKey: "groupSupportReflectionDesc",
+    items: [
+      { icon: MessageCircle, titleKey: "supportChat", descKey: "descSupportChat" },
+      { icon: BookOpen, titleKey: "journal", descKey: "descJournal" },
+      { icon: BookOpenCheck, titleKey: "navReflections", descKey: "descReflections" },
+    ],
+  },
+  {
+    icon: Activity,
+    titleKey: "groupDailyWellness",
+    descKey: "groupDailyWellnessDesc",
+    items: [
+      { icon: Smile, titleKey: "moodTracker", descKey: "descMood" },
+      { icon: Moon, titleKey: "navSleepTracker", descKey: "descSleep" },
+      { icon: Droplet, titleKey: "navWaterIntake", descKey: "descWater" },
+      { icon: Brain, titleKey: "navStressTracker", descKey: "descStress" },
+      { icon: CheckCircle, titleKey: "habits", descKey: "descHabits" },
+    ],
+  },
+  {
+    icon: Target,
+    titleKey: "groupPersonalGrowth",
+    descKey: "groupPersonalGrowthDesc",
+    items: [
+      { icon: Target, titleKey: "navPersonalGoals", descKey: "descGoals" },
+      { icon: Compass, titleKey: "navWellnessJourney", descKey: "descWellnessJourney" },
+      { icon: FileText, titleKey: "navWellnessPlan", descKey: "descWellnessPlan" },
+    ],
+  },
+  {
+    icon: TrendingUp,
+    titleKey: "groupInsights",
+    descKey: "groupInsightsDesc",
+    items: [
+      { icon: TrendingUp, titleKey: "navTrends30", descKey: "descTrends30" },
+      { icon: Sparkles, titleKey: "navPatternExplorer", descKey: "descPatternExplorer" },
+      { icon: LineChart, titleKey: "navWellnessDna", descKey: "descWellnessDna" },
+      { icon: PieChart, titleKey: "statistics", descKey: "descStatistics" },
+      { icon: FileText, titleKey: "navReports", descKey: "descReports" },
+    ],
+  },
+  {
+    icon: HeartPulse,
+    titleKey: "groupSupportSafety",
+    descKey: "groupSupportSafetyDesc",
+    items: [
+      { icon: HeartPulse, titleKey: "findHelp", descKey: "descFindHelp" },
+      { icon: Shield, titleKey: "navSafetyPlan", descKey: "descSafetyPlan" },
+      { icon: Book, titleKey: "resources", descKey: "descResources" },
+    ],
+  },
+];
 
 export default function Landing() {
   const [, navigate] = useLocation();
@@ -148,7 +222,8 @@ export default function Landing() {
 
       <section className="py-20 px-6 max-w-4xl mx-auto">
         <p className="text-sm font-bold tracking-widest text-teal-600 uppercase text-center mb-2">About TalkEasy AI</p>
-        <h2 className="text-3xl md:text-4xl font-display font-bold text-center mb-8 text-slate-900 dark:text-white">What TalkEasy AI Is</h2>
+        <h2 className="text-3xl md:text-4xl font-display font-bold text-center mb-3 text-slate-900 dark:text-white">What TalkEasy AI Is</h2>
+        <p className="text-center text-xs font-semibold text-slate-500 dark:text-slate-400 mb-8">{t("appName")} 6.1.2</p>
         <div className="prose prose-lg max-w-none text-slate-600 dark:text-slate-300">
           <p className="text-center text-lg leading-relaxed mb-6">
             TalkEasy AI is a mental-wellness support web application designed to provide accessible emotional support and wellness tools.
@@ -170,19 +245,29 @@ export default function Landing() {
 
       <section className="py-20 px-6 max-w-6xl mx-auto">
         <p className="text-sm font-bold tracking-widest text-teal-600 uppercase text-center mb-2">{t("platformFeatures")}</p>
-        <h2 className="text-3xl md:text-4xl font-display font-bold text-center mb-12 text-slate-900 dark:text-white">Support designed around the person</h2>
-        <div className="grid md:grid-cols-3 gap-6">
-          {[
-            { icon: MessageCircle, title: t("supportChat"), desc: "Support Chat is currently under development and will be available in the next TalkEasy version." },
-            { icon: Smile, title: t("moodTracker"), desc: "Log your emotional state daily and track trends over time." },
-            { icon: BookOpen, title: t("journal"), desc: "Daily, gratitude, and reflection entries with tags." },
-            { icon: Activity, title: t("habits"), desc: "Build sleep, hydration, exercise, and mindfulness routines." },
-            { icon: HeartPulse, title: t("findHelp"), desc: "Professional and crisis-support resources." },
-          ].map(({ icon: Icon, title, desc }) => (
-            <div key={title} className="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 hover:shadow-md transition-all group">
-              <div className="w-12 h-12 rounded-2xl bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center mb-4 group-hover:bg-teal-100 transition"><Icon className="w-6 h-6 text-teal-600" /></div>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">{title}</h3>
-              <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">{desc}</p>
+        <h2 className="text-3xl md:text-4xl font-display font-bold text-center mb-4 text-slate-900 dark:text-white">{t("platformFeaturesIntro")}</h2>
+        <p className="text-center text-slate-600 dark:text-slate-400 max-w-2xl mx-auto mb-12 text-base leading-relaxed">{t("platformFeaturesSub")}</p>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {FEATURE_GROUPS.map((group) => (
+            <div key={group.titleKey} className="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 hover:shadow-md transition-all">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-11 h-11 rounded-2xl bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center flex-shrink-0">
+                  <group.icon className="w-5 h-5 text-teal-600" />
+                </div>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t(group.titleKey)}</h3>
+              </div>
+              <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-4">{t(group.descKey)}</p>
+              <ul className="space-y-3">
+                {group.items.map((item) => (
+                  <li key={item.titleKey} className="flex gap-3">
+                    <item.icon className="w-4 h-4 mt-0.5 text-teal-600 flex-shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">{t(item.titleKey)}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{t(item.descKey)}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
             </div>
           ))}
         </div>
@@ -207,7 +292,7 @@ export default function Landing() {
         </div>
       </section>
 
-      <footer className="text-center py-8 bg-slate-100 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 text-slate-500 text-sm">© {new Date().getFullYear()} TalkEasy AI · Designed and Developed by {t("developerName")}</footer>
+      <footer className="text-center py-8 bg-slate-100 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 text-slate-500 text-sm">© {new Date().getFullYear()} {t("appName")} 6.1.2 · Designed and Developed by {t("developerName")}</footer>
 
       {authModalOpen && (
         <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">

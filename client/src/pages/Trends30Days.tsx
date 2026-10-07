@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { Calendar, TrendingUp, TrendingDown, Activity, Droplet, Moon, Footprints, Heart, Activity as HeartPulse } from "lucide-react";
+import MlInsightsCard from "@/components/MlInsightsCard";
 
 interface HealthRecord {
   id: number;
@@ -255,6 +256,11 @@ export default function Trends30Days() {
             </CardContent>
           </Card>
         )}
+
+        {/* ML short-term forecasts (informational) */}
+        <div className="mb-8">
+          <MlInsightsCard sections={["forecasts"]} />
+        </div>
 
         {/* Charts Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">

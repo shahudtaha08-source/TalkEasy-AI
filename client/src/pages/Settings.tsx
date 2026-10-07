@@ -2,11 +2,14 @@ import { useState, useEffect } from "react";
 import { useUser, useUpdateUser } from "@/hooks/use-user";
 import {
   Loader2, Globe, Clock, User, Phone, MapPin, Briefcase,
-  DollarSign, ShieldAlert, Save, FileText, ExternalLink
+  DollarSign, ShieldAlert, Save, FileText, ExternalLink, Info, RotateCcw
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/i18n/LanguageContext";
 import { LanguageCode } from "@/i18n/translations";
+import { isSidebarDisclaimerDismissed, restoreSidebarDisclaimer } from "@/lib/sidebar-disclaimer";
+
+export const APP_VERSION = "6.1.2";
 
 const LANGUAGES: LanguageCode[] = [
   "English", "Hindi", "Urdu", "Marathi", "Tamil", 
@@ -52,6 +55,8 @@ export default function Settings() {
   const { data: user, isLoading } = useUser();
   const { mutate: updateUser, isPending } = useUpdateUser();
   const { toast } = useToast();
+
+  const [disclaimerDismissed, setDisclaimerDismissed] = useState(() => isSidebarDisclaimerDismissed());
 
   const [form, setForm] = useState<FormState>({
     firstName: "",
@@ -253,7 +258,32 @@ export default function Settings() {
           </div>
         </section>
 
-        {/* Save */}
+        {/* App / display preferences */}
+        <section className="glass-card rounded-3xl p-8 space-y-6">
+          <h2 className="font-bold text-base text-slate-700 dark:text-slate-300 flex items-center gap-2">
+            <Info className="w-4 h-4 text-teal-600" /> {t("appInformation")}
+          </h2>
+          <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
+            <div>
+              <p className="font-semibold text-slate-900 dark:text-white">{t("versionLabel")} {APP_VERSION}</p>
+              <p className="text-xs text-muted-foreground">{t("appName")} · {t("tagline")}</p>
+            </div>
+          </div>
+          {disclaimerDismissed && (
+            <button
+              type="button"
+              onClick={() => { restoreSidebarDisclaimer(); setDisclaimerDismissed(false); }}
+              className="flex items-center justify-between w-full p-4 bg-gray-50 dark:bg-gray-800 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-left"
+            >
+              <div>
+                <p className="font-semibold text-slate-900 dark:text-white">{t("resetSidebarDisclaimer")}</p>
+                <p className="text-xs text-muted-foreground">{t("disclaimerText")}</p>
+              </div>
+              <RotateCcw className="w-4 h-4 text-teal-600 flex-shrink-0" />
+            </button>
+          )}
+        </section>
+
         <div className="flex items-center gap-4">
           <button
             type="submit"

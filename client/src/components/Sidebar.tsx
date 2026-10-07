@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { 
   Home, 
@@ -16,14 +17,22 @@ import {
   Droplet,
   TrendingUp,
   FileText,
+  Search,
+  X,
   Brain, Target, Compass, Sparkles, Shield, LineChart, Zap, FlaskConical, CalendarClock, BookOpenCheck, Clock
 } from "lucide-react";
 import { useUser } from "@/hooks/use-user";
 import { isDemoMode, disableDemoMode } from "@/lib/demo-data";
 import { queryClient } from "@/lib/queryClient";
 import { TalkEasyLogo } from "./TalkEasyLogo";
+import { GlobalSearch } from "./GlobalSearch";
 import { useTranslation } from "@/i18n/LanguageContext";
 import { LanguageCode } from "@/i18n/translations";
+import {
+  isSidebarDisclaimerDismissed,
+  setSidebarDisclaimerDismissed,
+  SIDEBAR_DISCLAIMER_RESET_EVENT,
+} from "@/lib/sidebar-disclaimer";
 
 const LANGUAGES: LanguageCode[] = [
   "English", "Hindi", "Urdu", "Marathi", "Tamil", 
@@ -35,6 +44,19 @@ export function Sidebar() {
   const { data: user } = useUser();
   const { t, language, setLanguage, isRTL } = useTranslation();
   const inDemo = isDemoMode();
+  const [disclaimerDismissed, setDisclaimerDismissed] = useState(() => isSidebarDisclaimerDismissed());
+
+  // Keep the sidebar in sync when Settings restores the disclaimer.
+  useEffect(() => {
+    const sync = () => setDisclaimerDismissed(isSidebarDisclaimerDismissed());
+    window.addEventListener(SIDEBAR_DISCLAIMER_RESET_EVENT, sync);
+    return () => window.removeEventListener(SIDEBAR_DISCLAIMER_RESET_EVENT, sync);
+  }, []);
+
+  const dismissDisclaimer = () => {
+    setDisclaimerDismissed(true);
+    setSidebarDisclaimerDismissed(true);
+  };
 
   const navItems = [
     { href: "/dashboard", label: t("dashboard"), icon: Home },
@@ -80,11 +102,30 @@ export function Sidebar() {
 
   return (
     <div className={`w-64 h-screen bg-card border-r border-border/50 flex flex-col fixed left-0 top-0 shadow-lg shadow-teal-900/5 z-50 ${isRTL ? 'right-0 left-auto border-r-0 border-l' : ''}`}>
+      <GlobalSearch />
+
       {/* Brand Header */}
       <div className="p-6 flex items-center justify-between">
         <Link href="/dashboard" className="cursor-pointer">
           <TalkEasyLogo size={34} />
         </Link>
+      </div>
+
+      {/* Global Search trigger */}
+      <div className="px-4 pb-2">
+        <button
+          type="button"
+          onClick={() => window.dispatchEvent(new CustomEvent("talkeasy:global-search-toggle"))}
+          aria-label={t("searchPlaceholder")}
+          title={`${t("search")} (Ctrl + K)`}
+          className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm transition-all duration-200 border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+        >
+          <Search className="w-5 h-5 text-teal-600 dark:text-teal-400 flex-shrink-0" />
+          <span className="flex-1 text-left font-semibold">{t("search")}</span>
+          <kbd className="text-[10px] font-semibold px-1.5 py-0.5 rounded border border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400">
+            Ctrl K
+          </kbd>
+        </button>
       </div>
 
       {/* Language Selector Dropdown */}
@@ -126,10 +167,21 @@ export function Sidebar() {
         })}
       </div>
 
-      {/* Disclaimer */}
-      <div className="px-4 py-2.5 text-[10px] text-muted-foreground leading-tight border-t border-border/50">
-        {t("disclaimerText")}
-      </div>
+      {/* Disclaimer (informational only — dismissible, never a safety alert) */}
+      {!disclaimerDismissed && (
+        <div className="px-4 py-2.5 text-[10px] text-muted-foreground leading-tight border-t border-border/50 flex items-start gap-2">
+          <span className="flex-1">{t("disclaimerText")}</span>
+          <button
+            type="button"
+            onClick={dismissDisclaimer}
+            aria-label={t("dismissDisclaimer")}
+            title={t("dismissDisclaimer")}
+            className="flex-shrink-0 mt-0.5 p-0.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+          >
+            <X className="w-3.5 h-3.5" aria-hidden="true" />
+          </button>
+        </div>
+      )}
 
       {inDemo && (
         <div className="mx-4 mb-2 bg-amber-100 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-900/50 rounded-xl px-3 py-2 flex items-center gap-2">

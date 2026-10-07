@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowLeft, Plus, Pencil, Trash2, Target, CheckCircle2, RotateCcw, Loader2, Save } from "lucide-react";
+import { ArrowLeft, Plus, Pencil, Trash2, Target, CheckCircle2, RotateCcw, Loader2, Save, Lightbulb } from "lucide-react";
 import { useLocation } from "wouter";
 import { useGoals, useCreateGoal, useUpdateGoal, useDeleteGoal } from "@/hooks/use-goals";
 import { useTranslation } from "@/i18n/LanguageContext";
@@ -49,6 +49,35 @@ const EMPTY_FORM = {
   deadline: "",
 };
 
+/**
+ * Suggested (starter) goal ideas. They are NEVER created automatically —
+ * the user explicitly adds one, which then goes through the normal Goals API.
+ */
+const SUGGESTIONS = [
+  { id: "sleep-consistency", titleKey: "suggestionSleepTitle", descKey: "suggestionSleepDesc", focusArea: "Sleep" },
+  { id: "daily-habit", titleKey: "suggestionHabitsTitle", descKey: "suggestionHabitsDesc", focusArea: "Habits" },
+  { id: "hydration", titleKey: "suggestionHydrationTitle", descKey: "suggestionHydrationDesc", focusArea: "Hydration" },
+] as const;
+
+const ADDED_SUGGESTIONS_KEY = "talkeasy_goal_suggestions_added";
+
+function readAddedSuggestions(): string[] {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(ADDED_SUGGESTIONS_KEY) || "[]");
+    return Array.isArray(parsed) ? parsed.filter((v) => typeof v === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveAddedSuggestions(ids: string[]) {
+  try {
+    localStorage.setItem(ADDED_SUGGESTIONS_KEY, JSON.stringify(ids));
+  } catch {
+    /* storage unavailable — suggestions simply stay listed */
+  }
+}
+
 export default function PersonalGoals() {
   const [, setLocation] = useLocation();
   const { t } = useTranslation();
@@ -61,6 +90,34 @@ export default function PersonalGoals() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [saved, setSaved] = useState(false);
+  const [addedSuggestions, setAddedSuggestions] = useState<string[]>(() => readAddedSuggestions());
+
+  const visibleSuggestions = SUGGESTIONS.filter((s) => {
+    if (addedSuggestions.includes(s.id)) return false;
+    const suggestionTitle = t(s.titleKey).trim().toLowerCase();
+    return !(goals || []).some((g) => (g.title || "").trim().toLowerCase() === suggestionTitle);
+  });
+
+  const addSuggestion = (s: (typeof SUGGESTIONS)[number]) => {
+    createGoal.mutate(
+      {
+        title: t(s.titleKey),
+        description: t(s.descKey),
+        focusArea: s.focusArea,
+        target: null,
+        unit: null,
+        currentProgress: 0,
+        deadline: null,
+      },
+      {
+        onSuccess: () => {
+          const next = Array.from(new Set([...addedSuggestions, s.id]));
+          setAddedSuggestions(next);
+          saveAddedSuggestions(next);
+        },
+      }
+    );
+  };
 
   const openCreate = () => {
     setEditingId(null);
@@ -141,6 +198,33 @@ export default function PersonalGoals() {
       </div>
 
       {saved && <p className="text-sm text-green-600">{t("goalSaved")}</p>}
+
+      {visibleSuggestions.length > 0 && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Lightbulb className="h-4 w-4 text-teal-600" />
+              {t("suggestedGoalsTitle")}
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">{t("suggestedGoalsHint")}</p>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {visibleSuggestions.map((s) => (
+              <div key={s.id} className="border rounded-xl p-4 flex flex-col gap-2 bg-slate-50 dark:bg-slate-900/50">
+                <span className="text-xs px-2 py-0.5 rounded-full bg-teal-100 text-teal-800 dark:bg-teal-900/40 dark:text-teal-300 w-fit">
+                  {t(FOCUS_AREAS.find((a) => a.key === s.focusArea)?.labelKey ?? "focusGeneral")}
+                </span>
+                <h4 className="font-semibold text-sm">{t(s.titleKey)}</h4>
+                <p className="text-xs text-muted-foreground flex-1">{t(s.descKey)}</p>
+                <Button size="sm" variant="outline" onClick={() => addSuggestion(s)} disabled={createGoal.isPending}>
+                  <Plus className="h-4 w-4 mr-1" />
+                  {t("addGoalSuggestion")}
+                </Button>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
 
       {open && (
         <Card>

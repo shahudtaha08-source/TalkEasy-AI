@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useMoods } from "@/hooks/use-moods";
 import { useTranslation } from "@/i18n/LanguageContext";
+import MlWellnessDnaCard from "@/components/MlWellnessDnaCard";
 
 export default function WellnessDNA() {
   const [, setLocation] = useLocation();
@@ -23,6 +24,7 @@ export default function WellnessDNA() {
           <p className="text-muted-foreground">{t("wellnessDnaSubtitle")}</p>
         </div>
       </div>
+      <MlWellnessDnaCard />
       <Card>
         <CardHeader><CardTitle className="flex items-center gap-2"><Dna className="h-5 w-5"/>{t("traitsLabel")}</CardTitle></CardHeader>
         <CardContent>

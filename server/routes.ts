@@ -8,6 +8,7 @@ import { moods, conversations, messages, users, journals, sleepEntries, moodEntr
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { getAIService, SAFETY_SYSTEM_PROMPT, STANDARD_SYSTEM_PROMPT } from "./ai-service";
 import { SafetyDetector, SafetyEventLogger } from "./safety-detection";
+import { mlPatterns, mlAnomalies, mlClusters, mlForecasts, mlConfidence, mlWellnessDna } from "./ml/service";
 
 export async function registerRoutes(httpServer: Server, app: Express): Promise<Server> {
   setupLocalAuth(app);
@@ -556,5 +557,15 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
     try { const input = api.experiments.update.input.parse(req.body); res.json(await storage.updateExperiment(req.user.claims.sub, parseInt(req.params.id), input)); }
     catch (err: any) { res.status(err?.status ?? 400).json({ message: err?.status === 404 ? 'Experiment not found' : 'Failed to update experiment' }); }
   });
+
+  // ─── V6.1.2 · MACHINE LEARNING ENDPOINTS ─────────────────────────────────────
+  // Read-only, informational ML over the user's own records. Envelopes return
+  // status ok | insufficient | error. These never feed safety or medical logic.
+  app.get("/api/ml/patterns", isAuthenticated, async (req: any, res) => res.json(await mlPatterns(req.user.claims.sub)));
+  app.get("/api/ml/anomalies", isAuthenticated, async (req: any, res) => res.json(await mlAnomalies(req.user.claims.sub)));
+  app.get("/api/ml/clusters", isAuthenticated, async (req: any, res) => res.json(await mlClusters(req.user.claims.sub)));
+  app.get("/api/ml/forecasts", isAuthenticated, async (req: any, res) => res.json(await mlForecasts(req.user.claims.sub)));
+  app.get("/api/ml/confidence", isAuthenticated, async (req: any, res) => res.json(await mlConfidence(req.user.claims.sub)));
+  app.get("/api/ml/wellness-dna", isAuthenticated, async (req: any, res) => res.json(await mlWellnessDna(req.user.claims.sub)));
   return httpServer;
 }

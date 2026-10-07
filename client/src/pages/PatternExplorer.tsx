@@ -7,6 +7,7 @@ import { useMoods } from "@/hooks/use-moods";
 import { useHabits } from "@/hooks/use-habits";
 import { useJournals } from "@/hooks/use-journals";
 import { useTranslation } from "@/i18n/LanguageContext";
+import MlInsightsCard from "@/components/MlInsightsCard";
 
 export default function PatternExplorer() {
   const [, setLocation] = useLocation();
@@ -40,6 +41,7 @@ export default function PatternExplorer() {
           <p className="text-muted-foreground">{t("patternExplorerSubtitle")}</p>
         </div>
       </div>
+      <MlInsightsCard sections={["patterns", "anomalies", "clusters"]} />
       <Card>
         <CardHeader><CardTitle className="flex items-center gap-2"><Sparkles className="h-5 w-5" />{t("observedPatterns")}</CardTitle></CardHeader>
         <CardContent>
