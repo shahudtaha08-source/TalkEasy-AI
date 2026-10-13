@@ -509,6 +509,9 @@ export interface Translations {
   mlUnavailable: string;
   mlObservationNote: string;
   mlSafetyNote: string;
+  mlExperimentalLabel: string;
+  mlEstimateLabel: string;
+  mlLimitationsTitle: string;
   confidenceHigh: string;
   confidenceModerate: string;
   confidenceLow: string;
@@ -551,4 +554,47 @@ export interface Translations {
   mlDnaActivityConsistency: string;
   mlDnaRecovery: string;
   mlSamplesLabel: string;
+
+  // ─── v6.1.3 · auth, dual-source insights, entitlement ───────────────────────
+  showPassword: string;
+  hidePassword: string;
+  navInsights: string;
+  navWellnessInsights: string;
+  navWearableInsights: string;
+  wellnessSourceTitle: string;
+  wearableSourceTitle: string;
+  wellnessSourceSubtitle: string;
+  wearableSourceSubtitle: string;
+  dailyInsights: string;
+  weeklyInsights: string;
+  trend30: string;
+  trend90: string;
+  periodDaily: string;
+  periodWeekly: string;
+  period30: string;
+  period90: string;
+  deviceNotConnectedTitle: string;
+  deviceNotConnectedBody: string;
+  wearableDemoLabel: string;
+  sourceLabelWearable: string;
+  sourceLabelManual: string;
+  dataCoverage: string;
+  sampleCount: string;
+  missingDataLabel: string;
+  noDataYet: string;
+  insufficientDataTitle: string;
+  insufficientDataBody: string;
+  premiumRequiredTitle: string;
+  premiumRequiredBody: string;
+  trialActiveLabel: string;
+  trialExpiredLabel: string;
+  startFreeTrial: string;
+  freeTrialNotice: string;
+  premiumPriceLabel: string;
+  wellnessInsightsTitle: string;
+  wearableInsightsTitle: string;
+  wearableEmptyHint: string;
+  generatedReportRange: string;
+  reportSourceWellness: string;
+  reportSourceWearable: string;
 }

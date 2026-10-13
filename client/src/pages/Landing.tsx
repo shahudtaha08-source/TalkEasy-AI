@@ -6,13 +6,15 @@ import {
   Smile, BookOpen, Activity, MessageCircle, TrendingUp, HeartPulse,
   FlaskConical, CheckCircle, ArrowRight, Lock, User, Mail, Globe,
   Shield, KeyRound, Loader2, Sparkles, X, Droplet, Brain, Moon,
-  Target, Compass, FileText, LineChart, Book, BookOpenCheck, PieChart
+  Target, Compass, FileText, LineChart, Book, BookOpenCheck, PieChart,
+  Eye, EyeOff
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { TalkEasyLogo } from "@/components/TalkEasyLogo";
 import { useTranslation } from "@/i18n/LanguageContext";
 import { LanguageCode } from "@/i18n/translations";
 import type { Translations } from "@/i18n/translations";
+import { SUPPORT_EMAIL, SUPPORT_MAILTO, REVIEW_MAILTO } from "@/lib/contact";
 
 const LANGUAGES: LanguageCode[] = [
   "English", "Hindi", "Urdu", "Marathi", "Tamil",
@@ -107,6 +109,7 @@ export default function Landing() {
   const [preferredLang, setPreferredLang] = useState<LanguageCode>(language);
   const [errorMsg, setErrorMsg] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   function handleDemoMode() {
     enableDemoMode();
@@ -223,7 +226,7 @@ export default function Landing() {
       <section className="py-20 px-6 max-w-4xl mx-auto">
         <p className="text-sm font-bold tracking-widest text-teal-600 uppercase text-center mb-2">About TalkEasy AI</p>
         <h2 className="text-3xl md:text-4xl font-display font-bold text-center mb-3 text-slate-900 dark:text-white">What TalkEasy AI Is</h2>
-        <p className="text-center text-xs font-semibold text-slate-500 dark:text-slate-400 mb-8">{t("appName")} 6.1.2</p>
+        <p className="text-center text-xs font-semibold text-slate-500 dark:text-slate-400 mb-8">{t("appName")} 6.3.0</p>
         <div className="prose prose-lg max-w-none text-slate-600 dark:text-slate-300">
           <p className="text-center text-lg leading-relaxed mb-6">
             TalkEasy AI is a mental-wellness support web application designed to provide accessible emotional support and wellness tools.
@@ -292,7 +295,19 @@ export default function Landing() {
         </div>
       </section>
 
-      <footer className="text-center py-8 bg-slate-100 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 text-slate-500 text-sm">© {new Date().getFullYear()} {t("appName")} 6.1.2 · Designed and Developed by {t("developerName")}</footer>
+      <footer className="text-center py-8 bg-slate-100 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 text-slate-500 text-sm space-y-2">
+        <p>© {new Date().getFullYear()} {t("appName")} 6.3.0 · Designed and Developed by {t("developerName")}</p>
+        <p>
+          Contact:{" "}
+          <a href={SUPPORT_MAILTO} className="font-semibold text-teal-600 hover:underline break-all">
+            {SUPPORT_EMAIL}
+          </a>
+          {" · "}
+          <a href={REVIEW_MAILTO} className="text-teal-600 hover:underline">
+            Share a review
+          </a>
+        </p>
+      </footer>
 
       {authModalOpen && (
         <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
@@ -304,7 +319,7 @@ export default function Landing() {
               {authMode === "login" ? (
                 <>
                   <div><label className="block text-xs font-semibold mb-1">{t("emailLabel")}</label><div className="relative"><Mail className="w-4 h-4 absolute left-3 top-3.5 text-muted-foreground" /><input name="email" type="email" defaultValue="" onInput={(e) => setIdentifier((e.currentTarget as HTMLInputElement).value)} className="w-full pl-10 pr-3 py-3 rounded-xl border bg-background" placeholder="you@example.com" autoComplete="username email" disabled={isSubmitting} /></div></div>
-                  <div><label className="block text-xs font-semibold mb-1">{t("passwordLabel")}</label><div className="relative"><KeyRound className="w-4 h-4 absolute left-3 top-3.5 text-muted-foreground" /><input name="password" type="password" defaultValue="" onInput={(e) => setPassword((e.currentTarget as HTMLInputElement).value)} className="w-full pl-10 pr-3 py-3 rounded-xl border bg-background" placeholder="••••••••" autoComplete="current-password" disabled={isSubmitting} /></div></div>
+                  <div><label className="block text-xs font-semibold mb-1">{t("passwordLabel")}</label><div className="relative"><KeyRound className="w-4 h-4 absolute left-3 top-3.5 text-muted-foreground" /><input name="password" type={showPassword ? "text" : "password"} defaultValue="" onInput={(e) => setPassword((e.currentTarget as HTMLInputElement).value)} className="w-full pl-10 pr-10 py-3 rounded-xl border bg-background" placeholder="••••••••" autoComplete="current-password" disabled={isSubmitting} /><button type="button" onClick={() => setShowPassword((v) => !v)} aria-label={showPassword ? t("hidePassword") : t("showPassword")} aria-pressed={showPassword} title={showPassword ? t("hidePassword") : t("showPassword")} className="absolute right-3 top-3.5 text-muted-foreground hover:text-foreground rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500" disabled={isSubmitting}>{showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</button></div></div>
                 </>
               ) : (
                 <>
@@ -312,7 +327,7 @@ export default function Landing() {
                   <div><label className="block text-xs font-semibold mb-1">{t("usernameLabel")}</label><input name="username" value={username} onChange={e => setUsername(e.target.value)} className="w-full px-3 py-3 rounded-xl border bg-background" autoComplete="username" disabled={isSubmitting} /></div>
                   <div className="grid grid-cols-2 gap-3"><div><label className="block text-xs font-semibold mb-1">{t("firstNameLabel")}</label><input name="firstName" value={firstName} onChange={e => setFirstName(e.target.value)} className="w-full px-3 py-3 rounded-xl border bg-background" disabled={isSubmitting} /></div><div><label className="block text-xs font-semibold mb-1">{t("lastNameLabel")}</label><input name="lastName" value={lastName} onChange={e => setLastName(e.target.value)} className="w-full px-3 py-3 rounded-xl border bg-background" disabled={isSubmitting} /></div></div>
                   <div className="grid grid-cols-2 gap-3"><div><label className="block text-xs font-semibold mb-1">{t("ageGroupLabel")}</label><select name="ageGroup" value={ageGroup} onChange={e => setAgeGroup(e.target.value)} className="w-full px-3 py-3 rounded-xl border bg-background" disabled={isSubmitting}>{AGE_GROUPS.map(g => <option key={g} value={g}>{g}</option>)}</select></div><div><label className="block text-xs font-semibold mb-1">{t("preferredLanguageLabel")}</label><select name="preferredLanguage" value={preferredLang} onChange={e => setPreferredLang(e.target.value as LanguageCode)} className="w-full px-3 py-3 rounded-xl border bg-background" disabled={isSubmitting}>{LANGUAGES.map(l => <option key={l} value={l}>{l}</option>)}</select></div></div>
-                  <div><label className="block text-xs font-semibold mb-1">{t("passwordLabel")}</label><input name="password" type="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full px-3 py-3 rounded-xl border bg-background" autoComplete="new-password" disabled={isSubmitting} /></div>
+                  <div><label className="block text-xs font-semibold mb-1">{t("passwordLabel")}</label><div className="relative"><input name="password" type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} className="w-full px-3 pr-10 py-3 rounded-xl border bg-background" autoComplete="new-password" disabled={isSubmitting} /><button type="button" onClick={() => setShowPassword((v) => !v)} aria-label={showPassword ? t("hidePassword") : t("showPassword")} aria-pressed={showPassword} title={showPassword ? t("hidePassword") : t("showPassword")} className="absolute right-3 top-3.5 text-muted-foreground hover:text-foreground rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500" disabled={isSubmitting}>{showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</button></div></div>
                 </>
               )}
               <button type="submit" disabled={isSubmitting || (authMode === "signup" && (!email.trim() || !username.trim() || !password || !firstName.trim() || !lastName.trim()))} className="w-full py-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold flex items-center justify-center gap-2 disabled:opacity-50">{isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}{authMode === "login" ? t("login") : t("signup")}</button>

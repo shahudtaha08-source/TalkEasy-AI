@@ -1,7 +1,9 @@
-/// Generated from `client/src/i18n/translations.ts`. Do not hand-edit.
-///
-/// Mirrors `LanguageContext.tsx`: look up the active language, fall back to
-/// English, and substitute `{param}` placeholders.
+// Generated from `client/src/i18n/translations.ts`. Do not hand-edit.
+//
+// Mirrors `LanguageContext.tsx`: look up the active language, fall back to
+// English, and substitute `{param}` placeholders.
+
+import 'dart:ui' show Locale;
 
 const Map<String, String> _english = <String, String>{
   'appName': r'''TalkEasy''',
@@ -151,10 +153,59 @@ const Map<String, String> _english = <String, String>{
   'createEntryDesc': r'''Create a new journal entry''',
   'entryTitlePlaceholder': r'''Entry title (optional)''',
   'tagsPlaceholder': r'''Tags (comma-separated)''',
-  'cancel': r'''Cancel''',};
+  'cancel': r'''Cancel''',
+  'exerciseTitle': r'''Exercise & Activity''',
+  'exerciseSubtitle': r'''Track workouts with your phone — no wearable required''',
+  'exerciseCategoryStrength': r'''Strength''',
+  'exerciseCategoryCardio': r'''Cardio''',
+  'exerciseCategoryMobility': r'''Mobility''',
+  'exerciseCategorySport': r'''Sport''',
+  'exerciseCategoryMindBody': r'''Mind & Body''',
+  'exercisePushups': r'''Push-ups''',
+  'exerciseSquats': r'''Squats''',
+  'exerciseSitups': r'''Sit-ups''',
+  'exercisePullups': r'''Pull-ups''',
+  'exerciseLunges': r'''Lunges''',
+  'exerciseKettlebellSwing': r'''Kettlebell swing''',
+  'exerciseWalking': r'''Walking''',
+  'exerciseRunning': r'''Running''',
+  'exerciseCycling': r'''Cycling''',
+  'exerciseJumpRope': r'''Jump rope''',
+  'exerciseRowing': r'''Rowing''',
+  'exerciseElliptical': r'''Elliptical''',
+  'exerciseStretching': r'''Stretching''',
+  'exercisePilates': r'''Pilates''',
+  'exerciseBasketball': r'''Basketball''',
+  'exerciseFootball': r'''Football''',
+  'exerciseBadminton': r'''Badminton''',
+  'exerciseSwimming': r'''Swimming''',
+  'exerciseYoga': r'''Yoga''',
+  'exerciseTaiChi': r'''Tai chi''',
+  'exerciseStart': r'''Start''',
+  'exercisePause': r'''Pause''',
+  'exerciseResume': r'''Resume''',
+  'exerciseFinish': r'''Finish & Save''',
+  'exerciseDiscard': r'''Discard''',
+  'exerciseElapsed': r'''Elapsed''',
+  'exerciseReps': r'''Repetitions''',
+  'exerciseAddRep': r'''Add repetition (manual)''',
+  'exerciseManualNotice': r'''Manual counting — this is not camera or AI recognition.''',
+  'exerciseCameraDeferred': r'''Camera-based rep counting is not part of this release.''',
+  'exerciseSensorNotice': r'''Phone step/GPS sensors are not enabled in this build; sessions use a timer and manual entry.''',
+  'exerciseSets': r'''Sets''',
+  'exerciseDistance': r'''Distance (m)''',
+  'exerciseBodyWeight': r'''Body weight (kg, optional)''',
+  'exerciseCalorieEstimate': r'''Estimated energy''',
+  'exerciseCalorieAssumption': r'''Estimate (MET-based), not a measurement.''',
+  'exerciseWeightAssumed': r'''Assumed 70 kg body weight.''',
+  'exerciseHistory': r'''Recent sessions''',
+  'exerciseNoHistory': r'''No sessions yet''',
+  'exerciseSaveFailed': r'''Could not save session''',
+  'exerciseSaved': r'''Session saved''',
+  'exerciseSelectActivity': r'''Choose an activity''',};
 
 /// Hindi overrides, merged over English exactly like `{ ...english, ... }`.
-const Map<String, String> _Hindi = <String, String>{
+const Map<String, String> _hindi = <String, String>{
   'dashboard': r'''डैशबोर्ड''',
   'supportChat': r'''सहायता चैट''',
   'aiTherapist': r'''सहायता चैट''',
@@ -177,7 +228,7 @@ const Map<String, String> _Hindi = <String, String>{
   'chatSubtitle': r'''यह सुविधा वर्तमान में विकास के अधीन है और अगले TalkEasy संस्करण में उपलब्ध होगी।''',};
 
 /// Urdu overrides, merged over English exactly like `{ ...english, ... }`.
-const Map<String, String> _Urdu = <String, String>{
+const Map<String, String> _urdu = <String, String>{
   'dashboard': r'''ڈیش بورڈ''',
   'supportChat': r'''سپورٹ چیٹ''',
   'aiTherapist': r'''سپورٹ چیٹ''',
@@ -200,7 +251,7 @@ const Map<String, String> _Urdu = <String, String>{
   'chatSubtitle': r'''یہ فیچر فی الحال زیرِ تعمیر ہے اور اگلے TalkEasy ورژن میں دستیاب ہوگا۔''',};
 
 /// Marathi overrides, merged over English exactly like `{ ...english, ... }`.
-const Map<String, String> _Marathi = <String, String>{
+const Map<String, String> _marathi = <String, String>{
   'dashboard': r'''डॅशबोर्ड''',
   'supportChat': r'''सपोर्ट चॅट''',
   'aiTherapist': r'''सपोर्ट चॅट''',
@@ -223,7 +274,7 @@ const Map<String, String> _Marathi = <String, String>{
   'chatSubtitle': r'''हे फीचर सध्या विकासाधीन आहे आणि पुढील TalkEasy आवृत्तीत उपलब्ध होईल.''',};
 
 /// Tamil overrides, merged over English exactly like `{ ...english, ... }`.
-const Map<String, String> _Tamil = <String, String>{
+const Map<String, String> _tamil = <String, String>{
   'dashboard': r'''டாஷ்போர்டு''',
   'supportChat': r'''ஆதரவு அரட்டை''',
   'aiTherapist': r'''ஆதரவு அரட்டை''',
@@ -243,7 +294,7 @@ const Map<String, String> _Tamil = <String, String>{
   'chatSubtitle': r'''இந்த அம்சம் தற்போது உருவாக்கத்தில் உள்ளது மற்றும் அடுத்த TalkEasy பதிப்பில் கிடைக்கும்.''',};
 
 /// Telugu overrides, merged over English exactly like `{ ...english, ... }`.
-const Map<String, String> _Telugu = <String, String>{
+const Map<String, String> _telugu = <String, String>{
   'dashboard': r'''డాష్‌బోర్డ్''',
   'supportChat': r'''సపోర్ట్ చాట్''',
   'aiTherapist': r'''సపోర్ట్ చాట్''',
@@ -263,7 +314,7 @@ const Map<String, String> _Telugu = <String, String>{
   'chatSubtitle': r'''ఈ ఫీచర్ ప్రస్తుతం అభివృద్ధిలో ఉంది మరియు తదుపరి TalkEasy వెర్షన్‌లో అందుబాటులో ఉంటుంది.''',};
 
 /// Malayalam overrides, merged over English exactly like `{ ...english, ... }`.
-const Map<String, String> _Malayalam = <String, String>{
+const Map<String, String> _malayalam = <String, String>{
   'dashboard': r'''ഡാഷ്ബോർഡ്''',
   'supportChat': r'''സപ്പോർട്ട് ചാറ്റ്''',
   'aiTherapist': r'''സപ്പോർട്ട് ചാറ്റ്''',
@@ -283,13 +334,13 @@ const Map<String, String> _Malayalam = <String, String>{
   'chatSubtitle': r'''ഈ ഫീച്ചർ ഇപ്പോൾ വികസനത്തിലാണ്, അടുത്ത TalkEasy പതിപ്പിൽ ലഭ്യമാകും.''',};
 
 /// Kannada currently reuses the English strings, as in the web app.
-const Map<String, String> _Kannada = _english;
+const Map<String, String> _kannada = _english;
 
 /// Bengali currently reuses the English strings, as in the web app.
-const Map<String, String> _Bengali = _english;
+const Map<String, String> _bengali = _english;
 
 /// Gujarati currently reuses the English strings, as in the web app.
-const Map<String, String> _Gujarati = _english;
+const Map<String, String> _gujarati = _english;
 
 /// All supported languages, in the order used by the web app.
 const List<String> kTalkLanguages = <String>[
@@ -328,7 +379,7 @@ String tr(String language, String key, [Map<String, String>? params]) {
   String value = dict[key] ?? _english[key] ?? key;
   if (params != null) {
     params.forEach((String k, String v) {
-      value = value.replace('{' + k + '}', v);
+      value = value.replaceAll('{$k}', v);
     });
   }
   return value;
@@ -336,13 +387,13 @@ String tr(String language, String key, [Map<String, String>? params]) {
 
 final Map<String, Map<String, String>> _dicts = <String, Map<String, String>>{
   'English': _english,
-  'Hindi': _Hindi,
-  'Urdu': _Urdu,
-  'Marathi': _Marathi,
-  'Tamil': _Tamil,
-  'Telugu': _Telugu,
-  'Malayalam': _Malayalam,
-  'Kannada': _Kannada,
-  'Bengali': _Bengali,
-  'Gujarati': _Gujarati,
+  'Hindi': _hindi,
+  'Urdu': _urdu,
+  'Marathi': _marathi,
+  'Tamil': _tamil,
+  'Telugu': _telugu,
+  'Malayalam': _malayalam,
+  'Kannada': _kannada,
+  'Bengali': _bengali,
+  'Gujarati': _gujarati,
 };

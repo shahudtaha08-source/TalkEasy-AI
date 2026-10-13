@@ -2,14 +2,17 @@ import { useState, useEffect } from "react";
 import { useUser, useUpdateUser } from "@/hooks/use-user";
 import {
   Loader2, Globe, Clock, User, Phone, MapPin, Briefcase,
-  DollarSign, ShieldAlert, Save, FileText, ExternalLink, Info, RotateCcw
+  DollarSign, ShieldAlert, Save, FileText, ExternalLink, Info, RotateCcw,
+  Mail, MessageSquare, Star
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/i18n/LanguageContext";
 import { LanguageCode } from "@/i18n/translations";
 import { isSidebarDisclaimerDismissed, restoreSidebarDisclaimer } from "@/lib/sidebar-disclaimer";
+import { NotificationPreferencesCard } from "@/components/NotificationPreferences";
+import { SUPPORT_EMAIL, SUPPORT_MAILTO, FEEDBACK_MAILTO, REVIEW_MAILTO } from "@/lib/contact";
 
-export const APP_VERSION = "6.1.2";
+export const APP_VERSION = "6.3.0";
 
 const LANGUAGES: LanguageCode[] = [
   "English", "Hindi", "Urdu", "Marathi", "Tamil", 
@@ -251,6 +254,51 @@ export default function Settings() {
                 <div>
                   <p className="font-semibold text-slate-900 dark:text-white">Cookie Preferences</p>
                   <p className="text-xs text-muted-foreground">Manage your cookie settings</p>
+                </div>
+              </div>
+              <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-teal-600 transition-colors" />
+            </a>
+          </div>
+        </section>
+
+        {/* Notifications */}
+        <NotificationPreferencesCard />
+
+        {/* Contact & feedback */}
+        <section className="glass-card rounded-3xl p-8 space-y-6">
+          <h2 className="font-bold text-base text-slate-700 dark:text-slate-300 flex items-center gap-2">
+            <Mail className="w-4 h-4 text-teal-600" /> Contact & Feedback
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Questions, feedback or reviews? Email us at{" "}
+            <a href={SUPPORT_MAILTO} className="font-semibold text-teal-600 hover:underline break-all">
+              {SUPPORT_EMAIL}
+            </a>
+            . Tapping opens your email app with the address filled in.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <a
+              href={FEEDBACK_MAILTO}
+              className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors group"
+            >
+              <div className="flex items-center gap-3">
+                <MessageSquare className="w-5 h-5 text-teal-600" />
+                <div>
+                  <p className="font-semibold text-slate-900 dark:text-white">Send feedback</p>
+                  <p className="text-xs text-muted-foreground">Tell us what to improve</p>
+                </div>
+              </div>
+              <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-teal-600 transition-colors" />
+            </a>
+            <a
+              href={REVIEW_MAILTO}
+              className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors group"
+            >
+              <div className="flex items-center gap-3">
+                <Star className="w-5 h-5 text-teal-600" />
+                <div>
+                  <p className="font-semibold text-slate-900 dark:text-white">Share a review</p>
+                  <p className="text-xs text-muted-foreground">Tell us about your experience</p>
                 </div>
               </div>
               <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-teal-600 transition-colors" />

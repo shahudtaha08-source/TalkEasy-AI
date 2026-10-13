@@ -7,6 +7,7 @@ import type {
   PatternsData,
   WellnessDnaData,
 } from "@shared/ml-types";
+import { withDisclosure } from "@shared/ml-types";
 import { ML_WINDOW_DAYS, loadRawWellnessData } from "./data-loader";
 import { buildDailyFeatures } from "./feature-engineering";
 import { assessConfidence } from "./confidence";
@@ -35,15 +36,15 @@ async function prepare(userId: string): Promise<Prepared> {
 
 function errorEnvelope<T>(err: unknown): MlEnvelope<T> {
   const message = err instanceof Error ? err.message : String(err);
-  return { status: "error", message };
+  return withDisclosure({ status: "error", message });
 }
 
 function insufficient<T>(confidence: ConfidenceAssessment, features: number, min: number): MlEnvelope<T> {
-  return {
+  return withDisclosure({
     status: "insufficient",
     message: `Not enough data: ${features} tracked days, ${min} required.`,
     confidence,
-  };
+  });
 }
 
 const MIN = { patterns: 7, anomalies: 8, clusters: 8, forecasts: 10, dna: 7 };
@@ -52,7 +53,7 @@ export async function mlPatterns(userId: string): Promise<MlEnvelope<PatternsDat
   try {
     const { features, confidence } = await prepare(userId);
     if (features.length < MIN.patterns) return insufficient(confidence, features.length, MIN.patterns);
-    return { status: "ok", confidence, data: findPatterns(features) };
+    return withDisclosure({ status: "ok", confidence, data: findPatterns(features) });
   } catch (err) {
     return errorEnvelope(err);
   }
@@ -62,7 +63,7 @@ export async function mlAnomalies(userId: string): Promise<MlEnvelope<AnomaliesD
   try {
     const { features, confidence } = await prepare(userId);
     if (features.length < MIN.anomalies) return insufficient(confidence, features.length, MIN.anomalies);
-    return { status: "ok", confidence, data: findAnomalies(features) };
+    return withDisclosure({ status: "ok", confidence, data: findAnomalies(features) });
   } catch (err) {
     return errorEnvelope(err);
   }
@@ -74,7 +75,7 @@ export async function mlClusters(userId: string): Promise<MlEnvelope<ClustersDat
     if (features.length < MIN.clusters) return insufficient(confidence, features.length, MIN.clusters);
     const data = clusterDays(features);
     if (!data) return insufficient(confidence, features.length, MIN.clusters);
-    return { status: "ok", confidence, data };
+    return withDisclosure({ status: "ok", confidence, data });
   } catch (err) {
     return errorEnvelope(err);
   }
@@ -86,7 +87,7 @@ export async function mlForecasts(userId: string): Promise<MlEnvelope<ForecastsD
     if (features.length < MIN.forecasts) return insufficient(confidence, features.length, MIN.forecasts);
     const data = forecastSeries(features);
     if (data.series.length === 0) return insufficient(confidence, features.length, MIN.forecasts);
-    return { status: "ok", confidence, data };
+    return withDisclosure({ status: "ok", confidence, data });
   } catch (err) {
     return errorEnvelope(err);
   }
@@ -95,8 +96,8 @@ export async function mlForecasts(userId: string): Promise<MlEnvelope<ForecastsD
 export async function mlConfidence(userId: string): Promise<MlEnvelope<ConfidenceAssessment>> {
   try {
     const { features, confidence } = await prepare(userId);
-    if (features.length === 0) return { status: "insufficient", confidence, message: "No tracked days." };
-    return { status: "ok", confidence, data: confidence };
+    if (features.length === 0) return withDisclosure({ status: "insufficient", confidence, message: "No tracked days." });
+    return withDisclosure({ status: "ok", confidence, data: confidence });
   } catch (err) {
     return errorEnvelope(err);
   }
@@ -108,7 +109,7 @@ export async function mlWellnessDna(userId: string): Promise<MlEnvelope<Wellness
     if (features.length < MIN.dna) return insufficient(confidence, features.length, MIN.dna);
     const data = buildWellnessDna(features);
     if (!data) return insufficient(confidence, features.length, MIN.dna);
-    return { status: "ok", confidence, data };
+    return withDisclosure({ status: "ok", confidence, data });
   } catch (err) {
     return errorEnvelope(err);
   }

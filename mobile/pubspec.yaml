@@ -1,7 +1,7 @@
 name: talkeasy_mobile
 description: TalkEasy mobile — the TalkEasy wellness companion for Android and iOS.
 publish_to: 'none'
-version: 1.0.0+1
+version: 6.3.0+1
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -19,6 +19,11 @@ dependencies:
   # Local Storage
   shared_preferences: ^2.2.2
 
+  # Notifications (scheduled local mood reminders)
+  flutter_local_notifications: ^17.2.4
+  timezone: ^0.9.4
+  flutter_timezone: ^4.1.1
+
   # UI Components
   cupertino_icons: ^1.0.6
   cached_network_image: ^3.3.0
@@ -28,6 +33,7 @@ dependencies:
 
   # Utilities
   intl: ^0.18.1
+  url_launcher: ^6.2.5
 
   # Charts (trends / statistics)
   fl_chart: ^0.66.0
@@ -43,21 +49,21 @@ flutter:
   fonts:
     - family: Outfit
       fonts:
-        - asset: assets/fonts/Outfit-Regular.ttf
+        - asset: assets/fonts/Outfit-Variable.ttf
           weight: 400
-        - asset: assets/fonts/Outfit-Medium.ttf
+        - asset: assets/fonts/Outfit-Variable.ttf
           weight: 500
-        - asset: assets/fonts/Outfit-SemiBold.ttf
+        - asset: assets/fonts/Outfit-Variable.ttf
           weight: 600
-        - asset: assets/fonts/Outfit-Bold.ttf
+        - asset: assets/fonts/Outfit-Variable.ttf
           weight: 700
     - family: DMSans
       fonts:
-        - asset: assets/fonts/DMSans-Regular.ttf
+        - asset: assets/fonts/DMSans-Variable.ttf
           weight: 400
-        - asset: assets/fonts/Outfit-Medium.ttf
+        - asset: assets/fonts/DMSans-Variable.ttf
           weight: 500
-        - asset: assets/fonts/Outfit-SemiBold.ttf
+        - asset: assets/fonts/DMSans-Variable.ttf
           weight: 600
-        - asset: assets/fonts/Outfit-Bold.ttf
+        - asset: assets/fonts/DMSans-Variable.ttf
           weight: 700

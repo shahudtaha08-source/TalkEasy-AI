@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Cookie, Info, Settings } from "lucide-react";
+import { SUPPORT_EMAIL, buildMailto } from "@/lib/contact";
 
 export default function CookiePolicy() {
   return (
@@ -174,7 +175,12 @@ export default function CookiePolicy() {
                 If you have questions about this Cookie Policy or our use of cookies, please contact us at:
               </p>
               <p className="font-semibold">
-                privacy@talkeasy.ai
+                <a
+                  href={buildMailto({ subject: "TalkEasy Cookie Policy Enquiry" })}
+                  className="text-blue-600 dark:text-blue-400 hover:underline break-all"
+                >
+                  {SUPPORT_EMAIL}
+                </a>
               </p>
             </CardContent>
           </Card>

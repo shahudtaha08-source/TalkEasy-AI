@@ -1,5 +1,6 @@
 import { useMoods, useMoodEntries } from "@/hooks/use-moods";
 import { useHabits } from "@/hooks/use-habits";
+import { summarizeCheckInsByDay, groupCheckInsByDay } from "@shared/mood-checkins";
 import { useTranslation } from "@/i18n/LanguageContext";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend, Cell, AreaChart, Area } from 'recharts';
 import { format, subDays, parseISO } from "date-fns";
@@ -53,35 +54,58 @@ export default function Statistics() {
 
   const last7Days = Array.from({ length: 7 }).map((_, i) => format(subDays(new Date(), 6 - i), 'yyyy-MM-dd'));
 
-  const entriesByDate = new Map<string, any>(
-    (moodEntries || []).map((e: any) => [String(e.date).slice(0, 10), e])
+  // Multiple check-ins per day are aggregated into one point per day. We read
+  // the structured entries when present (the legacy `moods` row is the same
+  // event mirrored, so mixing both would double-count) and only fall back to
+  // legacy rows for accounts that predate the mirror.
+  const rawCheckIns: any[] = (moodEntries && moodEntries.length)
+    ? (moodEntries || []).map((e: any) => ({
+        id: e.id,
+        date: e.date,
+        mood: e.mood,
+        intensity: typeof e.intensity === "number" ? e.intensity : null,
+        createdAt: e.createdAt ?? e.created_at,
+        factors: e.factors,
+        contextNote: e.contextNote,
+        notes: null,
+      }))
+    : (moods || []).map((m: any) => ({
+        id: m.id,
+        date: m.date,
+        mood: m.mood,
+        intensity: parseLegacyNotes(m.notes).intensity,
+        createdAt: m.createdAt ?? m.created_at,
+        factors: null,
+        contextNote: null,
+        notes: m.notes,
+      }));
+
+  const summariesByDate = new Map<string, any>(
+    summarizeCheckInsByDay(rawCheckIns).map((s) => [s.date, s])
   );
+  const groupsByDate = groupCheckInsByDay(rawCheckIns);
 
   const moodData = last7Days.map(date => {
-    const entry = entriesByDate.get(date);
-    if (entry) {
-      return {
-        date: format(parseISO(date), 'MMM dd'),
-        intensity: typeof entry.intensity === "number" ? entry.intensity : null,
-        score: MOOD_SCORE[entry.mood] ?? null,
-        moodName: entry.mood,
-        factors: parseFactors(entry.factors),
-        note: entry.contextNote || "",
-      };
+    const summary = summariesByDate.get(date);
+    if (!summary) {
+      return { date: format(parseISO(date), 'MMM dd'), intensity: null, score: null, moodName: "", factors: [], note: "", checkIns: 0 };
     }
-    const legacy = moods?.find((m: any) => m.date === date);
-    if (legacy) {
-      const parsed = parseLegacyNotes(legacy.notes);
-      return {
-        date: format(parseISO(date), 'MMM dd'),
-        intensity: parsed.intensity,
-        score: MOOD_SCORE[legacy.mood] ?? parsed.intensity,
-        moodName: legacy.mood,
-        factors: parsed.factors,
-        note: parsed.note,
-      };
-    }
-    return { date: format(parseISO(date), 'MMM dd'), intensity: null, score: null, moodName: "", factors: [], note: "" };
+    // The latest check-in of the day supplies the factors / note detail.
+    const dayRows = (groupsByDate.get(date) || []).slice().sort(
+      (a: any, b: any) => new Date(String(b.createdAt)).getTime() - new Date(String(a.createdAt)).getTime()
+    );
+    const latest: any = dayRows[0] || {};
+    const factors = latest.factors ? parseFactors(latest.factors) : parseLegacyNotes(latest.notes).factors;
+    const baseNote = latest.contextNote || parseLegacyNotes(latest.notes).note || "";
+    return {
+      date: format(parseISO(date), 'MMM dd'),
+      intensity: summary.avgIntensity,
+      score: summary.avgIntensity ?? MOOD_SCORE[summary.dominantMood] ?? null,
+      moodName: summary.dominantMood ?? "",
+      factors,
+      note: summary.count > 1 ? `${summary.count} check-ins${baseNote ? " · " + baseNote : ""}` : baseNote,
+      checkIns: summary.count,
+    };
   });
 
   const loggedDays = moodData.filter(d => d.moodName);

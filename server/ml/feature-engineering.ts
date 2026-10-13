@@ -16,6 +16,7 @@ export interface RawWellnessData {
     mood?: string | null;
     moodIntensity?: number | null;
     steps?: number | null;
+    isDemo?: boolean | null;
   }[];
   moods: { date: string | Date; mood: string; intensity?: number | null }[];
   stresses: { date: string | Date; level: string; score?: number | null }[];
@@ -90,7 +91,11 @@ export function buildDailyFeatures(raw: RawWellnessData, windowDays = 90): Daily
     const day = acc(map, date);
     if (typeof h.sleepHours === "number") day.sleep.push(h.sleepHours);
     if (typeof h.waterMl === "number" && h.waterMl > 0) day.water.push(h.waterMl);
-    if (typeof h.steps === "number" && h.steps > 0) day.steps.push(h.steps);
+    // Steps in health_daily_records are demo/simulated until a real device
+    // integration exists. Feeding them in would fabricate an "active" signal
+    // and mix simulated device data into wellness ML, so only genuine
+    // (non-demo) step counts are treated as real signal.
+    if (typeof h.steps === "number" && h.steps > 0 && h.isDemo !== true) day.steps.push(h.steps);
     if (h.stressLevel) day.stress.push(stressScore(h.stressLevel));
     if (h.mood) day.mood.push(moodScore(h.mood, h.moodIntensity));
   }
@@ -123,12 +128,12 @@ export function buildDailyFeatures(raw: RawWellnessData, windowDays = 90): Daily
   for (const hb of raw.habits) {
     const date = isoDate(hb.date);
     if (!keep(date)) continue;
-    const pct = hb.completionPercentage;
-    const value = hb.completed
-      ? Math.max(100, typeof pct === "number" ? pct : 100)
-      : typeof pct === "number" && pct < 100
-        ? pct
-        : 0;
+    // Respect an explicit completionPercentage (the same value the rules
+    // engine and UI show); only fall back to the boolean when it is absent.
+    // Previously a partial value was coerced up to 100 when completed=true,
+    // contradicting the insights pipeline which preserves (e.g.) 44.
+    const pct = typeof hb.completionPercentage === "number" ? clamp(hb.completionPercentage, 0, 100) : undefined;
+    const value = pct !== undefined ? pct : hb.completed ? 100 : 0;
     acc(map, date).habits.push(value);
   }
 

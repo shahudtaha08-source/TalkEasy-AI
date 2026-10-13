@@ -9,9 +9,14 @@ import { and, desc, eq, inArray } from "drizzle-orm";
 import { getAIService, SAFETY_SYSTEM_PROMPT, STANDARD_SYSTEM_PROMPT } from "./ai-service";
 import { SafetyDetector, SafetyEventLogger } from "./safety-detection";
 import { mlPatterns, mlAnomalies, mlClusters, mlForecasts, mlConfidence, mlWellnessDna } from "./ml/service";
+import { registerV6FeatureRoutes, require90DayAccess } from "./v6-features";
+import { getOrCreateEntitlement } from "./entitlement";
 
 export async function registerRoutes(httpServer: Server, app: Express): Promise<Server> {
   setupLocalAuth(app);
+
+  // v6.1.3 feature routes: entitlement, wearables, insights, notifications.
+  registerV6FeatureRoutes(app);
 
   app.patch(api.user.update.path, isAuthenticated, async (req: any, res) => {
     try {
@@ -135,7 +140,7 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
         .select()
         .from(moodEntries)
         .where(eq(moodEntries.userId, userId))
-        .orderBy(desc(moodEntries.date))
+        .orderBy(desc(moodEntries.createdAt))
         .limit(limit);
       res.json(entries);
     } catch { res.status(400).json({ message: "Failed to fetch mood entries" }); }
@@ -305,9 +310,21 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
     try {
       const userId = req.user.claims.sub;
       const { type, title, periodStart, periodEnd, summaryJson } = req.body;
+      const source = req.body.source === "wearable" ? "wearable" : "wellness";
+      // Server-side enforcement: 90-day reports require trial/premium access.
+      if (String(type) === "90day") {
+        const entitlement = await getOrCreateEntitlement(userId);
+        if (!entitlement.canAccess90Day) {
+          return res.status(402).json({
+            message: "90-day reports require an active free trial or the Premium plan.",
+            entitlement,
+            code: "premium_required",
+          });
+        }
+      }
       const [created] = await db
         .insert(reports)
-        .values({ userId, type, title, periodStart, periodEnd, summaryJson })
+        .values({ userId, type, source, title, periodStart, periodEnd, summaryJson })
         .returning();
       res.status(201).json(created);
     } catch { res.status(400).json({ message: "Failed to create report" }); }

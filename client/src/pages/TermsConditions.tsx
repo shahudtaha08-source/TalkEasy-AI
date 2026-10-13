@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText, AlertTriangle, Gavel, Users, ExternalLink } from "lucide-react";
+import { SUPPORT_EMAIL, buildMailto } from "@/lib/contact";
 
 export default function TermsConditions() {
   return (
@@ -290,7 +291,12 @@ export default function TermsConditions() {
                 For questions about these Terms, please contact us at:
               </p>
               <p className="font-semibold">
-                legal@talkeasy.ai
+                <a
+                  href={buildMailto({ subject: "TalkEasy Legal Enquiry" })}
+                  className="text-blue-600 dark:text-blue-400 hover:underline break-all"
+                >
+                  {SUPPORT_EMAIL}
+                </a>
               </p>
             </CardContent>
           </Card>

@@ -586,10 +586,11 @@ npm run db:push  # Database migration
 1. **No Real Wearable Integration:** All wearable metrics are demo data
 2. **AI Not Production-Ready:** Support Chat uses Ollama without fine-tuning
 3. **PDF Generation Basic:** Current implementation generates text files, not professional PDFs
-4. **Flutter Screens Incomplete:** Only splash, login, and dashboard screens implemented
+4. **Flutter Screens Incomplete:** Core flows (auth, mood, journal, insights, settings, exercises) are implemented; some secondary screens remain stubs
 5. **No Offline Support:** Application requires internet connection
-6. **Limited Notifications:** No push notification system
+6. **Notifications:** In-app reminders, Web Push (PWA, requires VAPID keys + browser permission), and on-device Android local notifications are implemented; delivery is best-effort and never claimed without provider confirmation. FCM device push still needs a Firebase project.
 7. **No Social Features:** No sharing or community features
+8. **ML Insights Are Estimates:** The statistical/predictive cards are experimental and labeled as estimates, not diagnoses; they never replace clinical advice
 
 ---
 

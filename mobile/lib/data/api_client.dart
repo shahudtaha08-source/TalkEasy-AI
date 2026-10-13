@@ -31,6 +31,9 @@ class ApiPaths {
   static const String reports = '/api/reports';
   static const String conversations = '/api/conversations';
   static const String historyEmotional = '/api/history/emotional';
+  static const String exerciseCatalog = '/api/exercise/catalog';
+  static const String workouts = '/api/workouts';
+  static const String workoutsSummary = '/api/workouts/summary';
 
   static String conversationMessages(int id) => '/api/conversations/$id/messages';
   static String habit(int id) => '/api/habits/$id';
@@ -38,6 +41,7 @@ class ApiPaths {
   static String waterEntry(int id) => '/api/water-entries/$id';
   static String stressEntry(int id) => '/api/stress-entries/$id';
   static String report(int id) => '/api/reports/$id';
+  static String workout(int id) => '/api/workouts/$id';
 }
 
 class ApiException implements Exception {
@@ -180,7 +184,10 @@ class ApiClient {
         default:
           throw ApiException('Unsupported method $method');
       }
-      _cookies.absorb(res.headers['set-cookie']);
+      final String? setCookie = res.headers['set-cookie'];
+      if (setCookie != null) {
+        _cookies.absorb(<String>[setCookie]);
+      }
       return res;
     } on TimeoutException {
       throw ApiException('The server took too long to respond. Please try again.');
@@ -273,8 +280,8 @@ class ApiClient {
       }
 
       var finished = false;
-      final StreamSubscription<String> sub =
-          res.transform(utf8.decoder).transform(const LineSplitter()).listen(
+      late final StreamSubscription<String> sub;
+      sub = res.transform(utf8.decoder).transform(const LineSplitter()).listen(
         (String line) {
           if (finished || !line.startsWith('data:')) return;
           final String raw = line.substring(5).trim();

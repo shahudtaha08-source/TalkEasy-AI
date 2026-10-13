@@ -39,6 +39,31 @@ export function MlConfidenceChip() {
   );
 }
 
+function MlDisclosureNote() {
+  const { t } = useTranslation();
+  const { data } = useMlConfidence();
+  const disclosure = data?.disclosure;
+  if (!disclosure) return null;
+  return (
+    <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-900/40 dark:bg-amber-900/10">
+      <div className="mb-1 flex flex-wrap items-center gap-2">
+        <span className="rounded-full bg-amber-200/70 px-2 py-0.5 text-xs font-semibold text-amber-900 dark:bg-amber-900/40 dark:text-amber-200">
+          {t("mlExperimentalLabel")}
+        </span>
+        <span className="rounded-full bg-amber-200/70 px-2 py-0.5 text-xs font-semibold text-amber-900 dark:bg-amber-900/40 dark:text-amber-200">
+          {t("mlEstimateLabel")}
+        </span>
+        <span className="text-xs font-semibold text-amber-900 dark:text-amber-200">{t("mlLimitationsTitle")}</span>
+      </div>
+      <ul className="list-disc space-y-0.5 pl-4 text-xs text-amber-900/90 dark:text-amber-200/90">
+        {disclosure.limitations.map((line) => (
+          <li key={line}>{line}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 function useSectionState<T>(query: { data: MlEnvelope<T> | null | undefined; isLoading: boolean }): "loading" | "unavailable" | "insufficient" | "ready" {
   if (query.isLoading) return "loading";
   const envelope = query.data;
@@ -173,6 +198,7 @@ export default function MlInsightsCard({ sections }: { sections: MlSection[] }) 
         {sections.includes("anomalies") && <AnomaliesSection />}
         {sections.includes("clusters") && <ClustersSection />}
         {sections.includes("forecasts") && <ForecastsSection />}
+        <MlDisclosureNote />
         <p className="text-xs text-muted-foreground">{t("mlSafetyNote")}</p>
       </CardContent>
     </Card>

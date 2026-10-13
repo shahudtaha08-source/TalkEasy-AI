@@ -5,14 +5,14 @@ import 'package:provider/provider.dart';
 import '../data/app_state.dart';
 import '../i18n/language.dart';
 import '../theme/talk_colors.dart';
+import 'talk_age_style.dart';
 import 'talk_logo.dart';
-import 'talk_widgets.dart';
 
 /// One entry in [TalkNav.items].
 class TalkNavItem {
   const TalkNavItem({
     required this.href,
-    required this.labelKey,
+    this.labelKey,
     required this.icon,
     this.label,
   });
@@ -40,6 +40,7 @@ class TalkNav {
     TalkNavItem(href: '/habits', labelKey: 'habits', icon: Icons.check_circle_outline_rounded),
     TalkNavItem(href: '/sleep', label: 'Sleep Tracker', icon: Icons.nightlight_round),
     TalkNavItem(href: '/water', label: 'Water Intake', icon: Icons.water_drop_outlined),
+    TalkNavItem(href: '/exercise', label: 'Exercise Tracking', icon: Icons.fitness_center_rounded),
     TalkNavItem(href: '/stress', label: 'Stress Tracker', icon: Icons.psychology_alt_outlined),
     TalkNavItem(href: '/health', label: 'Health Dashboard', icon: Icons.monitor_heart_outlined),
     TalkNavItem(href: '/trends-30', label: '30-Day Trends', icon: Icons.trending_up_rounded),
@@ -90,7 +91,7 @@ class AppShell extends StatelessWidget {
     final bool wide = width >= breakpointWide;
     final bool compact = width < breakpointCompact;
 
-    final Widget content = _MainArea(child: child, compact: compact);
+    final Widget content = _MainArea(compact: compact, child: child);
 
     return Scaffold(
       drawer: wide ? null : const _NavDrawer(),

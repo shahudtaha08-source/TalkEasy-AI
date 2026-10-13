@@ -95,7 +95,7 @@ class TalkTheme {
         focusedBorder: _inputBorder(TalkColors.primary, width: 1.6),
         errorBorder: _inputBorder(TalkColors.destructive),
         focusedErrorBorder: _inputBorder(TalkColors.destructive, width: 1.6),
-        errorStyle: TextStyle(color: TalkColors.destructive, fontSize: 12),
+        errorStyle: const TextStyle(color: TalkColors.destructive, fontSize: 12),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
@@ -108,7 +108,7 @@ class TalkTheme {
           minimumSize: const Size(0, 44),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           shape: const RoundedRectangleBorder(borderRadius: TalkRadius.button),
-          textStyle: TextStyle(
+          textStyle: const TextStyle(
             fontFamily: bodyFont,
             fontSize: 14,
             fontWeight: FontWeight.w500,
@@ -125,7 +125,7 @@ class TalkTheme {
           minimumSize: const Size(0, 44),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           shape: const RoundedRectangleBorder(borderRadius: TalkRadius.button),
-          textStyle: TextStyle(
+          textStyle: const TextStyle(
             fontFamily: bodyFont,
             fontSize: 14,
             fontWeight: FontWeight.w500,
@@ -135,7 +135,7 @@ class TalkTheme {
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: TalkColors.primary,
-          textStyle: TextStyle(
+          textStyle: const TextStyle(
             fontFamily: bodyFont,
             fontSize: 14,
             fontWeight: FontWeight.w500,
@@ -163,7 +163,7 @@ class TalkTheme {
         indicatorColor: TalkColors.primarySoft,
         surfaceTintColor: Colors.transparent,
         elevation: 3,
-        labelTextStyle: WidgetStatePropertyAll(
+        labelTextStyle: const WidgetStatePropertyAll(
           TextStyle(fontFamily: bodyFont, fontSize: 11),
         ),
       ),
@@ -175,7 +175,7 @@ class TalkTheme {
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
         backgroundColor: isDark ? const Color(0xFF22363D) : TalkColors.foreground,
-        contentTextStyle: TextStyle(
+        contentTextStyle: const TextStyle(
           color: Colors.white,
           fontFamily: bodyFont,
           fontSize: 14,
@@ -187,7 +187,7 @@ class TalkTheme {
           color: isDark ? const Color(0xFF22363D) : TalkColors.foreground,
           borderRadius: TalkRadius.button,
         ),
-        textStyle: TextStyle(color: Colors.white, fontFamily: bodyFont),
+        textStyle: const TextStyle(color: Colors.white, fontFamily: bodyFont),
       ),
     );
   }

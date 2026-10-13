@@ -114,7 +114,7 @@ class Mood {
         mood: json['mood']?.toString(),
         notes: json['notes']?.toString(),
         date: json['date']?.toString(),
-        createdAt: json['created_at']?.toString(),
+        createdAt: (json['created_at'] ?? json['createdAt'])?.toString(),
       );
 }
 
@@ -159,9 +159,9 @@ class MoodEntry {
         mood: json['mood']?.toString(),
         intensity: (json['intensity'] as num?)?.toInt(),
         factors: _factors(json['factors']),
-        contextNote: json['context_note']?.toString(),
+        contextNote: (json['context_note'] ?? json['contextNote'])?.toString(),
         date: json['date']?.toString(),
-        createdAt: json['created_at']?.toString(),
+        createdAt: (json['created_at'] ?? json['createdAt'])?.toString(),
       );
 }
 
@@ -189,10 +189,12 @@ class Habit {
         type: json['type']?.toString(),
         completed: json['completed'] as bool?,
         completionPercentage:
-            (json['completion_percentage'] as num?)?.toInt(),
+            ((json['completion_percentage'] ?? json['completionPercentage'])
+                    as num?)
+                ?.toInt(),
         notes: json['notes']?.toString(),
         date: json['date']?.toString(),
-        createdAt: json['created_at']?.toString(),
+        createdAt: (json['created_at'] ?? json['createdAt'])?.toString(),
       );
 
   Habit copyWith({bool? completed, int? completionPercentage}) => Habit(
@@ -233,7 +235,7 @@ class Journal {
         type: json['type']?.toString(),
         tags: json['tags']?.toString(),
         date: json['date']?.toString(),
-        createdAt: json['created_at']?.toString(),
+        createdAt: (json['created_at'] ?? json['createdAt'])?.toString(),
       );
 }
 
@@ -256,11 +258,13 @@ class SleepEntry {
 
   factory SleepEntry.fromJson(Map<String, dynamic> json) => SleepEntry(
         id: (json['id'] as num?)?.toInt(),
-        nightSleep: (json['night_sleep'] as num?)?.toInt(),
+        nightSleep:
+            ((json['night_sleep'] ?? json['nightSleep']) as num?)?.toInt(),
         nap: (json['nap'] as num?)?.toInt(),
-        totalSleep: (json['total_sleep'] as num?)?.toInt(),
+        totalSleep:
+            ((json['total_sleep'] ?? json['totalSleep']) as num?)?.toInt(),
         date: json['date']?.toString(),
-        createdAt: json['created_at']?.toString(),
+        createdAt: (json['created_at'] ?? json['createdAt'])?.toString(),
       );
 }
 
@@ -279,9 +283,9 @@ class WaterEntry {
 
   factory WaterEntry.fromJson(Map<String, dynamic> json) => WaterEntry(
         id: (json['id'] as num?)?.toInt(),
-        amountMl: (json['amount_ml'] as num?)?.toInt(),
+        amountMl: ((json['amount_ml'] ?? json['amountMl']) as num?)?.toInt(),
         date: json['date']?.toString(),
-        loggedAt: json['logged_at']?.toString(),
+        loggedAt: (json['logged_at'] ?? json['loggedAt'])?.toString(),
       );
 }
 
@@ -309,9 +313,10 @@ class StressEntry {
         level: json['level']?.toString(),
         score: (json['score'] as num?)?.toInt(),
         note: json['note']?.toString(),
-        interventionViewed: json['intervention_viewed'] as bool?,
+        interventionViewed:
+            (json['intervention_viewed'] ?? json['interventionViewed']) as bool?,
         date: json['date']?.toString(),
-        createdAt: json['created_at']?.toString(),
+        createdAt: (json['created_at'] ?? json['createdAt'])?.toString(),
       );
 }
 
@@ -399,10 +404,10 @@ class Report {
         id: (json['id'] as num?)?.toInt(),
         type: json['type']?.toString(),
         title: json['title']?.toString(),
-        periodStart: json['period_start']?.toString(),
-        periodEnd: json['period_end']?.toString(),
-        summaryJson: json['summary_json']?.toString(),
-        generatedAt: json['generated_at']?.toString(),
+        periodStart: (json['period_start'] ?? json['periodStart'])?.toString(),
+        periodEnd: (json['period_end'] ?? json['periodEnd'])?.toString(),
+        summaryJson: (json['summary_json'] ?? json['summaryJson'])?.toString(),
+        generatedAt: (json['generated_at'] ?? json['generatedAt'])?.toString(),
       );
 
   Map<String, dynamic> get summary {
@@ -431,7 +436,7 @@ class Conversation {
   factory Conversation.fromJson(Map<String, dynamic> json) => Conversation(
         id: (json['id'] as num?)?.toInt(),
         title: json['title']?.toString(),
-        createdAt: json['created_at']?.toString(),
+        createdAt: (json['created_at'] ?? json['createdAt'])?.toString(),
       );
 }
 
@@ -458,12 +463,186 @@ class Message {
 
   factory Message.fromJson(Map<String, dynamic> json) => Message(
         id: (json['id'] as num?)?.toInt(),
-        conversationId: (json['conversation_id'] as num?)?.toInt(),
+        conversationId:
+            ((json['conversation_id'] ?? json['conversationId']) as num?)
+                ?.toInt(),
         role: json['role']?.toString(),
         content: json['content']?.toString(),
-        detectedEmotion: json['detected_emotion']?.toString(),
-        aiSuggestion: json['ai_suggestion']?.toString(),
-        createdAt: json['created_at']?.toString(),
+        detectedEmotion:
+            (json['detected_emotion'] ?? json['detectedEmotion'])?.toString(),
+        aiSuggestion:
+            (json['ai_suggestion'] ?? json['aiSuggestion'])?.toString(),
+        createdAt: (json['created_at'] ?? json['createdAt'])?.toString(),
+      );
+}
+
+/// One activity in the exercise catalogue. Mirrors `shared/exercise.ts`.
+class ExerciseActivity {
+  const ExerciseActivity({
+    required this.id,
+    required this.category,
+    required this.name,
+    required this.tracking,
+    required this.met,
+    this.supportsGps = false,
+    this.supportsSteps = false,
+  });
+
+  final String id;
+  final String category;
+  final String name;
+  final List<String> tracking;
+  final double met;
+  final bool supportsGps;
+  final bool supportsSteps;
+
+  bool get tracksReps => tracking.contains('reps');
+  bool get tracksDistance => tracking.contains('distance');
+}
+
+/// Static mirror of the server catalogue so the screen works offline. The
+/// server remains authoritative when a session is saved (it recomputes the
+/// calorie estimate and re-validates everything).
+const List<ExerciseActivity> kExerciseCatalog = <ExerciseActivity>[
+  ExerciseActivity(id: 'pushups', category: 'strength', name: 'exercisePushups', tracking: <String>['reps', 'sets'], met: 7.5),
+  ExerciseActivity(id: 'squats', category: 'strength', name: 'exerciseSquats', tracking: <String>['reps', 'sets'], met: 5.0),
+  ExerciseActivity(id: 'situps', category: 'strength', name: 'exerciseSitups', tracking: <String>['reps', 'sets'], met: 8.0),
+  ExerciseActivity(id: 'pullups', category: 'strength', name: 'exercisePullups', tracking: <String>['reps', 'sets'], met: 8.0),
+  ExerciseActivity(id: 'lunges', category: 'strength', name: 'exerciseLunges', tracking: <String>['reps', 'sets'], met: 6.0),
+  ExerciseActivity(id: 'kettlebell_swing', category: 'strength', name: 'exerciseKettlebellSwing', tracking: <String>['reps', 'sets'], met: 9.8),
+  ExerciseActivity(id: 'walking', category: 'cardio', name: 'exerciseWalking', tracking: <String>['duration', 'distance'], met: 3.5, supportsGps: true, supportsSteps: true),
+  ExerciseActivity(id: 'running', category: 'cardio', name: 'exerciseRunning', tracking: <String>['duration', 'distance'], met: 9.8, supportsGps: true, supportsSteps: true),
+  ExerciseActivity(id: 'cycling', category: 'cardio', name: 'exerciseCycling', tracking: <String>['duration', 'distance'], met: 7.5, supportsGps: true),
+  ExerciseActivity(id: 'jump_rope', category: 'cardio', name: 'exerciseJumpRope', tracking: <String>['duration'], met: 12.3, supportsSteps: true),
+  ExerciseActivity(id: 'rowing', category: 'cardio', name: 'exerciseRowing', tracking: <String>['duration', 'distance'], met: 7.0),
+  ExerciseActivity(id: 'elliptical', category: 'cardio', name: 'exerciseElliptical', tracking: <String>['duration'], met: 5.0),
+  ExerciseActivity(id: 'stretching', category: 'mobility', name: 'exerciseStretching', tracking: <String>['duration'], met: 2.3),
+  ExerciseActivity(id: 'pilates', category: 'mobility', name: 'exercisePilates', tracking: <String>['duration'], met: 3.0),
+  ExerciseActivity(id: 'basketball', category: 'sport', name: 'exerciseBasketball', tracking: <String>['duration'], met: 6.5),
+  ExerciseActivity(id: 'football', category: 'sport', name: 'exerciseFootball', tracking: <String>['duration'], met: 7.0),
+  ExerciseActivity(id: 'badminton', category: 'sport', name: 'exerciseBadminton', tracking: <String>['duration'], met: 5.5),
+  ExerciseActivity(id: 'swimming', category: 'sport', name: 'exerciseSwimming', tracking: <String>['duration'], met: 8.0),
+  ExerciseActivity(id: 'yoga', category: 'mind_body', name: 'exerciseYoga', tracking: <String>['duration'], met: 2.5),
+  ExerciseActivity(id: 'tai_chi', category: 'mind_body', name: 'exerciseTaiChi', tracking: <String>['duration'], met: 3.0),
+];
+
+const double kDefaultWeightKg = 70;
+
+ExerciseActivity? exerciseActivityById(String? id) {
+  if (id == null) return null;
+  for (final ExerciseActivity a in kExerciseCatalog) {
+    if (a.id == id) return a;
+  }
+  return null;
+}
+
+/// i18n key for a category, used to label the category chips.
+String exerciseCategoryLabelKey(String category) {
+  switch (category) {
+    case 'strength':
+      return 'exerciseCategoryStrength';
+    case 'cardio':
+      return 'exerciseCategoryCardio';
+    case 'mobility':
+      return 'exerciseCategoryMobility';
+    case 'sport':
+      return 'exerciseCategorySport';
+    case 'mind_body':
+      return 'exerciseCategoryMindBody';
+    default:
+      return 'exerciseTitle';
+  }
+}
+
+class CalorieEstimate {
+  const CalorieEstimate({
+    required this.kcal,
+    required this.weightKg,
+    required this.weightAssumed,
+  });
+
+  final int kcal;
+  final double weightKg;
+  final bool weightAssumed;
+}
+
+/// Deterministic MET-based estimate, mirroring `estimateCalories` on the server.
+/// Returns null when the activity is unknown or the duration is not positive.
+CalorieEstimate? estimateWorkoutCalories({
+  required ExerciseActivity activity,
+  required int durationSeconds,
+  double? weightKg,
+}) {
+  if (durationSeconds <= 0) return null;
+  final bool hasWeight = weightKg != null && weightKg >= 20 && weightKg <= 400;
+  final double weight = hasWeight ? weightKg : kDefaultWeightKg;
+  final double minutes = durationSeconds / 60;
+  final double kcal = (activity.met * 3.5 * weight) / 200 * minutes;
+  return CalorieEstimate(
+    kcal: kcal.round(),
+    weightKg: weight,
+    weightAssumed: !hasWeight,
+  );
+}
+
+/// `workout_sessions` row from `GET /api/workouts`.
+class WorkoutSession {
+  const WorkoutSession({
+    this.id,
+    this.activityId,
+    this.category,
+    this.source,
+    this.startedAt,
+    this.durationSeconds,
+    this.repetitions,
+    this.sets,
+    this.distanceMeters,
+    this.caloriesKcal,
+    this.weightAssumed,
+    this.met,
+    this.notes,
+    this.date,
+    this.createdAt,
+  });
+
+  final int? id;
+  final String? activityId;
+  final String? category;
+  final String? source;
+  final String? startedAt;
+  final int? durationSeconds;
+  final int? repetitions;
+  final int? sets;
+  final double? distanceMeters;
+  final int? caloriesKcal;
+  final bool? weightAssumed;
+  final double? met;
+  final String? notes;
+  final String? date;
+  final String? createdAt;
+
+  factory WorkoutSession.fromJson(Map<String, dynamic> json) => WorkoutSession(
+        id: (json['id'] as num?)?.toInt(),
+        activityId: (json['activity_id'] ?? json['activityId'])?.toString(),
+        category: json['category']?.toString(),
+        source: json['source']?.toString(),
+        startedAt: (json['started_at'] ?? json['startedAt'])?.toString(),
+        durationSeconds:
+            ((json['duration_seconds'] ?? json['durationSeconds']) as num?)
+                ?.toInt(),
+        repetitions: (json['repetitions'] as num?)?.toInt(),
+        sets: (json['sets'] as num?)?.toInt(),
+        distanceMeters:
+            ((json['distance_meters'] ?? json['distanceMeters']) as num?)
+                ?.toDouble(),
+        caloriesKcal:
+            ((json['calories_kcal'] ?? json['caloriesKcal']) as num?)?.toInt(),
+        weightAssumed:
+            (json['weight_assumed'] ?? json['weightAssumed']) as bool?,
+        met: (json['met'] as num?)?.toDouble(),
+        notes: json['notes']?.toString(),
+        date: json['date']?.toString(),
+        createdAt: (json['created_at'] ?? json['createdAt'])?.toString(),
       );
 }
 

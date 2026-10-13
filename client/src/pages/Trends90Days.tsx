@@ -1,5 +1,9 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Lock, Sparkles } from "lucide-react";
+import { useEntitlement } from "@/hooks/use-entitlement";
+import { useTranslation } from "@/i18n/LanguageContext";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from "recharts";
 import { Calendar, TrendingUp, TrendingDown, Activity, Droplet, Moon, Footprints, Heart, Activity as HeartPulse, AlertCircle } from "lucide-react";
 
@@ -32,12 +36,15 @@ interface StressEntry {
 }
 
 export default function Trends90Days() {
+  const { t } = useTranslation();
+  const { data: entitlement, isLoading: entitlementLoading } = useEntitlement();
   const [healthRecords, setHealthRecords] = useState<HealthRecord[]>([]);
   const [moodEntries, setMoodEntries] = useState<MoodEntry[]>([]);
   const [stressEntries, setStressEntries] = useState<StressEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!entitlement?.canAccess90Day) return;
     Promise.all([
       fetch("/api/health-daily-records?limit=90").then(r => r.json()),
       fetch("/api/mood-entries?limit=90").then(r => r.json()),
@@ -51,7 +58,7 @@ export default function Trends90Days() {
       console.error("Failed to fetch trends data:", err);
       setLoading(false);
     });
-  }, []);
+  }, [entitlement]);
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -204,6 +211,41 @@ export default function Trends90Days() {
   const positiveMoods = moodEntries.filter(e => ["Happy", "Calm", "Excited"].includes(e.mood)).length;
 
   const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff7300", "#00c49f", "#ff00ff"];
+
+  if (entitlementLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <Activity className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
+          <p className="text-muted-foreground">Loading 90-day trends...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Fail closed: if entitlement cannot be verified (network error / null), do not
+  // reveal the premium 90-day view. Access must come from the server.
+  if (!entitlement || !entitlement.canAccess90Day) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-teal-50 via-slate-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center px-4">
+        <Card className="max-w-lg w-full border-teal-300 dark:border-teal-800">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-teal-700 dark:text-teal-300">
+              <Lock className="h-5 w-5" /> {t("premiumRequiredTitle")}
+            </CardTitle>
+            <CardDescription>{t("premiumRequiredBody")}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-4">{t("premiumPriceLabel")}</p>
+            <Button disabled>
+              <Sparkles className="h-4 w-4 mr-2" /> {t("premiumRequiredTitle")}
+            </Button>
+            <p className="text-xs text-muted-foreground mt-3">{t("freeTrialNotice")}</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (loading) {
     return (

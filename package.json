@@ -1,6 +1,6 @@
 {
   "name": "talkeasy-ai",
-  "version": "1.0.0",
+  "version": "6.3.0",
   "type": "module",
   "license": "MIT",
   "scripts": {
@@ -8,6 +8,7 @@
     "build": "node script/build.mjs",
     "start": "cross-env NODE_ENV=production node dist/index.cjs",
     "check": "tsc",
+    "test": "node --import tsx --test \"tests/*.test.ts\"",
     "db:push": "drizzle-kit push"
   },
   "dependencies": {
@@ -83,6 +84,7 @@
     "typescript": "5.6.3",
     "vaul": "^1.1.2",
     "vite": "^7.3.0",
+    "web-push": "^3.6.7",
     "wouter": "^3.3.0",
     "ws": "^8.18.0",
     "zod": "^3.25.76",
@@ -104,6 +106,7 @@
     "@types/passport-local": "^1.0.38",
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.1",
+    "@types/web-push": "^3.6.4",
     "@types/ws": "^8.5.13",
     "@vitejs/plugin-react": "^4.7.0",
     "autoprefixer": "^10.4.20",

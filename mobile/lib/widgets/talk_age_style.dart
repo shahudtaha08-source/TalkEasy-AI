@@ -32,6 +32,13 @@ class TalkAgeStyle extends InheritedWidget {
   EdgeInsets get cardPaddingValue =>
       EdgeInsets.all(cardPadding);
 
+  @override
+  bool updateShouldNotify(TalkAgeStyle oldWidget) =>
+      fontScale != oldWidget.fontScale ||
+      sectionGap != oldWidget.sectionGap ||
+      cardPadding != oldWidget.cardPadding ||
+      buttonHeight != oldWidget.buttonHeight;
+
   /// Rebuilds with the current user's age group whenever the profile changes.
   static TalkAgeStyle forContext(BuildContext context, Widget child) {
     final String ageGroup =

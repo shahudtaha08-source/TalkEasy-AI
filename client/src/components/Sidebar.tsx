@@ -66,6 +66,8 @@ export function Sidebar() {
     { href: "/sleep", label: t("navSleepTracker"), icon: Moon },
     { href: "/water", label: t("navWaterIntake"), icon: Droplet },
     { href: "/stress", label: t("navStressTracker"), icon: Brain },
+    { href: "/insights/wellness", label: t("navWellnessInsights"), icon: Brain },
+    { href: "/insights/wearable", label: t("navWearableInsights"), icon: HeartPulse },
     { href: "/trends-30", label: t("navTrends30"), icon: TrendingUp },
     { href: "/trends-90", label: t("navTrends90"), icon: TrendingUp },
     { href: "/reports", label: t("navReports"), icon: FileText },

@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, Lock, Eye, Trash2, Mail } from "lucide-react";
+import { SUPPORT_EMAIL, buildMailto } from "@/lib/contact";
 
 export default function PrivacyPolicy() {
   return (
@@ -240,7 +241,12 @@ export default function PrivacyPolicy() {
                 If you have questions about this Privacy Policy or your personal information, please contact us at:
               </p>
               <p className="font-semibold">
-                privacy@talkeasy.ai
+                <a
+                  href={buildMailto({ subject: "TalkEasy Privacy Enquiry" })}
+                  className="text-blue-600 dark:text-blue-400 hover:underline break-all"
+                >
+                  {SUPPORT_EMAIL}
+                </a>
               </p>
               <p className="text-sm">
                 We will respond to your inquiry within a reasonable timeframe.

@@ -104,7 +104,7 @@ function kmeans(points: number[][], k: number, seed: number): { assignment: numb
   return { assignment, centroids, inertia };
 }
 
-function silhouette(points: number[][], assignment: number[], k: number): number {
+export function silhouetteScore(points: number[][], assignment: number[], k: number): number {
   const n = points.length;
   if (n <= k) return 0;
   const dist = (a: number[], b: number[]) => {
@@ -113,10 +113,14 @@ function silhouette(points: number[][], assignment: number[], k: number): number
     return Math.sqrt(s);
   };
   let total = 0;
+  let counted = 0;
   for (let i = 0; i < n; i++) {
     const own = assignment[i];
     const same = [];
     for (let j = 0; j < n; j++) if (j !== i && assignment[j] === own) same.push(points[j]);
+    // Singleton clusters have no within-cluster distance; the silhouette is
+    // undefined for them and they must be excluded from the mean (not counted
+    // as a 0), otherwise sparse clusters understate the score.
     if (same.length === 0) continue;
     const a = mean(same.map((p) => dist(points[i], p)));
     let b = Infinity;
@@ -128,8 +132,9 @@ function silhouette(points: number[][], assignment: number[], k: number): number
     }
     if (!isFinite(b)) continue;
     total += (b - a) / Math.max(a, b);
+    counted++;
   }
-  return total / n;
+  return counted === 0 ? 0 : total / counted;
 }
 
 function labelCandidates(profile: Partial<Record<FeatureKey, number>>): ClusterLabelKey[] {
@@ -192,7 +197,7 @@ export function clusterDays(features: DailyFeature[]): ClustersData | null {
   for (let k = 2; k <= kMax; k++) {
     for (let r = 0; r < RESTARTS; r++) {
       const run = kmeans(points, k, 97 + r * 31 + k);
-      const score = silhouette(points, run.assignment, k);
+      const score = silhouetteScore(points, run.assignment, k);
       if (!best || score > best.silhouette) {
         best = { assignment: run.assignment, centroids: run.centroids, k, silhouette: score };
       }

@@ -69,11 +69,41 @@ export interface ConfidenceAssessment {
 
 export type MlStatus = "ok" | "insufficient" | "error";
 
+/**
+ * User-facing transparency metadata attached to every ML envelope. ML output in
+ * TalkEasy is a statistical estimate over the user's own logs — never a
+ * diagnosis — and the client must be able to say so plainly.
+ */
+export interface MlDisclosure {
+  experimental: true;
+  estimate: true;
+  /** Short statements about what the numbers can and cannot mean. */
+  limitations: string[];
+}
+
+export const ML_LIMITATIONS: string[] = [
+  "These are statistical estimates from your own logs, not a diagnosis.",
+  "With few days of data, patterns and forecasts can be unreliable.",
+  "Insight is observational — it does not prove that one thing caused another.",
+  "Safety, emergency and medical decisions are never made from these estimates.",
+];
+
+export function buildMlDisclosure(): MlDisclosure {
+  return { experimental: true, estimate: true, limitations: [...ML_LIMITATIONS] };
+}
+
 export interface MlEnvelope<T> {
   status: MlStatus;
   message?: string;
   confidence?: ConfidenceAssessment;
+  /** Present on every server response; absent only on client-constructed locals. */
+  disclosure?: MlDisclosure;
   data?: T;
+}
+
+/** Attaches the standard transparency disclosure to an envelope. */
+export function withDisclosure<T>(envelope: Omit<MlEnvelope<T>, "disclosure">): MlEnvelope<T> {
+  return { ...envelope, disclosure: buildMlDisclosure() };
 }
 
 /* ── patterns ── */

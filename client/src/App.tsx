@@ -39,6 +39,7 @@ import Settings from "@/pages/Settings";
 import WaterIntake from "@/pages/WaterIntake";
 import StressTracker from "@/pages/StressTracker";
 import HealthDashboard from "@/pages/HealthDashboard";
+import Insights from "@/pages/Insights";
 import Trends30Days from "@/pages/Trends30Days";
 import Trends90Days from "@/pages/Trends90Days";
 import ReportLibrary from "@/pages/ReportLibrary";
@@ -114,6 +115,18 @@ function Router() {
       <Route path="/health">
         <ProtectedRoute>
           <Layout><HealthDashboard /></Layout>
+        </ProtectedRoute>
+      </Route>
+
+      <Route path="/insights/wellness">
+        <ProtectedRoute>
+          <Layout><Insights source="wellness" /></Layout>
+        </ProtectedRoute>
+      </Route>
+
+      <Route path="/insights/wearable">
+        <ProtectedRoute>
+          <Layout><Insights source="wearable" /></Layout>
         </ProtectedRoute>
       </Route>
 

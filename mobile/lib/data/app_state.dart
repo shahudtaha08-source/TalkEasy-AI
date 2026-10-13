@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'api_client.dart';
 import 'demo_store.dart';
 import 'models.dart';
+import '../services/notification_service.dart';
 
 /// Session, profile, theme, language and demo-mode state.
 ///
@@ -94,6 +95,15 @@ class AppState extends ChangeNotifier {
       _language = profile;
       _prefs.setString(languageKey, profile);
     }
+  }
+
+  /// Records the last saved mood check-in so the on-device reminder can be
+  /// re-scheduled on the next app launch, before any network call.
+  Future<void> persistLastMoodCheckIn(DateTime at) async {
+    await _prefs.setString(
+      NotificationService.lastCheckInPrefsKey,
+      at.toUtc().toIso8601String(),
+    );
   }
 
   // ─── Auth ─────────────────────────────────────────────────────────────────

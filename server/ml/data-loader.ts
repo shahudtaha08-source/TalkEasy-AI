@@ -22,6 +22,7 @@ export async function loadRawWellnessData(userId: string, windowDays = ML_WINDOW
         mood: healthDailyRecords.mood,
         moodIntensity: healthDailyRecords.moodIntensity,
         steps: healthDailyRecords.steps,
+        isDemo: healthDailyRecords.isDemo,
       })
       .from(healthDailyRecords)
       .where(and(eq(healthDailyRecords.userId, userId), gte(healthDailyRecords.date, cutoff))),

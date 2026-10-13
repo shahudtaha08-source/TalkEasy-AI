@@ -6,6 +6,17 @@ import cookieParser from "cookie-parser";
 import { db } from "./db";
 import { users, passwordResetTokens } from "@shared/schema";
 import { eq, sql, and, gt } from "drizzle-orm";
+import { sendEmail, getEmailConfigStatus, buildPasswordResetEmail, maskEmail } from "./email";
+import { forgotPasswordLimiter, verifyTokenLimiter, resetPasswordLimiter } from "./rate-limit";
+
+/** Generic response text used for every reset request to prevent account enumeration. */
+const GENERIC_RESET_RESPONSE =
+  "If an account exists with this email, a password reset link has been sent.";
+
+function clientKey(req: Request): string {
+  const ip = req.ip || req.socket?.remoteAddress || "unknown";
+  return String(ip);
+}
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
@@ -183,20 +194,49 @@ export function setupLocalAuth(app: Express) {
       const { email } = req.body;
       if (!email) return res.status(400).json({ message: "Email is required" });
 
-      const normalizedEmail = email.trim().toLowerCase();
-      const [user] = await db.select().from(users).where(sql`lower(${users.email}) = ${normalizedEmail}`);
+      const normalizedEmail = String(email).trim().toLowerCase();
 
-      // Always return success to prevent account enumeration
-      if (!user) {
-        return res.json({ message: "If an account exists with this email, a password reset link has been sent." });
+      // Throttle by IP and by target email so the endpoint cannot be used for
+      // mail-bombing or anonymous enumeration probing.
+      const ipLimit = forgotPasswordLimiter.check(`ip:${clientKey(req)}`);
+      const emailLimit = forgotPasswordLimiter.check(`email:${normalizedEmail}`);
+      if (!ipLimit.allowed || !emailLimit.allowed) {
+        const retryAfter = Math.max(ipLimit.retryAfterSeconds, emailLimit.retryAfterSeconds);
+        res.setHeader("Retry-After", String(retryAfter));
+        // Same generic message: do not reveal whether the address exists.
+        return res.status(429).json({ message: "Too many requests. Please try again later.", retryAfter });
       }
 
-      // Generate secure reset token
-      const resetToken = crypto.randomBytes(32).toString('hex');
-      const tokenHash = crypto.createHash('sha256').update(resetToken).digest('hex');
-      const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+      // Configuration is checked before looking the account up, so the response
+      // is identical for existing and non-existing accounts (no enumeration).
+      const config = getEmailConfigStatus();
+      if (!config.configured) {
+        console.error(`[forgot-password] email not configured (${config.reason}); no reset email was sent.`);
+        return res.status(503).json({
+          message:
+            "Password reset email is temporarily unavailable. Please try again later or contact support.",
+        });
+      }
 
-      // Store token in database
+      const [user] = await db.select().from(users).where(sql`lower(${users.email}) = ${normalizedEmail}`);
+
+      // Always return the same shape, whether or not the account exists.
+      if (!user) {
+        return res.json({ message: GENERIC_RESET_RESPONSE });
+      }
+
+      // Generate a cryptographically secure, single-use token. Only the hash is stored.
+      const resetToken = crypto.randomBytes(32).toString("hex");
+      const tokenHash = crypto.createHash("sha256").update(resetToken).digest("hex");
+      const expiryMinutes = Number(process.env.RESET_TOKEN_EXPIRY_HOURS || 1) * 60;
+      const expiresAt = new Date(Date.now() + expiryMinutes * 60 * 1000);
+
+      // Invalidate any outstanding unused tokens for this user (single active link).
+      await db
+        .update(passwordResetTokens)
+        .set({ used: true })
+        .where(and(eq(passwordResetTokens.userId, user.id), eq(passwordResetTokens.used, false)));
+
       await db.insert(passwordResetTokens).values({
         userId: user.id,
         tokenHash,
@@ -204,17 +244,28 @@ export function setupLocalAuth(app: Express) {
         used: false,
       });
 
-      // In production, send email with reset link
-      // For now, return the token (development only)
-      if (process.env.NODE_ENV === 'development') {
-        console.log('Password reset token (development only):', resetToken);
-        return res.json({ 
-          message: "If an account exists with this email, a password reset link has been sent.",
-          devToken: resetToken // Only in development
+      // Build the reset link from trusted configuration, never a Host header.
+      const template = buildPasswordResetEmail(resetToken, expiryMinutes);
+      try {
+        const result = await sendEmail({
+          to: normalizedEmail,
+          subject: template.subject,
+          text: template.text,
+          html: template.html,
+        });
+        if (!result.delivered) {
+          throw new Error(result.error || "Email provider did not deliver");
+        }
+      } catch (deliveryError) {
+        // Never log the token or link body.
+        console.error(`[forgot-password] delivery failed for ${maskEmail(normalizedEmail)}:`, (deliveryError as Error).message);
+        return res.status(502).json({
+          message:
+            "We could not send the reset email right now. Please try again later or contact support.",
         });
       }
 
-      return res.json({ message: "If an account exists with this email, a password reset link has been sent." });
+      return res.json({ message: GENERIC_RESET_RESPONSE });
     } catch (error) {
       console.error("Forgot password error:", error);
       return res.status(500).json({ message: "Failed to process request" });
@@ -224,6 +275,12 @@ export function setupLocalAuth(app: Express) {
   // Verify reset token
   app.post("/api/auth/verify-reset-token", async (req: Request, res: Response) => {
     try {
+      const limit = verifyTokenLimiter.check(clientKey(req));
+      if (!limit.allowed) {
+        res.setHeader("Retry-After", String(limit.retryAfterSeconds));
+        return res.status(429).json({ message: "Too many attempts. Please try again later." });
+      }
+
       const { token } = req.body;
       if (!token) return res.status(400).json({ message: "Token is required" });
 
@@ -253,6 +310,12 @@ export function setupLocalAuth(app: Express) {
   // Reset password
   app.post("/api/auth/reset-password", async (req: Request, res: Response) => {
     try {
+      const limit = resetPasswordLimiter.check(clientKey(req));
+      if (!limit.allowed) {
+        res.setHeader("Retry-After", String(limit.retryAfterSeconds));
+        return res.status(429).json({ message: "Too many attempts. Please try again later." });
+      }
+
       const { token, newPassword } = req.body;
       if (!token || !newPassword) {
         return res.status(400).json({ message: "Token and new password are required" });

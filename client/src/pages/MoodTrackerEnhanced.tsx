@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useMoods, useCreateMood } from "@/hooks/use-moods";
+import { useMoodReminder, useMoodReminderScheduler } from "@/hooks/use-mood-reminder";
 import { format } from "date-fns";
 import {
-  Smile, Frown, Meh, Angry, Loader2, Check, ArrowLeft, ArrowRight,
-  Heart, Zap, Moon, Coffee, Users, Home, Star, BookOpen, Minus, Plus
+  Meh, Angry, Loader2, ArrowLeft, ArrowRight,
+  Heart, Zap, Moon, Coffee, Users, Home, Star, BookOpen, Minus, Plus, Clock, BellRing
 } from "lucide-react";
 import { useTranslation } from "@/i18n/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
@@ -133,9 +134,12 @@ export default function MoodTrackerEnhanced() {
   const { toast } = useToast();
   const { data: moods } = useMoods();
   const { mutate: logMood, isPending } = useCreateMood();
+  const { data: reminder } = useMoodReminder();
+  useMoodReminderScheduler(reminder);
 
   const todayStr = format(new Date(), "yyyy-MM-dd");
-  const todayMood = moods?.find((m: any) => m.date === todayStr);
+  // Several check-ins are allowed per day; show the whole day as a timeline.
+  const todaysCheckIns = (moods || []).filter((m: any) => m.date === todayStr);
 
   const [step, setStep] = useState(1); // 1: mood, 2: factors, 3: intensity+note
   const [selectedMood, setSelectedMood] = useState("");
@@ -184,38 +188,62 @@ export default function MoodTrackerEnhanced() {
     });
   };
 
-  // ── Already logged today ──
-  if (todayMood) {
-    return (
-      <div className="max-w-4xl mx-auto animate-in fade-in duration-500 space-y-8">
-        <div>
-          <h1 className="text-4xl font-display font-bold">{t("moodTrackerTitle")}</h1>
-          <p className="text-muted-foreground mt-2 text-lg">{t("moodTrackerSubtitle")}</p>
-        </div>
-        <div className="glass-card rounded-3xl p-8 text-center bg-gradient-to-b from-teal-50 to-white dark:from-slate-900 dark:to-slate-800 border-teal-100">
-          <div className="w-20 h-20 bg-teal-100 dark:bg-teal-900 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Check className="w-10 h-10 text-teal-600 dark:text-teal-400" />
-          </div>
-          <h2 className="text-2xl font-bold mb-2">{t("loggedToday")}</h2>
-          <p className="text-xl mb-4 font-display">
-            {t("feelingText")} <strong className="capitalize text-teal-600">{todayMood.mood}</strong>
-          </p>
-          {todayMood.notes && (
-            <div className="bg-white dark:bg-slate-900 p-4 rounded-xl inline-block max-w-lg shadow-sm border border-border">
-              <p className="italic text-slate-600 dark:text-slate-300 text-sm">{todayMood.notes}</p>
-            </div>
-          )}
-        </div>
-        <MoodHistory moods={moods} />
-      </div>
-    );
-  }
+  const lastCheckIn = todaysCheckIns.length ? todaysCheckIns[todaysCheckIns.length - 1] : null;
 
   return (
     <div className="max-w-4xl mx-auto animate-in fade-in duration-500 space-y-8">
       <div>
         <h1 className="text-4xl font-display font-bold">{t("moodTrackerTitle")}</h1>
         <p className="text-muted-foreground mt-2 text-lg">{t("moodTrackerSubtitle")}</p>
+      </div>
+
+      {/* Today's check-ins — several are allowed, shown as a timeline. */}
+      <div className="glass-card rounded-3xl p-6 space-y-4">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <h2 className="text-lg font-bold flex items-center gap-2">
+            <Clock className="w-4 h-4 text-teal-600" /> Today's check-ins
+            <span className="text-sm font-normal text-muted-foreground">({todaysCheckIns.length})</span>
+          </h2>
+          {reminder && (
+            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <BellRing className="w-3.5 h-3.5 text-teal-600" />
+              {reminder.enabled
+                ? `Next reminder ${format(new Date(reminder.nextReminderAt), "MMM d, HH:mm")}`
+                : "Mood reminders are off in Settings"}
+            </span>
+          )}
+        </div>
+        {todaysCheckIns.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            No check-ins yet today. Log how you feel below — you can check in as often as you like.
+          </p>
+        ) : (
+          <ol className="relative border-l border-teal-200 dark:border-teal-900 ml-2 space-y-4">
+            {todaysCheckIns.map((m: any) => {
+              const cfg = MOODS.find((x) => x.value === m.mood) || MOODS[0];
+              return (
+                <li key={m.id} className="ml-5">
+                  <span className="absolute -left-2.5 w-5 h-5 rounded-full bg-teal-100 dark:bg-teal-900 flex items-center justify-center text-[11px]">
+                    {cfg.emoji}
+                  </span>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-semibold capitalize">{m.mood}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {m.createdAt ? format(new Date(m.createdAt), "HH:mm") : format(new Date(m.date), "MMM d")}
+                    </span>
+                  </div>
+                  {m.notes && <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">{m.notes}</p>}
+                </li>
+              );
+            })}
+          </ol>
+        )}
+        {lastCheckIn && (
+          <p className="text-xs text-muted-foreground">
+            Last saved check-in: {lastCheckIn.createdAt ? format(new Date(lastCheckIn.createdAt), "HH:mm") : "today"}. A new
+            reminder is scheduled 3 hours after the last saved check-in (quiet hours respected).
+          </p>
+        )}
       </div>
 
       {/* Step indicators */}
@@ -402,7 +430,9 @@ function MoodHistory({ moods }: { moods: any[] | undefined }) {
               <div>
                 <p className="font-bold">{m.mood}</p>
                 <p className="text-xs text-muted-foreground mb-1">
-                  {format(new Date(m.date), "MMM do, yyyy")}
+                  {m.createdAt
+                    ? format(new Date(m.createdAt), "MMM do, yyyy · HH:mm")
+                    : format(new Date(m.date), "MMM do, yyyy")}
                 </p>
                 {m.notes && (
                   <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2">{m.notes}</p>

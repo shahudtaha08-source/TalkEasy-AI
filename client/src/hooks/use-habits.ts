@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api, buildUrl } from "@shared/routes";
 import { isDemoMode, getDemoHabits, createDemoHabit, updateDemoHabit } from "@/lib/demo-data";
+import { invalidateInsightQueries } from "./use-insights";
 
 export function useHabits(date?: string) {
   return useQuery({
@@ -36,6 +37,7 @@ export function useCreateHabit() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [api.habits.list.path] });
+      invalidateInsightQueries(queryClient);
     },
   });
 }
@@ -59,6 +61,7 @@ export function useUpdateHabit() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [api.habits.list.path] });
+      invalidateInsightQueries(queryClient);
     },
   });
 }

@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@shared/routes";
 import { isDemoMode, getDemoMoods, createDemoMood } from "@/lib/demo-data";
+import { invalidateInsightQueries } from "./use-insights";
 
 export function useMoods() {
   return useQuery({
@@ -55,6 +56,9 @@ export function useCreateMood() {
       queryClient.invalidateQueries({ queryKey: [api.moods.list.path] });
       queryClient.invalidateQueries({ queryKey: ["/api/mood-entries"] });
       queryClient.invalidateQueries({ queryKey: [api.history.emotional.path] });
+      // A saved check-in moves the next 3-hour reminder window forward.
+      queryClient.invalidateQueries({ queryKey: ["/api/notifications/mood-reminder"] });
+      invalidateInsightQueries(queryClient);
     },
   });
 }

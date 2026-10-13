@@ -19,6 +19,7 @@ class DemoStore {
   static const String habitsKey = 'talkeasy_demo_habits';
   static const String journalsKey = 'talkeasy_demo_journals';
   static const String chatKey = 'talkeasy_demo_chat';
+  static const String workoutsKey = 'talkeasy_demo_workouts';
   static const String startedKey = 'talkeasy_demo_started_at';
   static const String sessionKey = 'talkeasy_demo_session_id';
 
@@ -30,6 +31,7 @@ class DemoStore {
     habitsKey,
     journalsKey,
     chatKey,
+    workoutsKey,
     startedKey,
     sessionKey,
   ];
@@ -413,6 +415,61 @@ class DemoStore {
     };
     _write('talkeasy_demo_stress_entries', list);
     return StressEntry.fromJson(list[index]);
+  }
+
+  // ─── Workouts / exercise ───────────────────────────────────────────────────
+
+  List<WorkoutSession> workouts() => _read(workoutsKey)
+      .map(WorkoutSession.fromJson)
+      .toList(growable: false);
+
+  WorkoutSession createWorkout({
+    required String activityId,
+    required String category,
+    required String source,
+    required String startedAt,
+    required int durationSeconds,
+    int? repetitions,
+    int? sets,
+    double? distanceMeters,
+    double? weightKg,
+    int? caloriesKcal,
+    bool weightAssumed = false,
+    double? met,
+    String? notes,
+  }) {
+    final List<Map<String, dynamic>> list = _read(workoutsKey);
+    final Map<String, dynamic> entry = <String, dynamic>{
+      'id': DateTime.now().millisecondsSinceEpoch,
+      'activity_id': activityId,
+      'category': category,
+      'source': source,
+      'started_at': startedAt,
+      'duration_seconds': durationSeconds,
+      'repetitions': repetitions,
+      'sets': sets,
+      'distance_meters': distanceMeters,
+      'weight_kg': weightKg,
+      'calories_kcal': caloriesKcal,
+      'calories_estimated': true,
+      'weight_assumed': weightAssumed,
+      'met': met,
+      'notes': notes ?? '',
+      'date': today(),
+      'createdAt': nowIso(),
+    };
+    list.insert(0, entry);
+    _write(workoutsKey, list);
+    return WorkoutSession.fromJson(entry);
+  }
+
+  void deleteWorkout(int id) {
+    _write(
+      workoutsKey,
+      _read(workoutsKey)
+          .where((Map<String, dynamic> w) => w['id'] != id)
+          .toList(growable: false),
+    );
   }
 
   // ─── Chat ─────────────────────────────────────────────────────────────────
