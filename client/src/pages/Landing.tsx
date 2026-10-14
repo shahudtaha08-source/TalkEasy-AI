@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { TalkEasyLogo } from "@/components/TalkEasyLogo";
+import { InstallApp } from "@/components/InstallApp";
 import { useTranslation } from "@/i18n/LanguageContext";
 import { LanguageCode } from "@/i18n/translations";
 import type { Translations } from "@/i18n/translations";
@@ -200,6 +201,10 @@ export default function Landing() {
           </button>
         </div>
       </header>
+
+      <div className="px-6 pt-4 max-w-4xl mx-auto">
+        <InstallApp variant="banner" />
+      </div>
 
       {inDemo && (
         <div className="bg-amber-500 text-white text-center py-2 px-4 text-sm font-medium flex items-center justify-center gap-3">

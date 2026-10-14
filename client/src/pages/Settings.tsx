@@ -10,6 +10,7 @@ import { useTranslation } from "@/i18n/LanguageContext";
 import { LanguageCode } from "@/i18n/translations";
 import { isSidebarDisclaimerDismissed, restoreSidebarDisclaimer } from "@/lib/sidebar-disclaimer";
 import { NotificationPreferencesCard } from "@/components/NotificationPreferences";
+import { InstallApp } from "@/components/InstallApp";
 import { SUPPORT_EMAIL, SUPPORT_MAILTO, FEEDBACK_MAILTO, REVIEW_MAILTO } from "@/lib/contact";
 
 export const APP_VERSION = "6.3.0";
@@ -263,6 +264,9 @@ export default function Settings() {
 
         {/* Notifications */}
         <NotificationPreferencesCard />
+
+        {/* Install the PWA on the phone */}
+        <InstallApp />
 
         {/* Contact & feedback */}
         <section className="glass-card rounded-3xl p-8 space-y-6">

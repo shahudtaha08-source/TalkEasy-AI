@@ -273,3 +273,48 @@ and steps:
 - There is intentionally **no fake purchase/payment-success** path. Premium cannot
   currently be activated client-side; activation is gated server-side and
   `canAccess90Day` drives the 90-day gates.
+
+## 9. Installable PWA (Android Chrome)
+
+TalkEasy ships a valid web app manifest, real PNG icons, and a service worker, so
+it installs from Android Chrome with its own icon and name and launches in
+standalone mode.
+
+Required server behaviour (already implemented):
+
+- **HTTPS** is required by Chrome for install + service workers. The Render URL is
+  HTTPS.
+- The server must serve, at the app origin:
+  - `/manifest.webmanifest` with `name`/`short_name` `TalkEasy`,
+    `display: standalone`, `start_url: /dashboard`, and 192/512 PNG icons.
+  - `/sw.js` (service worker: offline app shell + Web Push handlers).
+  - `/icons/icon-192.png`, `/icons/icon-512.png`, `/icons/icon-maskable-512.png`,
+    `/icons/apple-touch-icon.png`.
+  All of these are emitted into `dist/public/` by `npm run build`.
+
+Icons are generated from the shipped brand mark (`client/public/favicon.svg`) with
+headless Chrome and committed to `client/public/icons/`. Regenerate after a brand
+change:
+
+```sh
+npm run icons           # or: CHROME_PATH=/path/to/chrome node scripts/generate-pwa-icons.mjs
+```
+
+Install steps on the phone (Android Chrome):
+
+1. Open `https://talkeasy-ai.onrender.com/` in Chrome.
+2. Tap the **⋮** menu → **Install app** (or **Add to Home screen**), or accept the
+   in-app **Install TalkEasy** banner.
+3. Confirm. TalkEasy then opens in its own window with the TalkEasy icon.
+4. For background mood reminders: open **Settings → Notifications**, tap
+   **Enable** under *Background reminders*, and allow notifications when Chrome
+   asks. The server must have `VAPID_PUBLIC_KEY`/`VAPID_PRIVATE_KEY` set (see §6).
+
+Service-worker behaviour and safety:
+
+- Navigations are **network-first** (a new deploy is picked up immediately); the
+  cached shell is only a fallback when offline.
+- Hashed static assets are cache-first with a background refresh; caches are
+  versioned and old versions are deleted on activate.
+- `/api/*` is **never** cached or served from cache, so private wellness data is
+  never shown stale and a failed API call surfaces as a real failure.

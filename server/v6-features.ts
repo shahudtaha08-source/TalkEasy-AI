@@ -47,6 +47,7 @@ import {
 } from "@shared/notifications";
 import {
   MOOD_CHECKIN_INTERVAL_HOURS,
+  MOOD_REMINDER_MESSAGE,
   computeNextMoodReminder,
   hasCheckedInWithin,
 } from "@shared/mood-reminder";
@@ -390,7 +391,7 @@ export function registerV6FeatureRoutes(app: Express): void {
         lastCheckInAt: lastCheckIn ? lastCheckIn.toISOString() : null,
         checkedInWithinInterval: hasCheckedInWithin(lastCheckIn, now, moodCategory?.intervalHours ?? MOOD_CHECKIN_INTERVAL_HOURS),
         nextReminderAt: nextReminderAt.toISOString(),
-        message: "Time for your TalkEasy mood check-in.",
+        message: MOOD_REMINDER_MESSAGE,
       });
     } catch (error) {
       console.error("Mood reminder fetch error:", error);
