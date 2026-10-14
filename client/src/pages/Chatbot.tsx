@@ -63,7 +63,7 @@ export default function Chatbot() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-4 md:p-8 h-[calc(100vh-4rem)] flex flex-col">
+    <div className="max-w-4xl mx-auto p-4 md:p-8 h-[calc(100vh-7rem)] lg:h-[calc(100vh-4rem)] flex flex-col">
       <div className="flex items-center gap-4 mb-6">
         <div className="w-14 h-14 rounded-3xl bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center"><MessageCircle className="w-7 h-7 text-teal-600" /></div>
         <div><h1 className="text-3xl md:text-4xl font-display font-extrabold">Support Chat</h1><p className="text-sm text-muted-foreground">TalkEasy AI by Taha Shahud · Powered locally by Ollama Phi-3</p></div>

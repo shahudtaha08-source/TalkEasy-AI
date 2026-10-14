@@ -121,7 +121,7 @@ export default function Settings() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Profile */}
-        <section className="glass-card rounded-3xl p-8 space-y-6">
+        <section className="glass-card rounded-3xl p-5 sm:p-8 space-y-6">
           <div className="flex items-center gap-5 pb-6 border-b border-border">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-400 to-blue-500 flex items-center justify-center text-white shadow-lg text-2xl font-bold overflow-hidden flex-shrink-0">
               {user?.profileImageUrl ? (
@@ -130,14 +130,14 @@ export default function Settings() {
                 form.firstName?.[0] || user?.username?.[0] || "U"
               )}
             </div>
-            <div>
-              <p className="font-bold text-lg text-slate-900 dark:text-white">{user?.email || user?.username}</p>
+            <div className="min-w-0">
+              <p className="font-bold text-lg text-slate-900 dark:text-white truncate">{user?.email || user?.username}</p>
               <p className="text-muted-foreground text-sm">Your TalkEasy account identity</p>
             </div>
           </div>
 
           <h2 className="font-bold text-base text-slate-700 dark:text-slate-300">{t("personalDetails")}</h2>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label={t("firstNameLabel")} icon={User}>
               <input type="text" value={form.firstName} onChange={set("firstName")} placeholder="First name" className={inputCls} />
             </Field>
@@ -146,7 +146,7 @@ export default function Settings() {
             </Field>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label={t("ageGroupLabel")} icon={Clock}>
               <select value={form.ageGroup} onChange={set("ageGroup")} className={selectCls}>
                 {AGE_GROUPS.map(a => <option key={a}>{a}</option>)}
@@ -159,7 +159,7 @@ export default function Settings() {
             </Field>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="Occupation" icon={Briefcase}>
               <select value={form.occupationType} onChange={set("occupationType")} className={selectCls}>
                 {OCCUPATIONS.map(o => <option key={o}>{o}</option>)}
@@ -174,11 +174,11 @@ export default function Settings() {
         </section>
 
         {/* Location */}
-        <section className="glass-card rounded-3xl p-8 space-y-6">
+        <section className="glass-card rounded-3xl p-5 sm:p-8 space-y-6">
           <h2 className="font-bold text-base text-slate-700 dark:text-slate-300 flex items-center gap-2">
             <MapPin className="w-4 h-4 text-teal-600" /> Location (used for Find Help)
           </h2>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label={t("cityLabel")} icon={MapPin}>
               <input type="text" value={form.city} onChange={set("city")} placeholder="e.g. Mumbai" className={inputCls} />
             </Field>
@@ -189,7 +189,7 @@ export default function Settings() {
         </section>
 
         {/* Emergency Contact */}
-        <section className="glass-card rounded-3xl p-8 space-y-6 border-l-4 border-rose-400">
+        <section className="glass-card rounded-3xl p-5 sm:p-8 space-y-6 border-l-4 border-rose-400">
           <h2 className="font-bold text-base text-slate-700 dark:text-slate-300 flex items-center gap-2">
             <ShieldAlert className="w-4 h-4 text-rose-500" /> {t("emergencyContactLabel")}
           </h2>
@@ -202,7 +202,7 @@ export default function Settings() {
         </section>
 
         {/* Legal */}
-        <section className="glass-card rounded-3xl p-8 space-y-6">
+        <section className="glass-card rounded-3xl p-5 sm:p-8 space-y-6">
           <h2 className="font-bold text-base text-slate-700 dark:text-slate-300 flex items-center gap-2">
             <FileText className="w-4 h-4 text-teal-600" /> Legal Information
           </h2>
@@ -269,7 +269,7 @@ export default function Settings() {
         <InstallApp />
 
         {/* Contact & feedback */}
-        <section className="glass-card rounded-3xl p-8 space-y-6">
+        <section className="glass-card rounded-3xl p-5 sm:p-8 space-y-6">
           <h2 className="font-bold text-base text-slate-700 dark:text-slate-300 flex items-center gap-2">
             <Mail className="w-4 h-4 text-teal-600" /> Contact & Feedback
           </h2>
@@ -311,7 +311,7 @@ export default function Settings() {
         </section>
 
         {/* App / display preferences */}
-        <section className="glass-card rounded-3xl p-8 space-y-6">
+        <section className="glass-card rounded-3xl p-5 sm:p-8 space-y-6">
           <h2 className="font-bold text-base text-slate-700 dark:text-slate-300 flex items-center gap-2">
             <Info className="w-4 h-4 text-teal-600" /> {t("appInformation")}
           </h2>

@@ -597,4 +597,11 @@ export interface Translations {
   generatedReportRange: string;
   reportSourceWellness: string;
   reportSourceWearable: string;
+
+  /* ── v6.3.0 · responsive shell (mobile drawer + desktop collapse) ── */
+  openMenu: string;
+  closeMenu: string;
+  collapseSidebar: string;
+  expandSidebar: string;
+  primaryNavigation: string;
 }

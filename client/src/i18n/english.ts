@@ -587,4 +587,11 @@ export const english: Translations = {
   generatedReportRange: "{start} to {end}",
   reportSourceWellness: "Personal Wellness",
   reportSourceWearable: "Device Health",
+
+  /* ── v6.3.0 · responsive shell (mobile drawer + desktop collapse) ── */
+  openMenu: "Open menu",
+  closeMenu: "Close menu",
+  collapseSidebar: "Collapse sidebar",
+  expandSidebar: "Expand sidebar",
+  primaryNavigation: "Primary navigation",
 };

@@ -145,7 +145,7 @@ export default function WaterIntake() {
         {/* Quick add buttons */}
         <div>
           <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">Quick add</p>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {[150, 250, 350, 500, 750, 1000].map((ml) => (
               <button
                 key={ml}

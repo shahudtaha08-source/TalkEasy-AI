@@ -361,7 +361,7 @@ export default function FindHelp() {
 
         {/* Advanced filters */}
         {showFilters && (
-          <div className="grid grid-cols-2 gap-4 pt-2 border-t border-border">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-border">
             <FilterSelect label={t("budgetLabel")} value={budget} options={BUDGETS} onChange={setBudget}
               labelMap={{ All: t("all"), low: t("budgetLow"), medium: t("budgetMedium"), high: t("budgetHigh") }} />
             <FilterSelect label={t("modeLabel")}   value={mode}   options={MODES}   onChange={setMode}
