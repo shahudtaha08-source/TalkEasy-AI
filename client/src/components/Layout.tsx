@@ -5,6 +5,7 @@ import { Loader2, Menu } from "lucide-react";
 import { useTranslation } from "@/i18n/LanguageContext";
 import { TalkEasyLogo } from "./TalkEasyLogo";
 import { cn } from "@/lib/utils";
+import { ReleaseNotes } from "@/components/ReleaseNotes";
 
 const COLLAPSE_KEY = "talkeasy:sidebar-collapsed";
 
@@ -101,6 +102,7 @@ export function Layout({ children }: { children: ReactNode }) {
           {children}
         </div>
       </main>
+      <ReleaseNotes />
     </div>
   );
 }

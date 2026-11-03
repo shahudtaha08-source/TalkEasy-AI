@@ -3,17 +3,19 @@ import { useUser, useUpdateUser } from "@/hooks/use-user";
 import {
   Loader2, Globe, Clock, User, Phone, MapPin, Briefcase,
   DollarSign, ShieldAlert, Save, FileText, ExternalLink, Info, RotateCcw,
-  Mail, MessageSquare, Star
+  Mail, MessageSquare, Star, Sun, Moon, Monitor
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/i18n/LanguageContext";
 import { LanguageCode } from "@/i18n/translations";
 import { isSidebarDisclaimerDismissed, restoreSidebarDisclaimer } from "@/lib/sidebar-disclaimer";
+import { useTheme } from "@/hooks/use-theme";
 import { NotificationPreferencesCard } from "@/components/NotificationPreferences";
 import { InstallApp } from "@/components/InstallApp";
 import { SUPPORT_EMAIL, SUPPORT_MAILTO, FEEDBACK_MAILTO, REVIEW_MAILTO } from "@/lib/contact";
-
-export const APP_VERSION = "6.3.0";
+import { cn } from "@/lib/utils";
+import { ReleaseNotes } from "@/components/ReleaseNotes";
+import { useReleaseNotes, APP_VERSION } from "@/hooks/use-release-notes";
 
 const LANGUAGES: LanguageCode[] = [
   "English", "Hindi", "Urdu", "Marathi", "Tamil", 
@@ -56,6 +58,7 @@ const selectCls = `${inputCls} cursor-pointer`;
 
 export default function Settings() {
   const { t, language, setLanguage } = useTranslation();
+  const { theme, effective, setTheme } = useTheme();
   const { data: user, isLoading } = useUser();
   const { mutate: updateUser, isPending } = useUpdateUser();
   const { toast } = useToast();
@@ -262,6 +265,44 @@ export default function Settings() {
           </div>
         </section>
 
+        {/* Appearance / theme */}
+        <section className="glass-card rounded-3xl p-5 sm:p-8 space-y-6">
+          <h2 className="font-bold text-base text-slate-700 dark:text-slate-300 flex items-center gap-2">
+            <Monitor className="w-4 h-4 text-teal-600" /> {t("appearanceLabel")}
+          </h2>
+          <p className="text-sm text-muted-foreground">{t("appearanceDesc")}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {[
+              { value: "system", label: t("themeSystem"), icon: <Monitor className="w-5 h-5" /> },
+              { value: "light", label: t("themeLight"), icon: <Sun className="w-5 h-5" /> },
+              { value: "dark", label: t("themeDark"), icon: <Moon className="w-5 h-5" /> },
+            ].map((option) => {
+              const active = theme === option.value;
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => setTheme(option.value as "light" | "dark" | "system")}
+                  aria-pressed={active}
+                  className={cn(
+                    "flex flex-col items-center gap-2 p-3 rounded-xl border transition-colors",
+                    active
+                      ? "bg-teal-100 dark:bg-teal-900/20 border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-400 shadow-lg shadow-teal-600/20"
+                      : "bg-card border-background text-muted-foreground hover:bg-muted hover:text-foreground",
+                  )}
+                >
+                  {option.icon}
+                  <span className="text-sm font-medium">{option.label}</span>
+                  {active && <span className="text-[10px] bg-teal-200 dark:bg-teal-800 text-teal-700 dark:text-teal-300 rounded-full px-1.5 py-0.5">{t("active")}</span>}
+                </button>
+              );
+            })}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {t("effectiveTheme", { theme: effective })}
+          </p>
+        </section>
+
         {/* Notifications */}
         <NotificationPreferencesCard />
 
@@ -320,6 +361,7 @@ export default function Settings() {
               <p className="font-semibold text-slate-900 dark:text-white">{t("versionLabel")} {APP_VERSION}</p>
               <p className="text-xs text-muted-foreground">{t("appName")} · {t("tagline")}</p>
             </div>
+            <ReleaseNotes full />
           </div>
           {disclaimerDismissed && (
             <button

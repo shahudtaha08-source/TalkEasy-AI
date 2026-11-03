@@ -594,4 +594,32 @@ export const english: Translations = {
   collapseSidebar: "Collapse sidebar",
   expandSidebar: "Expand sidebar",
   primaryNavigation: "Primary navigation",
+
+  /* ── v6.4 · appearance / theme ── */
+  appearanceLabel: "Appearance",
+  appearanceDesc: "Choose how TalkEasy looks. System follows your operating system's preference.",
+  themeSystem: "System",
+  themeLight: "Light",
+  themeDark: "Dark",
+  active: "Active",
+  effectiveTheme: "Currently using {theme} mode",
+
+  /* ── v6.4 · sidebar categories ── */
+  navDashboard: "Dashboard",
+  navTrackers: "Trackers",
+  navExercise: "Exercise",
+  navWellness: "Wellness",
+  navGrowth: "Growth",
+  navInsightsGroup: "Insights & Patterns",
+  navSupport: "Support & Safety",
+  navApp: "App",
+
+  /* ── v6.4 · release notes / what's new ── */
+  whatsNew: "What's New",
+  whatsNewTitle: "What's New in TalkEasy {version}?",
+  whatsNewDesc: "See what changed in this release.",
+  viewNotes: "View release notes",
+  dismiss: "Got it",
+  done: "Done",
+  appVersionLabel: "TalkEasy version {version}",
 };

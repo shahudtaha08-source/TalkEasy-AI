@@ -21,12 +21,14 @@ import { LanguageProvider } from "@/i18n/LanguageContext";
 // Components
 import { Layout } from "@/components/Layout";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { ThemeInitializer } from "@/hooks/use-theme";
 
 // Pages
 import Dashboard from "@/pages/Dashboard";
 import Chatbot from "@/pages/Chatbot";
 import MoodTracker from "@/pages/MoodTracker";
 import MoodTrackerEnhanced from "@/pages/MoodTrackerEnhanced";
+import ExerciseTracker from "@/pages/ExerciseTracker";
 import HabitTracker from "@/pages/HabitTracker";
 import SleepTracker from "@/pages/SleepTracker";
 import Statistics from "@/pages/Statistics";
@@ -109,6 +111,12 @@ function Router() {
       <Route path="/stress">
         <ProtectedRoute>
           <Layout><StressTracker /></Layout>
+        </ProtectedRoute>
+      </Route>
+
+      <Route path="/exercise">
+        <ProtectedRoute>
+          <Layout><ExerciseTracker /></Layout>
         </ProtectedRoute>
       </Route>
 
@@ -300,6 +308,7 @@ function App() {
       <LanguageProvider>
         <TooltipProvider>
           <Toaster />
+          <ThemeInitializer />
           <Router />
         </TooltipProvider>
       </LanguageProvider>

@@ -604,4 +604,32 @@ export interface Translations {
   collapseSidebar: string;
   expandSidebar: string;
   primaryNavigation: string;
+
+  /* ── v6.4 · appearance / theme ── */
+  appearanceLabel: string;
+  appearanceDesc: string;
+  themeSystem: string;
+  themeLight: string;
+  themeDark: string;
+  active: string;
+  effectiveTheme: string;
+
+  /* ── v6.4 · sidebar categories ── */
+  navDashboard: string;
+  navTrackers: string;
+  navExercise: string;
+  navWellness: string;
+  navGrowth: string;
+  navInsightsGroup: string;
+  navSupport: string;
+  navApp: string;
+
+  /* ── v6.4 · release notes / what's new ── */
+  whatsNew: string;
+  whatsNewTitle: string;
+  whatsNewDesc: string;
+  viewNotes: string;
+  dismiss: string;
+  done: string;
+  appVersionLabel: string;
 }

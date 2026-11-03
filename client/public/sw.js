@@ -1,4 +1,4 @@
-/* TalkEasy v6.3.0 — service worker
+/* TalkEasy v6.4.0 — service worker
  *
  * Two jobs:
  *   1. Offline app-shell so the installed PWA opens without a network (and never
@@ -18,7 +18,7 @@
  *     update never leaves stale assets behind.
  */
 
-const CACHE_VERSION = "v6.3.0-2";
+const CACHE_VERSION = "v6.4.0-1";
 const SHELL_CACHE = `talkeasy-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `talkeasy-runtime-${CACHE_VERSION}`;
 const CURRENT_CACHES = new Set([SHELL_CACHE, RUNTIME_CACHE]);

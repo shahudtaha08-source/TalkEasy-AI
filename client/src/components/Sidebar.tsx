@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "wouter";
 import {
   Home,
+  Activity,
   MessageCircle,
   Smile,
   CheckCircle,
@@ -53,6 +54,88 @@ const LANGUAGES: LanguageCode[] = [
   "English", "Hindi", "Urdu", "Marathi", "Tamil", 
   "Telugu", "Malayalam", "Kannada", "Bengali", "Gujarati"
 ];
+
+interface NavItem {
+  href: string;
+  label: string;
+  icon: React.ElementType;
+}
+
+interface NavCategory {
+  label: string;
+  items: NavItem[];
+}
+
+function getNavCategories(t: (key: any) => string): NavCategory[] {
+  return [
+    {
+      label: t("navDashboard"),
+      items: [
+        { href: "/dashboard", label: t("dashboard"), icon: Home },
+      ],
+    },
+    {
+      label: t("navTrackers"),
+      items: [
+        { href: "/mood-enhanced", label: t("moodTracker"), icon: Smile },
+        { href: "/sleep", label: t("navSleepTracker"), icon: Moon },
+        { href: "/water", label: t("navWaterIntake"), icon: Droplet },
+        { href: "/stress", label: t("navStressTracker"), icon: Brain },
+        { href: "/exercise", label: t("navExercise"), icon: Activity },
+        { href: "/habits", label: t("habits"), icon: CheckCircle },
+      ],
+    },
+    {
+      label: t("navWellness"),
+      items: [
+        { href: "/journal", label: t("journal"), icon: BookOpen },
+        { href: "/insights/wellness", label: t("navWellnessInsights"), icon: Brain },
+        { href: "/insights/wearable", label: t("navWearableInsights"), icon: HeartPulse },
+        { href: "/statistics", label: t("statistics"), icon: PieChart },
+        { href: "/history", label: t("emotionalHistory"), icon: History },
+      ],
+    },
+    {
+      label: t("navGrowth"),
+      items: [
+        { href: "/goals", label: t("navPersonalGoals"), icon: Target },
+        { href: "/wellness-journey", label: t("navWellnessJourney"), icon: Compass },
+        { href: "/reflections", label: t("navReflections"), icon: BookOpenCheck },
+        { href: "/wellness-plan", label: t("navWellnessPlan"), icon: FileText },
+        { href: "/safety-plan", label: t("navSafetyPlan"), icon: Shield },
+      ],
+    },
+    {
+      label: t("navInsightsGroup"),
+      items: [
+        { href: "/trends-30", label: t("navTrends30"), icon: TrendingUp },
+        { href: "/trends-90", label: t("navTrends90"), icon: TrendingUp },
+        { href: "/reports", label: t("navReports"), icon: FileText },
+        { href: "/pattern-explorer", label: t("navPatternExplorer"), icon: Sparkles },
+        { href: "/wellness-dna", label: t("navWellnessDna"), icon: LineChart },
+        { href: "/then-vs-now", label: t("navThenVsNow"), icon: Clock },
+        { href: "/why-today", label: t("navWhyToday"), icon: CalendarClock },
+        { href: "/life-timeline", label: t("navLifeTimeline"), icon: History },
+        { href: "/since-last-checkin", label: t("navSinceLastCheckin"), icon: Clock },
+        { href: "/lab", label: t("navLab"), icon: FlaskConical },
+      ],
+    },
+    {
+      label: t("navSupport"),
+      items: [
+        { href: "/chat", label: t("supportChat"), icon: MessageCircle },
+        { href: "/resources", label: t("resources"), icon: Book },
+        { href: "/help", label: t("findHelp"), icon: HeartPulse },
+      ],
+    },
+    {
+      label: t("navApp"),
+      items: [
+        { href: "/settings", label: t("settings"), icon: Settings },
+      ],
+    },
+  ];
+}
 
 interface SidebarProps {
   /** Mobile only: whether the slide-in drawer is open. */
@@ -111,40 +194,6 @@ export function Sidebar({
   const handleNavigate = useCallback(() => {
     if (mobileOpen) onCloseMobile?.();
   }, [mobileOpen, onCloseMobile]);
-
-  const navItems = [
-    { href: "/dashboard", label: t("dashboard"), icon: Home },
-    { href: "/chat", label: t("supportChat"), icon: MessageCircle },
-    { href: "/mood-enhanced", label: t("moodTracker"), icon: Smile },
-    { href: "/habits", label: t("habits"), icon: CheckCircle },
-    { href: "/sleep", label: t("navSleepTracker"), icon: Moon },
-    { href: "/water", label: t("navWaterIntake"), icon: Droplet },
-    { href: "/stress", label: t("navStressTracker"), icon: Brain },
-    { href: "/insights/wellness", label: t("navWellnessInsights"), icon: Brain },
-    { href: "/insights/wearable", label: t("navWearableInsights"), icon: HeartPulse },
-    { href: "/trends-30", label: t("navTrends30"), icon: TrendingUp },
-    { href: "/trends-90", label: t("navTrends90"), icon: TrendingUp },
-    { href: "/reports", label: t("navReports"), icon: FileText },
-    { href: "/journal", label: t("journal"), icon: BookOpen },
-    { href: "/statistics", label: t("statistics"), icon: PieChart },
-    { href: "/history", label: t("emotionalHistory"), icon: History },
-    { href: "/resources", label: t("resources"), icon: Book },
-    { href: "/goals", label: t("navPersonalGoals"), icon: Target },
-    { href: "/wellness-journey", label: t("navWellnessJourney"), icon: Compass },
-    { href: "/reflections", label: t("navReflections"), icon: BookOpenCheck },
-    { href: "/pattern-explorer", label: t("navPatternExplorer"), icon: Sparkles },
-    { href: "/wellness-plan", label: t("navWellnessPlan"), icon: FileText },
-    { href: "/safety-plan", label: t("navSafetyPlan"), icon: Shield },
-    { href: "/wellness-dna", label: t("navWellnessDna"), icon: LineChart },
-    { href: "/then-vs-now", label: t("navThenVsNow"), icon: Clock },
-    { href: "/focus-mode", label: t("navFocusMode"), icon: Zap },
-    { href: "/why-today", label: t("navWhyToday"), icon: CalendarClock },
-    { href: "/life-timeline", label: t("navLifeTimeline"), icon: History },
-    { href: "/since-last-checkin", label: t("navSinceLastCheckin"), icon: Clock },
-    { href: "/lab", label: t("navLab"), icon: FlaskConical },
-    { href: "/help", label: t("findHelp"), icon: HeartPulse },
-    { href: "/settings", label: t("settings"), icon: Settings },
-  ];
 
   const handleLogout = async () => {
     try {
@@ -276,37 +325,63 @@ export function Sidebar({
         </div>
 
         {/* Navigation Items */}
-        <nav aria-label={t("primaryNavigation")} className="flex-1 px-4 py-4 space-y-1.5 overflow-y-auto">
-          {navItems.map((item) => {
-            const isActive = location === item.href || (location.startsWith(item.href) && item.href !== '/dashboard');
-            const link = (
-              <Link
-                href={item.href}
-                onClick={handleNavigate}
-                aria-current={isActive ? "page" : undefined}
-                className={cn(
-                  "flex items-center gap-3 px-3.5 py-2.5 text-sm rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500",
-                  collapsed && "lg:justify-center lg:px-2",
-                  isActive
-                    ? 'bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-400 font-semibold'
-                    : 'text-muted-foreground hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-foreground'
-                )}
+        <nav aria-label={t("primaryNavigation")} className="flex-1 px-4 py-4 overflow-y-auto">
+          {getNavCategories(t).map((category) => (
+            <section key={category.label} className="mb-4">
+              <h3
+                className="px-3 py-2 text-[10px] font-bold tracking-wider text-muted-foreground uppercase mb-2"
               >
-                <item.icon className={cn("w-5 h-5 flex-shrink-0", isActive && 'text-teal-600 dark:text-teal-400')} aria-hidden="true" />
-                <span className={cn("truncate", collapsed && "lg:hidden")}>{item.label}</span>
-              </Link>
-            );
+                {category.label}
+              </h3>
+              <div className="space-y-1">
+                {category.items.map((item) => {
+                  const isActive =
+                    location === item.href ||
+                    (location.startsWith(item.href) && item.href !== "/dashboard");
+                  const link = (
+                    <Link
+                      href={item.href}
+                      onClick={handleNavigate}
+                      aria-current={isActive ? "page" : undefined}
+                      className={cn(
+                        "flex items-center gap-3 px-3.5 py-2.5 text-sm rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500",
+                        collapsed && "lg:justify-center lg:px-2",
+                        isActive
+                          ? "bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-400 font-semibold"
+                          : "text-muted-foreground hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-foreground",
+                      )}
+                    >
+                      <item.icon
+                        className={cn(
+                          "w-5 h-5 flex-shrink-0",
+                          isActive && "text-teal-600 dark:text-teal-400",
+                        )}
+                        aria-hidden="true"
+                      />
+                      <span
+                        className={cn(
+                          "truncate",
+                          collapsed && "lg:hidden",
+                        )}
+                      >
+                        {item.label}
+                      </span>
+                    </Link>
+                  );
 
-            if (collapsed && !isMobile) {
-              return (
-                <Tooltip key={item.href}>
-                  <TooltipTrigger asChild>{link}</TooltipTrigger>
-                  <TooltipContent side={tooltipSide}>{item.label}</TooltipContent>
-                </Tooltip>
-              );
-            }
-            return <div key={item.href}>{link}</div>;
-          })}
+                  if (collapsed && !isMobile) {
+                    return (
+                      <Tooltip key={item.href}>
+                        <TooltipTrigger asChild>{link}</TooltipTrigger>
+                        <TooltipContent side={tooltipSide}>{item.label}</TooltipContent>
+                      </Tooltip>
+                    );
+                  }
+                  return <div key={item.href}>{link}</div>;
+                })}
+              </div>
+            </section>
+          ))}
         </nav>
 
         {/* Disclaimer (informational only — dismissible, never a safety alert) */}

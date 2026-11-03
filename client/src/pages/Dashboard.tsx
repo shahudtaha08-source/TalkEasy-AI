@@ -292,7 +292,7 @@ export default function Dashboard() {
           </h3>
           <div className="grid grid-cols-2 gap-3">
             {[
-              { href: "/mood",    icon: Smile,         label: t("moodTracker"), bg: "bg-emerald-50 dark:bg-emerald-900/20", col: "text-emerald-600" },
+              { href: "/mood-enhanced",    icon: Smile,         label: t("moodTracker"), bg: "bg-emerald-50 dark:bg-emerald-900/20", col: "text-emerald-600" },
               { href: "/journal", icon: BookOpen,      label: t("journal"),     bg: "bg-purple-50 dark:bg-purple-900/20",   col: "text-purple-600" },
               { href: "/help",    icon: HeartPulse,    label: t("findHelp"),    bg: "bg-rose-50 dark:bg-rose-900/20",       col: "text-rose-600" },
               { href: "/chat",    icon: MessageCircle, label: t("supportChat"), bg: "bg-teal-50 dark:bg-teal-900/20",     col: "text-teal-600" },
