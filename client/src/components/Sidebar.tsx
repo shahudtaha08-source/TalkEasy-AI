@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation } from "wouter";
 import {
   Home,
@@ -35,13 +35,15 @@ import {
   ChevronsRight,
 } from "lucide-react";
 import { useUser } from "@/hooks/use-user";
+import { useSidebarConfig } from "@/hooks/use-sidebar-config";
 import { isDemoMode, disableDemoMode } from "@/lib/demo-data";
+import { parseSidebarConfig, isSidebarItemVisible, serializeSidebarConfig, SIDEBAR_ITEM_IDS, type SidebarConfig, type SidebarItemId } from "@shared/sidebar-config";
 import { queryClient } from "@/lib/queryClient";
 import { TalkEasyLogo } from "./TalkEasyLogo";
 import { GlobalSearch } from "./GlobalSearch";
 import { useTranslation } from "@/i18n/LanguageContext";
 import { LanguageCode } from "@/i18n/translations";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile, useIsDrawer } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
@@ -157,8 +159,12 @@ export function Sidebar({
   const [location] = useLocation();
   const { data: user } = useUser();
   const { t, language, setLanguage, isRTL } = useTranslation();
+
+  const { config: sidebarConfig } = useSidebarConfig();
   const isMobile = useIsMobile();
+  const isDrawer = useIsDrawer();
   const inDemo = isDemoMode();
+  const sidebarRef = useRef<HTMLElement>(null);
   const [disclaimerDismissed, setDisclaimerDismissed] = useState(() => isSidebarDisclaimerDismissed());
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -169,9 +175,10 @@ export function Sidebar({
     return () => window.removeEventListener(SIDEBAR_DISCLAIMER_RESET_EVENT, sync);
   }, []);
 
-  // Close the mobile drawer on Escape and move focus into it when it opens.
+  // Close the drawer on Escape and move focus into it when it opens. This is
+  // only a modal drawer below the desktop breakpoint.
   useEffect(() => {
-    if (!mobileOpen) return;
+    if (!mobileOpen || !isDrawer) return;
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         onCloseMobile?.();
@@ -183,7 +190,59 @@ export function Sidebar({
       window.removeEventListener("keydown", onKeyDown);
       window.clearTimeout(focusTimer);
     };
-  }, [mobileOpen, onCloseMobile]);
+  }, [mobileOpen, isDrawer, onCloseMobile]);
+
+  // Keep keyboard focus inside the modal drawer while it is open.
+  useEffect(() => {
+    if (!mobileOpen || !isDrawer) return;
+    const container = sidebarRef.current;
+    if (!container) return;
+
+    const getFocusable = () =>
+      Array.from(
+        container.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((element) => {
+        if (element.hasAttribute("disabled") || element.getAttribute("aria-hidden") === "true") {
+          return false;
+        }
+        return element.getClientRects().length > 0;
+      });
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Tab") return;
+
+      const focusable = getFocusable();
+      if (focusable.length === 0) {
+        event.preventDefault();
+        container.focus();
+        return;
+      }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+
+      if (event.shiftKey) {
+        if (active === first || !container.contains(active)) {
+          event.preventDefault();
+          last.focus();
+        }
+      } else if (active === last || !container.contains(active)) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    container.addEventListener("keydown", onKeyDown);
+    const focusable = getFocusable();
+    if (focusable.length === 0) container.focus();
+
+    return () => {
+      container.removeEventListener("keydown", onKeyDown);
+    };
+  }, [mobileOpen, isDrawer]);
 
   const dismissDisclaimer = () => {
     setDisclaimerDismissed(true);
@@ -205,9 +264,10 @@ export function Sidebar({
     window.location.href = "/";
   };
 
-  // A closed mobile drawer must not be reachable by keyboard/screen readers.
-  const hiddenOnMobile = isMobile && !mobileOpen;
-  const inertProps: any = hiddenOnMobile ? { inert: "" } : {};
+  // A closed drawer below the desktop breakpoint must not be reachable by
+  // keyboard or assistive technology. Desktop keeps the sidebar visible.
+  const hiddenOnDrawer = isDrawer && !mobileOpen;
+  const inertProps: any = hiddenOnDrawer ? { inert: "" } : {};
   const CollapseIcon = collapsed
     ? (isRTL ? ChevronsLeft : ChevronsRight)
     : (isRTL ? ChevronsRight : ChevronsLeft);
@@ -215,8 +275,8 @@ export function Sidebar({
 
   return (
     <>
-      {/* Backdrop (mobile only) */}
-      {mobileOpen && (
+      {/* Backdrop (drawer only) */}
+      {mobileOpen && isDrawer && (
         <div
           className="fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-sm lg:hidden"
           onClick={onCloseMobile}
@@ -225,14 +285,16 @@ export function Sidebar({
       )}
 
       <aside
+        ref={sidebarRef}
         id="app-sidebar"
+        tabIndex={-1}
         aria-label={t("primaryNavigation")}
-        role={isMobile && mobileOpen ? "dialog" : undefined}
-        aria-modal={isMobile && mobileOpen ? true : undefined}
-        aria-hidden={hiddenOnMobile || undefined}
+        role={isDrawer && mobileOpen ? "dialog" : undefined}
+        aria-modal={isDrawer && mobileOpen ? true : undefined}
+        aria-hidden={hiddenOnDrawer || undefined}
         {...inertProps}
         className={cn(
-          "fixed top-0 z-50 h-screen w-64 bg-card border-border flex flex-col shadow-lg shadow-teal-900/5",
+          "app-sidebar-safe-top fixed top-0 z-50 h-app-viewport w-64 bg-card border-border flex flex-col shadow-lg shadow-teal-900/5",
           "transition-[transform,width,visibility] duration-300 ease-out",
           isRTL ? "right-0 border-l" : "left-0 border-r",
           collapsed ? "lg:w-20" : "lg:w-64",
@@ -262,7 +324,7 @@ export function Sidebar({
             type="button"
             onClick={onCloseMobile}
             aria-label={t("closeMenu")}
-            className="lg:hidden inline-flex items-center justify-center h-9 w-9 -mr-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+            className="lg:hidden inline-flex items-center justify-center h-11 w-11 -mr-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
           >
             <X className="w-5 h-5" aria-hidden="true" />
           </button>
@@ -325,7 +387,7 @@ export function Sidebar({
         </div>
 
         {/* Navigation Items */}
-        <nav aria-label={t("primaryNavigation")} className="flex-1 px-4 py-4 overflow-y-auto">
+        <nav aria-label={t("primaryNavigation")} className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
           {getNavCategories(t).map((category) => (
             <section key={category.label} className="mb-4">
               <h3
@@ -334,7 +396,14 @@ export function Sidebar({
                 {category.label}
               </h3>
               <div className="space-y-1">
-                {category.items.map((item) => {
+                {category.items
+                  .filter((item) => isSidebarItemVisible(sidebarConfig, item.href as SidebarItemId))
+                  .sort((a, b) => {
+                    const orderA = sidebarConfig.order.indexOf(a.href as SidebarItemId);
+                    const orderB = sidebarConfig.order.indexOf(b.href as SidebarItemId);
+                    return (orderA === -1 ? 999 : orderA) - (orderB === -1 ? 999 : orderB);
+                  })
+                  .map((item) => {
                   const isActive =
                     location === item.href ||
                     (location.startsWith(item.href) && item.href !== "/dashboard");
@@ -344,7 +413,7 @@ export function Sidebar({
                       onClick={handleNavigate}
                       aria-current={isActive ? "page" : undefined}
                       className={cn(
-                        "flex items-center gap-3 px-3.5 py-2.5 text-sm rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500",
+                        "flex items-center gap-3 px-3.5 py-2.5 text-sm rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 min-h-[44px]",
                         collapsed && "lg:justify-center lg:px-2",
                         isActive
                           ? "bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-400 font-semibold"
@@ -393,7 +462,7 @@ export function Sidebar({
               onClick={dismissDisclaimer}
               aria-label={t("dismissDisclaimer")}
               title={t("dismissDisclaimer")}
-              className="flex-shrink-0 mt-0.5 p-0.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+              className="flex-shrink-0 inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
             >
               <X className="w-3.5 h-3.5" aria-hidden="true" />
             </button>
@@ -410,7 +479,7 @@ export function Sidebar({
         )}
 
         {/* User Footer & Logout */}
-        <div className="p-4 border-t border-border/50">
+        <div className="pb-safe-footer shrink-0 border-t border-border/50 px-4 pt-4">
           <div className={cn("flex items-center gap-3 px-3 py-2 mb-2", collapsed && "lg:justify-center lg:px-0")}>
             {user?.profileImageUrl ? (
               <img src={user.profileImageUrl} alt="Profile" className="w-8 h-8 rounded-full flex-shrink-0" />

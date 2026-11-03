@@ -114,6 +114,152 @@
   }
 }
 
+/* ─── v6.5.0 · Color palette overrides ─────────────────────────────────────── */
+[data-palette="blue"] {
+  --primary: 210 80% 50%;
+  --primary-foreground: 0 0% 100%;
+  --primary-border: 210 80% 50%;
+  --ring: 210 80% 50%;
+  --chart-1: 210 80% 50%;
+  --sidebar-primary: 210 80% 50%;
+  --sidebar-primary-border: 210 80% 50%;
+  --sidebar-ring: 210 80% 50%;
+  --accent: 210 70% 88%;
+  --accent-foreground: 240 9% 28%;
+  --sidebar-accent: 210 70% 88%;
+  --sidebar-accent-foreground: 240 9% 28%;
+}
+
+[data-palette="blue"].dark {
+  --primary: 210 80% 55%;
+  --primary-border: 210 80% 55%;
+  --ring: 210 80% 55%;
+  --chart-1: 210 80% 55%;
+  --sidebar-primary: 210 80% 55%;
+  --sidebar-primary-border: 210 80% 55%;
+  --sidebar-ring: 210 80% 55%;
+  --accent: 210 50% 22%;
+  --accent-foreground: 36 38% 90%;
+  --sidebar-accent: 210 50% 22%;
+  --sidebar-accent-foreground: 36 38% 90%;
+}
+
+[data-palette="green"] {
+  --primary: 140 60% 45%;
+  --primary-foreground: 0 0% 100%;
+  --primary-border: 140 60% 45%;
+  --ring: 140 60% 45%;
+  --chart-1: 140 60% 45%;
+  --sidebar-primary: 140 60% 45%;
+  --sidebar-primary-border: 140 60% 45%;
+  --sidebar-ring: 140 60% 45%;
+  --accent: 140 55% 88%;
+  --accent-foreground: 240 9% 28%;
+  --sidebar-accent: 140 55% 88%;
+  --sidebar-accent-foreground: 240 9% 28%;
+}
+
+[data-palette="green"].dark {
+  --primary: 140 60% 50%;
+  --primary-border: 140 60% 50%;
+  --ring: 140 60% 50%;
+  --chart-1: 140 60% 50%;
+  --sidebar-primary: 140 60% 50%;
+  --sidebar-primary-border: 140 60% 50%;
+  --sidebar-ring: 140 60% 50%;
+  --accent: 140 50% 20%;
+  --accent-foreground: 36 38% 90%;
+  --sidebar-accent: 140 50% 20%;
+  --sidebar-accent-foreground: 36 38% 90%;
+}
+
+[data-palette="purple"] {
+  --primary: 270 60% 55%;
+  --primary-foreground: 0 0% 100%;
+  --primary-border: 270 60% 55%;
+  --ring: 270 60% 55%;
+  --chart-1: 270 60% 55%;
+  --sidebar-primary: 270 60% 55%;
+  --sidebar-primary-border: 270 60% 55%;
+  --sidebar-ring: 270 60% 55%;
+  --accent: 270 55% 90%;
+  --accent-foreground: 240 9% 28%;
+  --sidebar-accent: 270 55% 90%;
+  --sidebar-accent-foreground: 240 9% 28%;
+}
+
+[data-palette="purple"].dark {
+  --primary: 270 60% 60%;
+  --primary-border: 270 60% 60%;
+  --ring: 270 60% 60%;
+  --chart-1: 270 60% 60%;
+  --sidebar-primary: 270 60% 60%;
+  --sidebar-primary-border: 270 60% 60%;
+  --sidebar-ring: 270 60% 60%;
+  --accent: 270 50% 25%;
+  --accent-foreground: 36 38% 90%;
+  --sidebar-accent: 270 50% 25%;
+  --sidebar-accent-foreground: 36 38% 90%;
+}
+
+[data-palette="rose"] {
+  --primary: 350 70% 55%;
+  --primary-foreground: 0 0% 100%;
+  --primary-border: 350 70% 55%;
+  --ring: 350 70% 55%;
+  --chart-1: 350 70% 55%;
+  --sidebar-primary: 350 70% 55%;
+  --sidebar-primary-border: 350 70% 55%;
+  --sidebar-ring: 350 70% 55%;
+  --accent: 350 65% 90%;
+  --accent-foreground: 240 9% 28%;
+  --sidebar-accent: 350 65% 90%;
+  --sidebar-accent-foreground: 240 9% 28%;
+}
+
+[data-palette="rose"].dark {
+  --primary: 350 70% 60%;
+  --primary-border: 350 70% 60%;
+  --ring: 350 70% 60%;
+  --chart-1: 350 70% 60%;
+  --sidebar-primary: 350 70% 60%;
+  --sidebar-primary-border: 350 70% 60%;
+  --sidebar-ring: 350 70% 60%;
+  --accent: 350 55% 25%;
+  --accent-foreground: 36 38% 90%;
+  --sidebar-accent: 350 55% 25%;
+  --sidebar-accent-foreground: 36 38% 90%;
+}
+
+[data-palette="amber"] {
+  --primary: 40 80% 50%;
+  --primary-foreground: 0 0% 100%;
+  --primary-border: 40 80% 50%;
+  --ring: 40 80% 50%;
+  --chart-1: 40 80% 50%;
+  --sidebar-primary: 40 80% 50%;
+  --sidebar-primary-border: 40 80% 50%;
+  --sidebar-ring: 40 80% 50%;
+  --accent: 40 75% 88%;
+  --accent-foreground: 240 9% 28%;
+  --sidebar-accent: 40 75% 88%;
+  --sidebar-accent-foreground: 240 9% 28%;
+}
+
+[data-palette="amber"].dark {
+  --primary: 40 80% 55%;
+  --primary-border: 40 80% 55%;
+  --ring: 40 80% 55%;
+  --chart-1: 40 80% 55%;
+  --sidebar-primary: 40 80% 55%;
+  --sidebar-primary-border: 40 80% 55%;
+  --sidebar-ring: 40 80% 55%;
+  --accent: 40 60% 22%;
+  --accent-foreground: 36 38% 90%;
+  --sidebar-accent: 40 60% 22%;
+  --sidebar-accent-foreground: 36 38% 90%;
+}
+
 @layer base {
   * {
     @apply border-border;
@@ -131,7 +277,7 @@
 /* Custom Utilities for Premium Feel */
 @layer utilities {
   .glass-card {
-    @apply bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white/20 dark:border-slate-800/50 shadow-lg shadow-teal-900/5;
+    @apply bg-card/70 dark:bg-card/70 backdrop-blur-xl border border-border/40 shadow-lg shadow-teal-900/5;
   }
   
   .text-gradient {
@@ -140,5 +286,68 @@
 
   .hover-lift {
     @apply transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-xl hover:shadow-teal-900/10;
+  }
+
+  /* ─── v6.5-D · Dynamic viewport & safe-area utilities ─────────────────── */
+  /* 100dvh tracks the visible viewport as mobile browser chrome collapses;
+     100vh is kept first as a fallback for browsers without dvh support. */
+  .h-app-viewport {
+    height: 100vh;
+    height: 100dvh;
+  }
+
+  /* Dialog height cap that leaves a 1rem breathing gap and clears notches. */
+  .max-h-app-dialog {
+    max-height: calc(100vh - 2rem);
+    max-height: calc(
+      100dvh - 2rem - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)
+    );
+  }
+
+  .bottom-safe-banner {
+    bottom: 1rem;
+    bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .pb-safe-footer {
+    padding-bottom: 1rem;
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Sticky public header (Landing): keeps controls below the status bar/notch. */
+  .app-public-safe-top {
+    padding-top: 0.75rem;
+    padding-top: calc(0.75rem + env(safe-area-inset-top, 0px));
+  }
+
+  @media (max-width: 1023.98px) {
+    .app-mobile-header {
+      height: 3.5rem;
+      height: calc(3.5rem + env(safe-area-inset-top, 0px));
+      padding-top: 0;
+      padding-top: env(safe-area-inset-top, 0px);
+    }
+
+    .app-main-safe-top {
+      padding-top: 4.5rem;
+      padding-top: calc(4.5rem + env(safe-area-inset-top, 0px));
+    }
+
+    .app-sidebar-safe-top {
+      padding-top: 0;
+      padding-top: env(safe-area-inset-top, 0px);
+    }
+  }
+
+  @media (min-width: 640px) {
+    .app-public-safe-top {
+      padding-top: 1rem;
+      padding-top: calc(1rem + env(safe-area-inset-top, 0px));
+    }
+
+    .bottom-safe-banner {
+      bottom: 1.5rem;
+      bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+    }
   }
 }

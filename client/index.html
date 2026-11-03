@@ -41,9 +41,16 @@
         document.documentElement.setAttribute("data-theme", resolved);
         if (resolved === "dark") {
           document.documentElement.classList.add("dark");
+          document.documentElement.classList.remove("theme-light");
         } else {
           document.documentElement.classList.remove("dark");
+          document.documentElement.classList.add("theme-light");
         }
+        // Apply stored palette before React renders
+        try {
+          var pal = localStorage.getItem("talkeasy_palette");
+          if (pal) document.documentElement.setAttribute("data-palette", pal);
+        } catch (e) { }
       })();
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">

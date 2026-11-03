@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { FileText, Download, Eye, Calendar, Plus, Loader2, Brain, HeartPulse, Lock } from "lucide-react";
 import { useTranslation } from "@/i18n/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
@@ -153,7 +154,7 @@ export default function ReportLibrary() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex flex-1 items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
           <p className="text-muted-foreground">Loading reports...</p>
@@ -216,7 +217,7 @@ export default function ReportLibrary() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="flex w-full flex-1 flex-col bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">Report Library</h1>
@@ -256,24 +257,26 @@ export default function ReportLibrary() {
         {renderGroup(t("reportSourceWearable"), <HeartPulse className="h-6 w-6 text-rose-600" />, wearableReports, "wearable")}
 
         {/* Report View Modal */}
-        {selectedReport && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <Card className="max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>{selectedReport.title}</CardTitle>
-                  <Button variant="ghost" size="sm" onClick={() => setSelectedReport(null)}>✕</Button>
-                </div>
-                <CardDescription>
-                  {formatDate(selectedReport.periodStart)} – {formatDate(selectedReport.periodEnd)}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
+        <Dialog
+          open={selectedReport !== null}
+          onOpenChange={(open) => {
+            if (!open) setSelectedReport(null);
+          }}
+        >
+          <DialogContent scrollable className="w-[calc(100vw-2rem)] max-w-4xl">
+            {selectedReport && (
+              <>
+                <DialogHeader className="pr-14">
+                  <DialogTitle className="text-xl">{selectedReport.title}</DialogTitle>
+                  <DialogDescription>
+                    {formatDate(selectedReport.periodStart)} – {formatDate(selectedReport.periodEnd)}
+                  </DialogDescription>
+                </DialogHeader>
                 <ReportView report={selectedReport} />
-              </CardContent>
-            </Card>
-          </div>
-        )}
+              </>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

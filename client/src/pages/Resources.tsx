@@ -1043,7 +1043,7 @@ export default function Resources() {
                   <button
                     onClick={() => toggleFav(article.id)}
                     aria-label={isFav ? "Remove from favorites" : "Add to favorites"}
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center transition ${
+                    className={`h-11 w-11 rounded-lg flex items-center justify-center transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 ${
                       isFav ? "text-yellow-500" : "text-slate-400 hover:text-yellow-500"
                     }`}
                   >

@@ -27,6 +27,38 @@ export interface ReleaseNotesEntry {
 
 export const RELEASE_NOTES: ReleaseNotesEntry[] = [
   {
+    version: "6.5.0",
+    date: "2026-11-03",
+    title: "What's New in TalkEasy 6.5?",
+    sections: [
+      {
+        title: "New Features",
+        items: [
+          "Notification and background reminder architecture with server-side scheduling.",
+          "Water, sleep, mood, stress, exercise and habit reminders with configurable intervals.",
+          "User-customizable interface with preset color palettes and layout preferences.",
+          "Cross-device synchronization of user preferences and notification settings.",
+          "Responsive design improvements for mobile, tablet, laptop and desktop.",
+        ],
+      },
+      {
+        title: "Improvements",
+        items: [
+          "Consistent responsive design tokens and spacing across all screen sizes.",
+          "Theme system enhanced with Light, Dark and System-default modes.",
+          "Dashboard widget customization with show/hide and reset-to-default.",
+        ],
+      },
+      {
+        title: "Bug Fixes",
+        items: [
+          "Fixed theme not applying correctly when OS prefers dark but user selects light.",
+          "Fixed stale version labels showing 6.3.0 on landing page.",
+        ],
+      },
+    ],
+  },
+  {
     version: "6.4.0",
     date: "2026-11-02",
     title: "What's New in TalkEasy 6.4?",

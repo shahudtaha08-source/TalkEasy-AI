@@ -1,20 +1,23 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useUser, useUpdateUser } from "@/hooks/use-user";
 import {
   Loader2, Globe, Clock, User, Phone, MapPin, Briefcase,
   DollarSign, ShieldAlert, Save, FileText, ExternalLink, Info, RotateCcw,
-  Mail, MessageSquare, Star, Sun, Moon, Monitor
+  Mail, MessageSquare, Star, Sun, Moon, Monitor, Settings as SettingsIcon
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/i18n/LanguageContext";
 import { LanguageCode } from "@/i18n/translations";
 import { isSidebarDisclaimerDismissed, restoreSidebarDisclaimer } from "@/lib/sidebar-disclaimer";
 import { useTheme } from "@/hooks/use-theme";
+import { ACCENT_PALETTES, type AccentPalette } from "@/lib/color-palettes";
 import { NotificationPreferencesCard } from "@/components/NotificationPreferences";
 import { InstallApp } from "@/components/InstallApp";
 import { SUPPORT_EMAIL, SUPPORT_MAILTO, FEEDBACK_MAILTO, REVIEW_MAILTO } from "@/lib/contact";
 import { cn } from "@/lib/utils";
 import { ReleaseNotes } from "@/components/ReleaseNotes";
+import { SidebarCustomizer } from "@/components/SidebarCustomizer";
+import { useSidebarConfig } from "@/hooks/use-sidebar-config";
 import { useReleaseNotes, APP_VERSION } from "@/hooks/use-release-notes";
 
 const LANGUAGES: LanguageCode[] = [
@@ -58,10 +61,11 @@ const selectCls = `${inputCls} cursor-pointer`;
 
 export default function Settings() {
   const { t, language, setLanguage } = useTranslation();
-  const { theme, effective, setTheme } = useTheme();
+  const { theme, effective, setTheme, palette, setPalette } = useTheme();
   const { data: user, isLoading } = useUser();
   const { mutate: updateUser, isPending } = useUpdateUser();
   const { toast } = useToast();
+  const { config: sidebarConfig, isLoading: sidebarLoading, isSaving: sidebarSaving, hasError: sidebarError, updateConfig: handleSidebarConfigChange, resetConfig: handleSidebarReset, retrySave } = useSidebarConfig();
 
   const [disclaimerDismissed, setDisclaimerDismissed] = useState(() => isSidebarDisclaimerDismissed());
 
@@ -301,6 +305,53 @@ export default function Settings() {
           <p className="text-xs text-muted-foreground">
             {t("effectiveTheme", { theme: effective })}
           </p>
+
+          {/* Color palette */}
+          <div className="space-y-2 pt-2">
+            <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Accent Color</p>
+            <div className="flex flex-wrap gap-2">
+              {ACCENT_PALETTES.map((p) => {
+                const active = palette === p.key;
+                return (
+                  <button
+                    key={p.key}
+                    type="button"
+                    onClick={() => setPalette(p.key as AccentPalette)}
+                    aria-pressed={active}
+                    aria-label={p.label}
+                    title={p.label}
+                    className={cn(
+                      "h-11 w-11 rounded-full border-2 transition-transform",
+                      active ? "border-slate-900 dark:border-white scale-110" : "border-transparent hover:scale-105",
+                    )}
+                    style={{ backgroundColor: p.color }}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* Sidebar customization */}
+        <section className="glass-card rounded-3xl p-5 sm:p-8 space-y-6">
+          <h2 className="font-bold text-base text-slate-700 dark:text-slate-300 flex items-center gap-2">
+            <SettingsIcon className="w-4 h-4 text-teal-600" /> Sidebar Navigation
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Show, hide and reorder sidebar navigation items. Essential items cannot be hidden.
+          </p>
+          <SidebarCustomizer config={sidebarConfig} onConfigChange={handleSidebarConfigChange} />
+          {sidebarError && (
+            <button
+              onClick={retrySave}
+              className="text-sm text-destructive hover:underline"
+            >
+              Retry saving sidebar settings
+            </button>
+          )}
+          {sidebarSaving && (
+            <p className="text-xs text-muted-foreground">Saving...</p>
+          )}
         </section>
 
         {/* Notifications */}

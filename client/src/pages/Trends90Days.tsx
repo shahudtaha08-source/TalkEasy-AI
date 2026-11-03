@@ -214,7 +214,7 @@ export default function Trends90Days() {
 
   if (entitlementLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex flex-1 items-center justify-center">
         <div className="text-center">
           <Activity className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
           <p className="text-muted-foreground">Loading 90-day trends...</p>
@@ -227,7 +227,7 @@ export default function Trends90Days() {
   // reveal the premium 90-day view. Access must come from the server.
   if (!entitlement || !entitlement.canAccess90Day) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-teal-50 via-slate-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center px-4">
+      <div className="flex w-full flex-1 items-center justify-center bg-gradient-to-br from-teal-50 via-slate-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 px-4">
         <Card className="max-w-lg w-full border-teal-300 dark:border-teal-800">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-teal-700 dark:text-teal-300">
@@ -249,7 +249,7 @@ export default function Trends90Days() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex flex-1 items-center justify-center">
         <div className="text-center">
           <Activity className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
           <p className="text-muted-foreground">Loading 90-day trends...</p>
@@ -259,7 +259,7 @@ export default function Trends90Days() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="flex w-full flex-1 flex-col bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">90-Day Wellness Trends</h1>

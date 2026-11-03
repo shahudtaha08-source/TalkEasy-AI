@@ -2,6 +2,7 @@ import { useMoods, useMoodEntries } from "@/hooks/use-moods";
 import { useHabits } from "@/hooks/use-habits";
 import { summarizeCheckInsByDay, groupCheckInsByDay } from "@shared/mood-checkins";
 import { useTranslation } from "@/i18n/LanguageContext";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend, Cell, AreaChart, Area } from 'recharts';
 import { format, subDays, parseISO } from "date-fns";
 import { useState, useEffect } from "react";
@@ -40,6 +41,7 @@ function parseFactors(raw: unknown): string[] {
 
 export default function Statistics() {
   const { t } = useTranslation();
+  const isNarrowChart = useIsMobile();
   const { data: moods } = useMoods();
   const { data: moodEntries } = useMoodEntries(60);
   const { data: habits } = useHabits();
@@ -230,7 +232,7 @@ export default function Statistics() {
         </div>
 
         {/* Habit Completion Chart */}
-        <div className="glass-card p-6 rounded-3xl lg:col-span-2">
+        <div className="glass-card p-4 sm:p-6 rounded-3xl lg:col-span-2">
           <h2 className="text-2xl font-bold mb-6">{t("habitCompletionChart")}</h2>
           {habitData.length === 0 ? (
             <div className="h-[300px] w-full flex flex-col items-center justify-center text-center gap-3 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700">
@@ -240,10 +242,10 @@ export default function Statistics() {
           ) : (
             <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={habitData} layout="vertical" margin={{ top: 5, right: 30, bottom: 5, left: 50 }}>
+                <BarChart data={habitData} layout="vertical" margin={isNarrowChart ? { top: 5, right: 8, bottom: 5, left: 0 } : { top: 5, right: 30, bottom: 5, left: 50 }}>
                   <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
-                  <XAxis type="number" domain={[0, 100]} unit="%" stroke="#64748b" />
-                  <YAxis dataKey="name" type="category" stroke="#64748b" tick={{fontSize: 12}} width={100} />
+                  <XAxis type="number" domain={[0, 100]} unit="%" stroke="#64748b" tick={{ fontSize: isNarrowChart ? 10 : 12 }} />
+                  <YAxis dataKey="name" type="category" stroke="#64748b" tick={{ fontSize: isNarrowChart ? 10 : 12 }} width={isNarrowChart ? 72 : 100} />
                   <Tooltip
                     cursor={{fill: 'transparent'}}
                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}

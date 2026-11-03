@@ -18,7 +18,7 @@
  *     update never leaves stale assets behind.
  */
 
-const CACHE_VERSION = "v6.4.0-1";
+const CACHE_VERSION = "v6.5.0-1";
 const SHELL_CACHE = `talkeasy-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `talkeasy-runtime-${CACHE_VERSION}`;
 const CURRENT_CACHES = new Set([SHELL_CACHE, RUNTIME_CACHE]);

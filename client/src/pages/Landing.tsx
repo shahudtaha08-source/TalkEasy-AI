@@ -187,17 +187,17 @@ export default function Landing() {
 
   return (
     <div className={`min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 ${isRTL ? "rtl" : "ltr"}`}>
-      <header className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-40 flex items-center justify-between">
-        <TalkEasyLogo size={36} />
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-            <Globe className="w-3.5 h-3.5 text-teal-600" />
-            <select value={language} onChange={(e) => setLanguage(e.target.value as LanguageCode)} className="bg-transparent outline-none cursor-pointer">
+      <header className="app-public-safe-top sticky top-0 z-40 flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 bg-white/80 px-4 pb-3 backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/80 sm:gap-3 sm:px-6 sm:pb-4">
+        <TalkEasyLogo size={32} />
+        <div className="ml-auto flex flex-wrap items-center justify-end gap-2 sm:gap-4">
+          <div className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-100 px-2 py-1.5 text-xs font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 sm:px-3">
+            <Globe className="hidden h-3.5 w-3.5 text-teal-600 sm:block" />
+            <select value={language} onChange={(e) => setLanguage(e.target.value as LanguageCode)} className="max-w-[6.75rem] cursor-pointer truncate bg-transparent outline-none sm:max-w-none">
               {LANGUAGES.map((l) => <option key={l} value={l}>{l}</option>)}
             </select>
           </div>
-          <button onClick={() => { setAuthMode("login"); setAuthModalOpen(true); }} className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-md shadow-teal-600/20 transition-all flex items-center gap-2">
-            <Lock className="w-4 h-4" /> {t("login")}
+          <button onClick={() => { setAuthMode("login"); setAuthModalOpen(true); }} aria-label={t("login")} title={t("login")} className="flex shrink-0 items-center gap-2 rounded-xl bg-teal-600 px-3 py-2 text-sm font-bold text-white shadow-md shadow-teal-600/20 transition-all hover:bg-teal-700 sm:px-4">
+            <Lock className="h-4 w-4" /> <span className="hidden sm:inline">{t("login")}</span>
           </button>
         </div>
       </header>
@@ -231,7 +231,7 @@ export default function Landing() {
       <section className="py-20 px-6 max-w-4xl mx-auto">
         <p className="text-sm font-bold tracking-widest text-teal-600 uppercase text-center mb-2">About TalkEasy AI</p>
         <h2 className="text-3xl md:text-4xl font-display font-bold text-center mb-3 text-slate-900 dark:text-white">What TalkEasy AI Is</h2>
-        <p className="text-center text-xs font-semibold text-slate-500 dark:text-slate-400 mb-8">{t("appName")} 6.3.0</p>
+        <p className="text-center text-xs font-semibold text-slate-500 dark:text-slate-400 mb-8">{t("appName")} 6.4.0</p>
         <div className="prose prose-lg max-w-none text-slate-600 dark:text-slate-300">
           <p className="text-center text-lg leading-relaxed mb-6">
             TalkEasy AI is a mental-wellness support web application designed to provide accessible emotional support and wellness tools.
@@ -301,7 +301,7 @@ export default function Landing() {
       </section>
 
       <footer className="text-center py-8 bg-slate-100 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 text-slate-500 text-sm space-y-2">
-        <p>© {new Date().getFullYear()} {t("appName")} 6.3.0 · Designed and Developed by {t("developerName")}</p>
+        <p>© {new Date().getFullYear()} {t("appName")} 6.4.0 · Designed and Developed by {t("developerName")}</p>
         <p>
           Contact:{" "}
           <a href={SUPPORT_MAILTO} className="font-semibold text-teal-600 hover:underline break-all">
@@ -315,9 +315,10 @@ export default function Landing() {
       </footer>
 
       {authModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-card w-full max-w-md rounded-3xl p-8 shadow-2xl border border-border relative animate-in fade-in zoom-in-95 duration-200">
-            <button onClick={() => setAuthModalOpen(false)} className="absolute right-6 top-6 text-muted-foreground hover:text-foreground"><X className="w-5 h-5" /></button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm">
+          <div className="relative flex max-h-full w-full max-w-md flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            <button type="button" onClick={() => setAuthModalOpen(false)} aria-label="Close" className="absolute right-2 top-2 z-10 inline-flex h-11 w-11 items-center justify-center rounded-md text-muted-foreground hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"><X className="w-5 h-5" /></button>
+            <div className="overflow-y-auto overscroll-contain p-5 sm:p-8">
             <div className="mb-6 text-center"><TalkEasyLogo size={40} className="justify-center mb-3" /><h3 className="text-2xl font-bold text-slate-900 dark:text-white">{authMode === "login" ? t("loginTitle") : t("signupTitle")}</h3></div>
             {errorMsg && <div className="mb-4 p-3 rounded-xl bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300 text-xs font-semibold text-center">{errorMsg}</div>}
             <form onSubmit={handleAuthSubmit} className="space-y-4" autoComplete={authMode === "login" ? "on" : "off"}>
@@ -330,8 +331,8 @@ export default function Landing() {
                 <>
                   <div><label className="block text-xs font-semibold mb-1">{t("emailLabel")}</label><input name="email" type="email" value={email} onChange={e => setEmail(e.target.value)} className="w-full px-3 py-3 rounded-xl border bg-background" autoComplete="email" disabled={isSubmitting} /></div>
                   <div><label className="block text-xs font-semibold mb-1">{t("usernameLabel")}</label><input name="username" value={username} onChange={e => setUsername(e.target.value)} className="w-full px-3 py-3 rounded-xl border bg-background" autoComplete="username" disabled={isSubmitting} /></div>
-                  <div className="grid grid-cols-2 gap-3"><div><label className="block text-xs font-semibold mb-1">{t("firstNameLabel")}</label><input name="firstName" value={firstName} onChange={e => setFirstName(e.target.value)} className="w-full px-3 py-3 rounded-xl border bg-background" disabled={isSubmitting} /></div><div><label className="block text-xs font-semibold mb-1">{t("lastNameLabel")}</label><input name="lastName" value={lastName} onChange={e => setLastName(e.target.value)} className="w-full px-3 py-3 rounded-xl border bg-background" disabled={isSubmitting} /></div></div>
-                  <div className="grid grid-cols-2 gap-3"><div><label className="block text-xs font-semibold mb-1">{t("ageGroupLabel")}</label><select name="ageGroup" value={ageGroup} onChange={e => setAgeGroup(e.target.value)} className="w-full px-3 py-3 rounded-xl border bg-background" disabled={isSubmitting}>{AGE_GROUPS.map(g => <option key={g} value={g}>{g}</option>)}</select></div><div><label className="block text-xs font-semibold mb-1">{t("preferredLanguageLabel")}</label><select name="preferredLanguage" value={preferredLang} onChange={e => setPreferredLang(e.target.value as LanguageCode)} className="w-full px-3 py-3 rounded-xl border bg-background" disabled={isSubmitting}>{LANGUAGES.map(l => <option key={l} value={l}>{l}</option>)}</select></div></div>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2"><div><label className="block text-xs font-semibold mb-1">{t("firstNameLabel")}</label><input name="firstName" value={firstName} onChange={e => setFirstName(e.target.value)} className="w-full px-3 py-3 rounded-xl border bg-background" disabled={isSubmitting} /></div><div><label className="block text-xs font-semibold mb-1">{t("lastNameLabel")}</label><input name="lastName" value={lastName} onChange={e => setLastName(e.target.value)} className="w-full px-3 py-3 rounded-xl border bg-background" disabled={isSubmitting} /></div></div>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2"><div><label className="block text-xs font-semibold mb-1">{t("ageGroupLabel")}</label><select name="ageGroup" value={ageGroup} onChange={e => setAgeGroup(e.target.value)} className="w-full px-3 py-3 rounded-xl border bg-background" disabled={isSubmitting}>{AGE_GROUPS.map(g => <option key={g} value={g}>{g}</option>)}</select></div><div><label className="block text-xs font-semibold mb-1">{t("preferredLanguageLabel")}</label><select name="preferredLanguage" value={preferredLang} onChange={e => setPreferredLang(e.target.value as LanguageCode)} className="w-full px-3 py-3 rounded-xl border bg-background" disabled={isSubmitting}>{LANGUAGES.map(l => <option key={l} value={l}>{l}</option>)}</select></div></div>
                   <div><label className="block text-xs font-semibold mb-1">{t("passwordLabel")}</label><div className="relative"><input name="password" type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} className="w-full px-3 pr-10 py-3 rounded-xl border bg-background" autoComplete="new-password" disabled={isSubmitting} /><button type="button" onClick={() => setShowPassword((v) => !v)} aria-label={showPassword ? t("hidePassword") : t("showPassword")} aria-pressed={showPassword} title={showPassword ? t("hidePassword") : t("showPassword")} className="absolute right-3 top-3.5 text-muted-foreground hover:text-foreground rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500" disabled={isSubmitting}>{showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</button></div></div>
                 </>
               )}
@@ -349,6 +350,7 @@ export default function Landing() {
               </div>
             )}
             <button type="button" onClick={() => { setAuthMode(authMode === "login" ? "signup" : "login"); setErrorMsg(""); }} className="w-full mt-4 text-sm font-semibold text-teal-600 hover:text-teal-700">{authMode === "login" ? t("noAccountText") : t("alreadyHaveAccountText")}</button>
+            </div>
           </div>
         </div>
       )}

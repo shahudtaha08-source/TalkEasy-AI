@@ -169,18 +169,18 @@ export default function HabitTracker() {
             )}
           </div>
 
-          <form onSubmit={handleAddHabit} className="flex gap-2">
+          <form onSubmit={handleAddHabit} className="flex flex-col gap-2 sm:flex-row">
             <input
               type="text"
               value={newHabit}
               onChange={e => setNewHabit(e.target.value)}
               placeholder={t("customHabitPlaceholder")}
-              className="flex-1 px-6 py-4 rounded-2xl border-2 border-border bg-card focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 outline-none text-lg"
+              className="min-w-0 flex-1 rounded-2xl border-2 border-border bg-card px-4 py-3.5 text-base outline-none focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 sm:px-6 sm:py-4 sm:text-lg"
             />
             <button
               type="submit"
               disabled={!newHabit.trim() || isCreating}
-              className="px-6 rounded-2xl bg-teal-600 text-white hover:bg-teal-700 transition-colors disabled:opacity-50 font-bold flex items-center gap-2"
+              className="flex min-h-[48px] shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-teal-600 px-5 py-3 font-bold text-white transition-colors hover:bg-teal-700 disabled:opacity-50 sm:px-6 sm:py-0"
             >
               <Plus className="w-5 h-5" /> {t("addHabit")}
             </button>

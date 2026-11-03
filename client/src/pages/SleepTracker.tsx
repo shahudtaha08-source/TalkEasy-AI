@@ -214,18 +214,18 @@ export default function SleepTracker() {
 
             <div className="space-y-2">
               {trendData.map((day, index) => (
-                <div key={index} className="flex items-center gap-4 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50">
-                  <div className="w-16 text-sm font-medium text-slate-600 dark:text-slate-300">{day.date}</div>
-                  <div className="flex-1 flex items-center gap-2">
-                    <div className="flex-1 bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
-                      <div 
-                        className="bg-indigo-500 h-full transition-all"
-                        style={{ width: `${Math.min((day.total / 12) * 100, 100)}%` }}
-                      />
-                    </div>
-                    <span className="text-sm font-medium text-slate-700 dark:text-slate-200 w-16 text-right">
+                <div key={index} className="flex flex-col gap-2 rounded-xl bg-slate-50 p-3 dark:bg-slate-800/50 sm:flex-row sm:items-center sm:gap-4">
+                  <div className="flex items-center justify-between gap-3 sm:contents">
+                    <div className="w-16 text-sm font-medium text-slate-600 dark:text-slate-300">{day.date}</div>
+                    <span className="text-sm font-medium text-slate-700 dark:text-slate-200 sm:w-16 sm:text-right">
                       {day.total > 0 ? `${day.total}h` : '-'}
                     </span>
+                  </div>
+                  <div className="flex-1 min-w-0 bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+                    <div 
+                      className="bg-indigo-500 h-full transition-all"
+                      style={{ width: `${Math.min((day.total / 12) * 100, 100)}%` }}
+                    />
                   </div>
                   <div className="text-xs text-muted-foreground">
                     {day.nightSleep > 0 && `${day.nightSleep}h night`}

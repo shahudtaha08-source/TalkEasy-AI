@@ -1,6 +1,7 @@
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { Sidebar } from "./Sidebar";
 import { useUser } from "@/hooks/use-user";
+import { useIsDrawer } from "@/hooks/use-mobile";
 import { Loader2, Menu } from "lucide-react";
 import { useTranslation } from "@/i18n/LanguageContext";
 import { TalkEasyLogo } from "./TalkEasyLogo";
@@ -22,6 +23,10 @@ export function Layout({ children }: { children: ReactNode }) {
     }
   });
   const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const mainRef = useRef<HTMLElement>(null);
+  const isDrawer = useIsDrawer();
+  const drawerOpen = mobileNavOpen && isDrawer;
+  const backgroundInertProps: any = drawerOpen ? { inert: "" } : {};
 
   useEffect(() => {
     try {
@@ -36,6 +41,15 @@ export function Layout({ children }: { children: ReactNode }) {
     // Return focus to the control that opened the drawer.
     requestAnimationFrame(() => menuButtonRef.current?.focus());
   }, []);
+
+  // If the viewport grows into the desktop range while the drawer is open,
+  // drop the modal state so the sidebar becomes an ordinary landmark again.
+  useEffect(() => {
+    if (!isDrawer && mobileNavOpen) {
+      setMobileNavOpen(false);
+      requestAnimationFrame(() => mainRef.current?.focus());
+    }
+  }, [isDrawer, mobileNavOpen]);
 
   // Age-adaptive UX
   const getAgeGroupSettings = () => {
@@ -66,7 +80,7 @@ export function Layout({ children }: { children: ReactNode }) {
     : (isRTL ? "lg:mr-64" : "lg:ml-64");
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="h-app-viewport flex flex-col overflow-hidden bg-background text-foreground">
       <Sidebar
         mobileOpen={mobileNavOpen}
         onCloseMobile={closeMobileNav}
@@ -75,7 +89,11 @@ export function Layout({ children }: { children: ReactNode }) {
       />
 
       {/* Mobile top bar */}
-      <header className="lg:hidden fixed top-0 inset-x-0 z-30 h-14 flex items-center gap-2 px-3 bg-card/95 backdrop-blur border-b border-border/60">
+      <header
+        {...backgroundInertProps}
+        aria-hidden={drawerOpen ? true : undefined}
+        className="app-mobile-header lg:hidden fixed inset-x-0 top-0 z-30 flex h-14 items-center gap-2 border-b border-border/60 bg-card/95 px-3 backdrop-blur"
+      >
         <button
           ref={menuButtonRef}
           type="button"
@@ -83,7 +101,7 @@ export function Layout({ children }: { children: ReactNode }) {
           aria-label={t("openMenu")}
           aria-expanded={mobileNavOpen}
           aria-controls="app-sidebar"
-          className="inline-flex items-center justify-center h-10 w-10 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+          className="inline-flex items-center justify-center h-11 w-11 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
         >
           <Menu className="w-6 h-6" aria-hidden="true" />
         </button>
@@ -91,18 +109,24 @@ export function Layout({ children }: { children: ReactNode }) {
       </header>
 
       <main
+        ref={mainRef}
+        tabIndex={-1}
+        {...backgroundInertProps}
+        aria-hidden={drawerOpen ? true : undefined}
         className={cn(
-          "p-4 pb-10 pt-[4.5rem] sm:px-6 lg:px-8 lg:pb-8 lg:pt-8",
-          "h-screen overflow-y-auto overflow-x-hidden transition-[margin] duration-300",
+          "app-main-safe-top px-4 pb-10 sm:px-6 lg:px-8 lg:pb-8 lg:pt-8",
+          "flex-1 min-h-0 overflow-y-auto overflow-x-hidden transition-[margin] duration-300",
           railOffset,
           ageSettings.fontSize,
         )}
       >
-        <div className="max-w-6xl mx-auto">
+        <div className="mx-auto flex min-h-full w-full max-w-6xl flex-col">
           {children}
         </div>
       </main>
-      <ReleaseNotes />
+      <div {...backgroundInertProps} aria-hidden={drawerOpen ? true : undefined}>
+        <ReleaseNotes />
+      </div>
     </div>
   );
 }

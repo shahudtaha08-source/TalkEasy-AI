@@ -161,8 +161,8 @@ export default function WaterIntake() {
 
           {/* Custom amount */}
           {showCustom ? (
-            <div className="mt-3 flex gap-2">
-              <div className="relative flex-1">
+            <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+              <div className="relative min-w-0 flex-1">
                 <input
                   type="number"
                   value={customMl}
@@ -170,7 +170,7 @@ export default function WaterIntake() {
                   placeholder="Amount in ml"
                   min={1}
                   max={5000}
-                  className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-card focus:border-sky-500 outline-none text-sm"
+                  className="w-full px-4 py-3 pr-12 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-card focus:border-sky-500 outline-none text-sm min-h-[44px]"
                   onKeyDown={(e) => e.key === "Enter" && handleCustomAdd()}
                   autoFocus
                 />
@@ -179,13 +179,13 @@ export default function WaterIntake() {
               <button
                 onClick={handleCustomAdd}
                 disabled={isPending}
-                className="px-5 py-3 rounded-xl bg-sky-600 text-white font-bold hover:bg-sky-700 disabled:opacity-50 transition-colors"
+                className="w-full sm:w-auto px-5 py-3 rounded-xl bg-sky-600 text-white font-bold hover:bg-sky-700 disabled:opacity-50 transition-colors min-h-[44px]"
               >
                 {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Add"}
               </button>
               <button
                 onClick={() => { setShowCustom(false); setCustomMl(""); }}
-                className="px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-700 text-muted-foreground hover:text-foreground transition-colors"
+                className="w-full sm:w-auto px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-700 text-muted-foreground hover:text-foreground transition-colors min-h-[44px]"
               >
                 Cancel
               </button>

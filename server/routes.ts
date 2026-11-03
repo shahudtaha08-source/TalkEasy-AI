@@ -4,7 +4,8 @@ import { storage } from "./storage";
 import { setupLocalAuth, isAuthenticated } from "./auth";
 import { api } from "@shared/routes";
 import { db } from "./db";
-import { moods, conversations, messages, users, journals, sleepEntries, moodEntries, waterEntries, stressEntries, healthDailyRecords, reports } from "@shared/schema";
+import { moods, conversations, messages, users, journals, sleepEntries, moodEntries, waterEntries, stressEntries, healthDailyRecords, reports, userPreferences } from "@shared/schema";
+import { userPreferenceUpdateSchema } from "@shared/user-preferences";
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { getAIService, SAFETY_SYSTEM_PROMPT, STANDARD_SYSTEM_PROMPT } from "./ai-service";
 import { SafetyDetector, SafetyEventLogger } from "./safety-detection";
@@ -23,6 +24,67 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
       const input = api.user.update.input.parse(req.body);
       res.json(await storage.updateUser(req.user.claims.sub, input));
     } catch { res.status(400).json({ message: "Failed to update user" }); }
+  });
+
+  // ─── v6.5.0 · USER PREFERENCES (cross-device UI/theme sync) ──────────────
+  app.get("/api/user-preferences", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const [prefs] = await db.select().from(userPreferences).where(eq(userPreferences.userId, userId));
+      if (!prefs) {
+        // Return safe defaults for new users
+        return res.json({
+          theme: "system",
+          accentPalette: "teal",
+          accentColor: null,
+          backgroundColor: null,
+          surfaceColor: null,
+          dashboardLayout: "{}",
+          sidebarConfig: "{}",
+          homeShortcuts: "{}",
+        });
+      }
+      res.json(prefs);
+    } catch (error) {
+      console.error("User preferences fetch error:", error);
+      res.status(500).json({ message: "Failed to load user preferences" });
+    }
+  });
+
+  app.put("/api/user-preferences", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const parsed = userPreferenceUpdateSchema.safeParse(req.body || {});
+      if (!parsed.success) {
+        return res.status(400).json({ message: "Invalid preference data", errors: parsed.error.flatten() });
+      }
+      const body = parsed.data;
+      const [existing] = await db.select().from(userPreferences).where(eq(userPreferences.userId, userId));
+
+      const payload = {
+        userId,
+        theme: body.theme ?? existing?.theme ?? "system",
+        accentPalette: body.accentPalette ?? existing?.accentPalette ?? "teal",
+        accentColor: body.accentColor === undefined ? existing?.accentColor ?? null : body.accentColor,
+        backgroundColor: body.backgroundColor === undefined ? existing?.backgroundColor ?? null : body.backgroundColor,
+        surfaceColor: body.surfaceColor === undefined ? existing?.surfaceColor ?? null : body.surfaceColor,
+        dashboardLayout: body.dashboardLayout ?? existing?.dashboardLayout ?? "{}",
+        sidebarConfig: body.sidebarConfig ?? existing?.sidebarConfig ?? "{}",
+        homeShortcuts: body.homeShortcuts ?? existing?.homeShortcuts ?? "{}",
+        updatedAt: new Date(),
+      };
+
+      if (existing) {
+        await db.update(userPreferences).set(payload).where(eq(userPreferences.userId, userId));
+      } else {
+        await db.insert(userPreferences).values(payload);
+      }
+      const [updated] = await db.select().from(userPreferences).where(eq(userPreferences.userId, userId));
+      res.json(updated);
+    } catch (error) {
+      console.error("User preferences save error:", error);
+      res.status(400).json({ message: "Failed to save user preferences" });
+    }
   });
 
   app.get(api.moods.list.path, isAuthenticated, async (req: any, res) => res.json(await storage.getMoods(req.user.claims.sub)));

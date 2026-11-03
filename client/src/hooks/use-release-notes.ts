@@ -15,7 +15,7 @@ const ACKNOWLEDGED_KEY = "talkeasy_acknowledged_versions";
  * Current TalkEasy application version. Keep in sync with package.json and
  * the service worker cache version when releasing.
  */
-export const APP_VERSION = "6.4.0";
+export const APP_VERSION = "6.5.0";
 
 function readAcknowledged(): string[] {
   if (typeof window === "undefined") return [];

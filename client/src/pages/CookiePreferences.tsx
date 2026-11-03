@@ -29,7 +29,7 @@ export default function CookiePreferences() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="flex w-full flex-1 flex-col bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">Cookie Preferences</h1>
@@ -145,11 +145,11 @@ export default function CookiePreferences() {
             </CardContent>
           </Card>
 
-          <div className="flex gap-4">
-            <Button onClick={handleSave} className="flex-1">
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Button onClick={handleSave} className="w-full sm:flex-1">
               {saved ? "Saved!" : <><Save className="h-4 w-4 mr-2" /> Save Preferences</>}
             </Button>
-            <Button onClick={handleReset} variant="outline">
+            <Button onClick={handleReset} variant="outline" className="w-full sm:w-auto">
               <RefreshCw className="h-4 w-4 mr-2" />
               Reset to Defaults
             </Button>

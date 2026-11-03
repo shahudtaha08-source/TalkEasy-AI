@@ -306,26 +306,26 @@ export default function FindHelp() {
 
       {/* Location Selector — India */}
       <div className="glass-card rounded-2xl p-6 space-y-4">
-        <div className="flex justify-between items-center flex-wrap gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="font-bold text-base flex items-center gap-2">
             <MapPin className="w-4 h-4 text-teal-600" /> {t("findSupportNearYou")}
             <span className="ml-1 text-xs font-normal text-muted-foreground bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">{t("indiaLabel")}</span>
           </h2>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <button
               onClick={handleUseLocation}
               disabled={locStatus === "loading"}
-              className="flex items-center gap-2 text-sm font-medium px-3 py-1.5 rounded-full border border-teal-600 text-teal-700 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/20 transition disabled:opacity-60"
+              className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full border border-teal-600 px-3 py-1.5 text-sm font-medium text-teal-700 transition hover:bg-teal-50 disabled:opacity-60 dark:text-teal-400 dark:hover:bg-teal-900/20 sm:w-auto"
             >
               <MapPin className="w-4 h-4" />
               {locStatus === "loading" ? t("detectingLocation") : t("useMyLocation")}
             </button>
             <button
               onClick={() => setShowFilters((f) => !f)}
-              className={`flex items-center gap-2 text-sm font-medium px-3 py-1.5 rounded-full border transition ${
+              className={`flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium transition sm:w-auto ${
                 showFilters || hasActiveFilters
-                  ? "bg-teal-600 text-white border-teal-600"
-                  : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300"
+                  ? "border-teal-600 bg-teal-600 text-white"
+                  : "border-slate-200 bg-white text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
               }`}
             >
               <Filter className="w-4 h-4" />

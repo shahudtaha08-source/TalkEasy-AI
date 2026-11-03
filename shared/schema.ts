@@ -480,3 +480,30 @@ export type WorkoutSession = typeof workoutSessions.$inferSelect;
 export type InsertWorkoutSession = z.infer<typeof insertWorkoutSessionSchema>;
 export type MoodReminderState = typeof moodReminderState.$inferSelect;
 export type InsertMoodReminderState = z.infer<typeof insertMoodReminderStateSchema>;
+
+// ─── v6.5.0 · USER PREFERENCES (cross-device UI & theme sync) ─────────────
+/**
+ * Per-user UI preferences: theme, accent color palette, dashboard layout,
+ * sidebar visibility/ordering, and home shortcut visibility.
+ * Stored server-side so preferences follow the user across devices.
+ * All fields are nullable/optional with safe defaults applied client-side.
+ */
+export const userPreferences = pgTable("user_preferences", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().unique().references(() => users.id),
+  theme: text("theme").default("system"), // light | dark | system
+  accentPalette: text("accent_palette").default("teal"), // teal | blue | green | purple | rose | amber
+  accentColor: text("accent_color"), // custom hex override (nullable)
+  backgroundColor: text("background_color"), // custom hex override (nullable)
+  surfaceColor: text("surface_color"), // custom hex override (nullable)
+  dashboardLayout: text("dashboard_layout").default("{}"), // JSON: widget order + visibility
+  sidebarConfig: text("sidebar_config").default("{}"), // JSON: visible items + order
+  homeShortcuts: text("home_shortcuts").default("{}"), // JSON: visible shortcuts
+  updatedAt: timestamp("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+}, (table) => [index("IDX_user_preferences_user").on(table.userId)]);
+
+export const insertUserPreferenceSchema = createInsertSchema(userPreferences).omit({ id: true, createdAt: true, updatedAt: true, userId: true });
+
+export type UserPreference = typeof userPreferences.$inferSelect;
+export type InsertUserPreference = z.infer<typeof insertUserPreferenceSchema>;

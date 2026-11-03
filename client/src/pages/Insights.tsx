@@ -43,7 +43,7 @@ export default function Insights({ source }: { source: InsightSource }) {
   const bundle = data?.kind === "ok" ? data.bundle : null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-slate-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="flex w-full flex-1 flex-col bg-gradient-to-br from-teal-50 via-slate-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="container mx-auto px-4 py-8 max-w-5xl">
         {/* Header */}
         <div className="mb-6">

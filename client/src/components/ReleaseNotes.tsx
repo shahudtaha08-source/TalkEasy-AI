@@ -25,6 +25,8 @@ import { Button } from "@/components/ui/button";
 import { useReleaseNotes } from "@/hooks/use-release-notes";
 import { RELEASE_NOTES, type ReleaseNotesEntry } from "@/lib/release-notes";
 import { useTranslation } from "@/i18n/LanguageContext";
+import { useLocation } from "wouter";
+import { useIsDrawer } from "@/hooks/use-mobile";
 import { Rocket, Trophy } from "lucide-react";
 
 interface ReleaseNotesProps {
@@ -34,6 +36,8 @@ interface ReleaseNotesProps {
 
 export function ReleaseNotes({ full = false }: ReleaseNotesProps) {
   const { t } = useTranslation();
+  const [location] = useLocation();
+  const isDrawerViewport = useIsDrawer();
   const {
     shouldShowAnnouncement,
     acknowledge,
@@ -41,8 +45,14 @@ export function ReleaseNotes({ full = false }: ReleaseNotesProps) {
   } = useReleaseNotes();
   const [dialogOpen, setDialogOpen] = React.useState(false);
 
+  // On narrow chat screens the fixed banner would cover the composer and
+  // reduce the already small message area, so suppress it there. Desktop keeps
+  // the existing fixed banner.
+  const suppressMobileChatBanner = !full && location === "/chat" && isDrawerViewport;
+
   // Banner: only render when there is something to announce.
   if (!full && !shouldShowAnnouncement && !dialogOpen) return null;
+  if (suppressMobileChatBanner && !dialogOpen) return null;
 
   const openDialog = () => setDialogOpen(true);
 
@@ -50,22 +60,24 @@ export function ReleaseNotes({ full = false }: ReleaseNotesProps) {
     <div>
       {/* Non-blocking announcement banner (shown once per new release). */}
       {!full && shouldShowAnnouncement && latest && (
-        <div className="fixed bottom-4 left-4 right-4 sm:bottom-6 sm:left-auto sm:right-6 sm:w-80 lg:w-96 z-50">
-          <div className="bg-card border border-background rounded-2xl p-4 shadow-lg shadow-teal-900/10 flex items-start gap-3 animate-in fade-in slide-in-from-bottom-2 duration-500">
-            <Rocket className="w-5 h-5 text-teal-600 flex-shrink-0 mt-0.5" />
-            <div className="flex-1">
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                {t("whatsNewTitle", { version: latest.version })}
-              </h3>
-              <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                {t("whatsNewDesc")}
-              </p>
+        <div className="bottom-safe-banner fixed left-4 right-4 z-50 sm:left-auto sm:right-6 sm:w-80 lg:w-96">
+          <div className="bg-card border border-background rounded-2xl p-4 shadow-lg shadow-teal-900/10 flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-2 duration-500 sm:flex-row sm:items-start">
+            <div className="flex items-start gap-3">
+              <Rocket className="w-5 h-5 text-teal-600 flex-shrink-0 mt-0.5" />
+              <div className="min-w-0 flex-1">
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                  {t("whatsNewTitle", { version: latest.version })}
+                </h3>
+                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                  {t("whatsNewDesc")}
+                </p>
+              </div>
             </div>
-            <div className="flex items-end gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-end">
               <Button
                 size="sm"
                 onClick={() => acknowledge(latest.version)}
-                className="text-xs py-1.5 px-3"
+                className="text-xs py-1.5 px-3 w-full sm:w-auto min-h-[44px]"
               >
                 {t("dismiss")}
               </Button>
@@ -73,7 +85,7 @@ export function ReleaseNotes({ full = false }: ReleaseNotesProps) {
                 size="sm"
                 variant="outline"
                 onClick={openDialog}
-                className="text-xs py-1.5 px-3"
+                className="text-xs py-1.5 px-3 w-full sm:w-auto min-h-[44px]"
               >
                 {t("viewNotes")}
               </Button>
